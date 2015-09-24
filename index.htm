@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HTML5 Genetic Algorithm Biped Walkers</title>
+    <link rel="stylesheet" href="css/walkers.css" type="text/css" />
+    <script src="js/jsbox2d.js"></script>
+    <script src="js/walker.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/floor.js"></script>
+    <script src="js/draw.js"></script>
+    <script src="js/interface.js"></script>
+    <script>
+
+      function init() {
+        gameInit();
+      }
+
+      window.addEventListener("load", init, false);
+
+    </script>
+
+  </head>
+  <body>
+    <div id="main_holder">
+      <h1>Genetic Algorithm Walkers</h1>
+      <h3 id="page_quote">"It's like watching other people QWOP"</h3>
+      <canvas id="main_screen" width="800" height="350"></canvas>
+      <div id="generation_timer"><div id="generation_timer_bar">&nbsp;</div></div>
+
+      <div id="info">
+
+        <div>
+          <h2>Current Generation (<span id="gen_number">0</span>)</h2>
+          <table class="name_list_table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="name_list">
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h2>Record History</h2>
+          <table class="name_list_table">
+            <thead>
+              <tr>
+                <th>Gen</th>
+                <th>Name</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="champ_list">
+            </tbody>
+          </table>
+        </div>
+
+        <div id="controls">
+          <h2>Controls</h2>
+          Gene mutation probability
+          <select id="mutation_chance">
+            <option value="0">0%</option>
+            <option value="0.01">1%</option>
+            <option value="0.05">5%</option>
+            <option value="0.1">10%</option>
+            <option value="0.25">25%</option>
+            <option value="0.5">50%</option>
+            <option value="0.75">75%</option>
+            <option value="1">100%</option>
+          </select><br />
+          Gene mutation amount
+          <select id="mutation_amount">
+            <option value="0">0%</option>
+            <option value="0.01">1%</option>
+            <option value="0.05">5%</option>
+            <option value="0.1">10%</option>
+            <option value="0.25">25%</option>
+            <option value="0.5">50%</option>
+            <option value="0.75">75%</option>
+            <option value="1">100%</option>
+          </select><br />
+          Champions to copy
+          <select id="elite_clones"></select><br />
+          Motor noise
+          <select id="motor_noise">
+            <option value="0">0%</option>
+            <option value="0.01">1%</option>
+            <option value="0.02">2%</option>
+            <option value="0.03">3%</option>
+            <option value="0.04">4%</option>
+            <option value="0.05">5%</option>
+            <option value="0.1">10%</option>
+          </select><br />
+          Round length
+          <select id="round_length">
+            <option value="300">Very short</option>
+            <option value="600">Short</option>
+            <option value="1200">Regular</option>
+            <option value="1800">Long</option>
+            <option value="2400">Looooong</option>
+          </select><br />
+          Animation quality
+          <select id="draw_fps">
+            <option value="0">none</option>
+            <option value="10">10 fps</option>
+            <option value="30">30 fps</option>
+            <option value="60">60 fps</option>
+          </select><br />
+          Simulation speed
+          <select id="simulation_fps">
+            <option value="0">Pause</option>
+            <option value="30">30</option>
+            <option value="60">60</option>
+            <option value="120">120</option>
+            <option value="1000">1000</option>
+          </select><br />
+          <br />
+          Lower the animation quality and simulation speed to save some CPU.<br /><br />
+          Zero frames per second and high simulation speed will give you the fastest results, but processor usage will go up as well.
+        </div>
+
+    </div>
+  </body>
+</html>
