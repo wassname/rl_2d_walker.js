@@ -150,3 +150,48 @@ populationSimulationStep = function() {
   }
   
 }
+
+
+function saveAs(dv, name) {
+  var a;
+  if (typeof window.downloadAnchor == 'undefined') {
+      a = window.downloadAnchor = document.createElement("a");
+      a.style = "display: none";
+      document.body.appendChild(a);
+  } else {
+      a = window.downloadAnchor
+  }
+
+  var blob = new Blob([dv], { type: 'application/octet-binary' }),
+      tmpURL = window.URL.createObjectURL(blob);
+
+  a.href = tmpURL;
+  a.download = name;
+  a.click();
+
+  window.URL.revokeObjectURL(tmpURL);
+  a.href = "";
+}
+
+downloadBrain = function (n) {
+  var buf = globals.agents[n].brain.export()
+	saveAs(new DataView(buf), 'brain.bin')
+};
+
+
+readBrain = function (buf) {
+  var input = event.target;
+  var reader = new FileReader();
+  reader.onload = function(){
+      var buffer = reader.result
+      var imported = window.neurojs.NetOnDisk.readMultiPart(buffer)
+
+      for (var i = 0; i <  globals.agents.length; i++) {
+          globals.agents[i].brain.algorithm.actor.set(imported.actor.clone())
+          globals.agents[i].brain.algorithm.critic.set(imported.critic)
+          // window.gcd.world.agents[i].car.brain.learning = false
+      }
+  };
+
+  reader.readAsArrayBuffer(input.files[0]);
+};

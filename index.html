@@ -30,6 +30,13 @@
 
       <div id="info"></div>
 
+		<div class="row">
+			<button onclick="window.downloadBrain(0);">Save agent</button>
+			<button onclick="document.getElementById('brainFile').click();">Open brain file</button>
+		</div>
+
+		<input id="brainFile" type='file' accept='*/*' onchange='window.readBrain(event)' style="display: none">
+
     </div>
   </body>
 </html>
