@@ -35,6 +35,7 @@ gameInit = function() {
       actor: new window.neurojs.Network.Model([
           { type: 'input', size: input },
           { type: 'fc', size: 60, activation: 'relu' },
+          { type: 'fc', size: 40, activation: 'relu' },
           { type: 'fc', size: 40, activation: 'relu', dropout: 0.30 },
           { type: 'fc', size: actions, activation: 'tanh' },
           { type: 'regression' }
@@ -70,7 +71,7 @@ gameInit = function() {
   globals.step_counter = 0;
   globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
   globals.draw_interval = setInterval(drawFrame, Math.round(1000 / config.draw_fps));
-  globals.draw_interval = setInterval(resetSimulation, Math.round(1000 * 1000 / config.draw_fps));
+  globals.draw_interval = setInterval(resetSimulation, Math.round(8000 * 1000 / config.draw_fps));
 }
 
 resetSimulation = function () { 
