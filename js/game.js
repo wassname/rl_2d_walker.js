@@ -174,8 +174,9 @@ function saveAs(dv, name) {
 }
 
 downloadBrain = function (n) {
+  var ts = (new Date()).toISOString().replace(':','_')
   var buf = globals.agents[n].brain.export()
-	saveAs(new DataView(buf), 'brain.bin')
+	saveAs(new DataView(buf), 'walker_brain'+ts+'.bin')
 };
 
 
@@ -194,4 +195,13 @@ readBrain = function (buf) {
   };
 
   reader.readAsArrayBuffer(input.files[0]);
+};
+
+
+updateIfLearning = function (value) {
+  for (var i = 0; i <  globals.world.agents.length; i++) {
+    globals.world.agents[i].brain.learning = value
+  }
+
+  globals.world.plotRewardOnly = !value
 };

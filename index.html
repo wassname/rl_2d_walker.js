@@ -23,8 +23,8 @@
   </head>
   <body>
     <div id="main_holder">
-      <h1>Genetic Algorithm Walkers</h1>
-      <h3 id="page_quote">"It's like watching other people QWOP"</h3>
+      <h1>Reinforcement Learning 2D Humanoid Walkers</h1>
+      <h3 id="page_quote">"It's like watching robots breakdance"</h3>
       <canvas id="main_screen" width="800" height="350"></canvas>
       <div id="generation_timer"><div id="generation_timer_bar">&nbsp;</div></div>
 
@@ -36,6 +36,8 @@
 		</div>
 
 		<input id="brainFile" type='file' accept='*/*' onchange='window.readBrain(event)' style="display: none">
+
+    <div style="margin-top: 20px"><input type="checkbox" onclick="window.updateIfLearning(this.checked);" checked>Learning</div>
 
     </div>
   </body>
