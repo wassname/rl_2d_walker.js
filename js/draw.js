@@ -51,18 +51,10 @@ drawFloor = function() {
   globals.ctx.stroke();
 }
 
-drawWalker = function(walker) {
-  if(walker.is_elite) {
-    //globals.ctx.strokeStyle = "hsl(22,"+100*walker.health/config.walker_health+"%,35%)";
-//     globals.ctx.fillStyle = "hsl(20,"+45*walker.health/config.walker_health+"%,85%)";
-    globals.ctx.strokeStyle = "hsl(22,100%,"+(90-55*walker.health/config.walker_health)+"%)";
-    globals.ctx.fillStyle = "hsl(20,45%,"+(100-15*walker.health/config.walker_health)+"%)";
-  } else {
-    //globals.ctx.strokeStyle = "hsl(240,"+100*walker.health/config.walker_health+"%,41%)";
-//     globals.ctx.fillStyle = "hsl(240,"+17*walker.health/config.walker_health+"%,85%)";
-    globals.ctx.strokeStyle = "hsl(240,100%,"+(90-49*walker.health/config.walker_health)+"%)";
-    globals.ctx.fillStyle = "hsl(240,45%,"+(100-15*walker.health/config.walker_health)+"%)";
-  }
+drawWalker = function (walker) {
+  var hue = walker.hue || 240
+  globals.ctx.strokeStyle = "hsl("+hue+",100%,"+(90-49*walker.health/config.walker_health)+"%)";
+  globals.ctx.fillStyle = "hsl("+hue+",45%,"+(100-15*walker.health/config.walker_health)+"%)";
   globals.ctx.lineWidth = 1/globals.zoom;
 
   // left legs and arms first

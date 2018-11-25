@@ -1,0 +1,21 @@
+{
+  "name": "2d_walker_rl_js",
+  "version": "0.0.1",
+  "description": "TODO: Write a project description",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jackymancs4/boxidroid.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jackymancs4/boxidroid/issues"
+  },
+  "homepage": "https://github.com/Jackymancs4/boxidroid#readme"
+}

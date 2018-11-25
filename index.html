@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HTML5 Genetic Algorithm Biped Walkers</title>
+    <link rel="stylesheet" href="css/walkers.css" type="text/css" />
+    <script src="vendor/jsbox2d.js"></script>
+    <script src="vendor/neurojs-v2.js"></script>
+    <script src="js/walker.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/floor.js"></script>
+    <script src="js/draw.js"></script>
+    <script src="js/agent.js"></script>
+    <script>
+
+      function init() {
+        gameInit();
+      }
+
+      window.addEventListener("load", init, false);
+
+    </script>
+
+  </head>
+  <body>
+    <div id="main_holder">
+      <h1>Genetic Algorithm Walkers</h1>
+      <h3 id="page_quote">"It's like watching other people QWOP"</h3>
+      <canvas id="main_screen" width="800" height="350"></canvas>
+      <div id="generation_timer"><div id="generation_timer_bar">&nbsp;</div></div>
+
+      <div id="info"></div>
+
+    </div>
+  </body>
+</html>
+
