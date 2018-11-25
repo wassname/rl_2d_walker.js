@@ -312,7 +312,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   for(var k = 0; k < this.joints.length; k++) {
     // var oldSpeed = this.joints[k].GetMotorSpeed()
     // this.joints[k].SetMotorSpeed(oldSpeed + motorSpeeds[k]/10); // action can range from -3 to 3, radians per second
-    this.joints[k].SetMotorSpeed(motorSpeeds[k]*3); // action can range from -3 to 3, radians per second
+    this.joints[k].SetMotorSpeed(motorSpeeds[k]*90); // action can range from -3 to 3, radians per second
   }
   var oldmax = this.max_distance;
   var distance = this.torso.upper_torso.GetPosition().x;
