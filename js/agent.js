@@ -69,7 +69,7 @@ Agent.prototype.step = function () {
     if (this.timer % this.timerFrequency === 0) {
         
         // reward from last step
-        this.reward = this.walker.score * 1
+        this.reward = this.walker.score * 10
         // console.log(this.reward)
         this.walker.score = 0
         
