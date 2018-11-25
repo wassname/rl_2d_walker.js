@@ -6,8 +6,7 @@ var Walker = function() {
   this.__constructor.apply(this, arguments);
 }
 
-Walker.prototype.__constructor = function(world, genome) {
-
+Walker.prototype.__constructor = function(world) {
   this.world = globals.world;
 
   this.density = 106.2; // common for all fixtures, no reason to be too specific
@@ -19,7 +18,10 @@ Walker.prototype.__constructor = function(world, genome) {
   this.head_height = 0;
   this.steps = 0;
 
-  this.bd = new b2.BodyDef();
+  this.hue = Math.randf(200,360)
+
+  this.bd = new b2.BodyDef({positions: {x:10, y:-10}});
+  this.bd.position.x += Math.randf(-10, 10)
   this.bd.type = b2.Body.b2_dynamicBody;
   this.bd.linearDamping = 0;
   this.bd.angularDamping = 0.01;
@@ -73,14 +75,6 @@ Walker.prototype.__constructor = function(world, genome) {
   this.connectParts();
 
   this.bodies = this.getBodies();
-
-  if(genome) {
-    this.genome = JSON.parse(JSON.stringify(genome));
-  } else {
-    this.genome = this.createGenome(this.joints, this.bodies);
-  }
-
-  this.name = this.makeName(this.genome);
 }
 
 Walker.prototype.createTorso = function() {
@@ -229,18 +223,6 @@ Walker.prototype.createHead = function() {
 }
 
 Walker.prototype.connectParts = function() {
-  // neck/torso
-//   var jd = new b2.RevoluteJointDef();
-//   var position = this.head.neck.GetPosition().Clone();
-//   position.y -= this.head_def.neck_height/2;
-//   jd.Initialize(this.head.neck, this.torso.upper_torso, position);
-//   jd.lowerAngle = 0;
-//   jd.upperAngle = 0.2;
-//   jd.enableLimit = true;
-//   jd.maxMotorTorque = 2;
-//   jd.motorSpeed = 0;
-//   jd.enableMotor = true;
-//   this.joints.push(this.world.CreateJoint(jd));
 
   //neck/torso
   var jd = new b2.WeldJointDef();
@@ -318,54 +300,27 @@ Walker.prototype.getBodies = function() {
   ];
 }
 
-Walker.prototype.createGenome = function(joints, bodies) {
-  var genome = [];
-  for(var k = 0; k < joints.length; k++) {
-    var gene = new Object();
-    /*
-    gene.target_body1 = Math.floor(Math.random() * bodies.length);
-    gene.target_body2 = Math.floor(Math.random() * bodies.length);
-    gene.target_body3 = Math.floor(Math.random() * bodies.length);
-    gene.body_cos_multiplier1 = 6*Math.random() - 3;
-    gene.body_cos_multiplier2 = 6*Math.random() - 3;
-    gene.body_cos_multiplier3 = 6*Math.random() - 3;
-
-    gene.torso_angle_multiplier = 4*Math.random() -2;
-    */
-    gene.cos_factor = 6*Math.random() - 3;
-    gene.time_factor = Math.random()/10;
-    gene.time_shift = Math.random()*Math.PI/2
-    genome.push(gene);
-  }
-  return genome;
+Walker.prototype.getState = function () { 
+  return this.bodies
+    .map(b => b.GetPosition())
+    .reduce((o, p) => { o.push(p.x); o.push(p.y); return o }, [])
 }
 
-Walker.prototype.simulationStep = function() {
+Walker.prototype.simulationStep = function (motorSpeeds) {
+  
+  // act
   for(var k = 0; k < this.joints.length; k++) {
-    /*
-    var target_body1 = this.bodies[this.genome[k].target_body1];
-    var target_body2 = this.bodies[this.genome[k].target_body2];
-    var target_body3 = this.bodies[this.genome[k].target_body3];
-
-    var sin1 = Math.sin(target_body1.GetAngle());
-    var sin2 = Math.sin(target_body2.GetAngle());
-    var sin3 = Math.sin(target_body3.GetAngle());
-
-    this.joints[k].SetMotorSpeed(
-      this.genome[k].cos_factor *           Math.sin(this.genome[k].torso_angle_multiplier*this.torso.upper_torso.GetAngle()) +
-      this.genome[k].body_cos_multiplier1 * sin1 +
-      this.genome[k].body_cos_multiplier2 * sin2 +
-      this.genome[k].body_cos_multiplier3 * sin3
-    );
-    */
-    this.joints[k].SetMotorSpeed(this.genome[k].cos_factor*Math.cos(this.genome[k].time_shift+this.genome[k].time_factor*globals.step_counter));
+    // var oldSpeed = this.joints[k].GetMotorSpeed()
+    // this.joints[k].SetMotorSpeed(oldSpeed + motorSpeeds[k]/10); // action can range from -3 to 3, radians per second
+    this.joints[k].SetMotorSpeed(motorSpeeds[k]*3); // action can range from -3 to 3, radians per second
   }
   var oldmax = this.max_distance;
   var distance = this.torso.upper_torso.GetPosition().x;
   this.max_distance = Math.max(this.max_distance, distance);
 
-  // score
-  this.head_height = this.head.head.GetPosition().y;
+  /* score/reward */
+  // it's head should be above it's feet
+  this.head_height = this.head.head.GetPosition().y; 
   this.low_foot_height = Math.min(this.left_leg.foot.GetPosition().y, this.right_leg.foot.GetPosition().y);
   var body_delta = this.head_height-this.low_foot_height;
   var leg_delta = this.right_leg.foot.GetPosition().x - this.left_leg.foot.GetPosition().x;
@@ -386,38 +341,10 @@ Walker.prototype.simulationStep = function() {
       }
     }
   }
+  this.health = this.score * 800 + 10
+  // console.log(body_delta, leg_delta)
 
-  if(config.check_health) {
-    if(body_delta < config.instadeath_delta) {
-      this.health = 0;
-    } else {
-      this.health--;
-    }
-  }
+
 
   return;
-}
-
-Walker.prototype.makeName = function(genome) {
-  var name = '';
-  var vowels = ['a','e','i','o','u'];
-  var space_position = Math.floor(genome.length/2);
-  for(var k = 0; k < genome.length; k++) {
-    var sum = 0;
-    for(var l in genome[k]) {
-      if(genome[k].hasOwnProperty(l)) {
-        sum += (genome[k][l]*10);
-      }
-      sum = Math.abs(Math.floor(sum));
-    }
-    if(k == space_position) {
-      name += ' ';
-    }
-    if(k%2) {
-      name += vowels[sum%5];
-    } else {
-      name += String.fromCharCode(97+sum%26);
-    }
-  }
-  return name;
 }
