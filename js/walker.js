@@ -6,12 +6,12 @@ function deg2rad(deg) {
   return deg/180*Math.PI
 }
 
+const STRENGTH = 6
 
 var Walker = function() {
   this.__constructor.apply(this, arguments);
 }
 
-const STRENGTH = 6
 
 Walker.prototype.__constructor = function(world) {
   this.world = globals.world;
@@ -337,6 +337,7 @@ Walker.prototype.simulationPreStep = function (motorSpeeds) {
 }
 
 Walker.prototype.simulationStep = function (motorSpeeds) {
+  this.steps ++
   /* score/reward */
   // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
   // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -381,7 +382,12 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
 
   this.last_left_left_forward = left_leg_forward
 
-  var info = {}
+  var info = {
+    x: this.steps,
+    reward:this.reward,
+    position,
+    ...this.rewards
+  }
   var done = 0
   return [this.getState(), this.reward, done, info]
 }

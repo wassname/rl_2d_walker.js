@@ -3,6 +3,8 @@
   <head>
     <title>HTML5 Genetic Algorithm Biped Walkers</title>
     <link rel="stylesheet" href="css/walkers.css" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
     <script src="vendor/jsbox2d.js"></script>
     <script src="vendor/neurojs-v2.js"></script>
     <script src="js/walker.js"></script>
@@ -10,6 +12,7 @@
     <script src="js/floor.js"></script>
     <script src="js/draw.js"></script>
     <script src="js/agent.js"></script>
+    <script src="js/charts.js"></script>
     <script>
 
       function init() {
@@ -38,6 +41,15 @@
     <input id="brainFile" type='file' accept='*/*' onchange='window.readBrain(event)' style="display: none">
     
     <div style="margin-top: 20px"><input type="checkbox" onclick="window.updateIfLearning(this.checked);" checked>Learning</div>
+
+    <div id="stats-wrapper">
+    <h3>Progress</h3>
+    <pre id="stats-prog"></pre>
+    <h3>Agent 1</h3>
+    <pre id="stats-ag0"></pre>
+    </div>
+
+    <div id="charts"></div>
 
     </div>
   </body>

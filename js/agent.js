@@ -75,12 +75,12 @@ Agent.prototype.step = function () {
             // TODO reset?
         }
 
-        this.infos.push(info)
         if (this.infos.length>this.maxInfos) this.infos = this.infos.slice(1)
         
         // train
-        this.loss = this.brain.learn(reward) 
+        info.loss = this.brain.learn(reward) 
         this.action = this.brain.policy(state)
+        this.infos.push(info)
     }
     if (this.action) {
         this.walker.simulationPreStep(this.action)

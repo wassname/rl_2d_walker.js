@@ -45,7 +45,6 @@ displayProgress = function () {
     'meanReward': globals.walkers.map(w => w.reward).reduce((s, v) => s + v) / globals.walkers.length,
   } 
   document.getElementById('stats-prog').innerText = JSON.stringify(stats, null, 2)
-  document.getElementById('stats-ag0').innerText = JSON.stringify(globals.walkers[0].rewards, null, 2)
 }
 
 gameInit = function() {
@@ -98,15 +97,11 @@ gameInit = function() {
   globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
   globals.draw_interval = setInterval(drawFrame, Math.round(1000 / config.draw_fps));
   globals.reset_interval = setInterval(resetSimulation, Math.round(config.round_length * 1000 / config.draw_fps));
-  globals.logr_interval = setInterval(logRewards, Math.round(800 * 1000 / config.draw_fps));
   globals.display_interval = setInterval(displayProgress, Math.round(80 * 1000 / config.draw_fps));
+  globals.charts_interval = setInterval(updateCharts, Math.round(80 * 1000 / config.draw_fps));
+
 }
 
-logRewards = function () { 
-  for(var k = 0; k < config.population_size; k++) {
-    console.table(globals.walkers[k].rewards)
-  }
-}
 
 resetSimulation = function () { 
   // turn training off temporarlity to avoid NaN's
@@ -127,6 +122,17 @@ simulationStep = function () {
 
   // step agents
   populationSimulationStep();
+}
+
+updateCharts = function () { 
+  if (globals.agents[0].infos.length) {
+    if (!globals.charts) { 
+      globals.charts = new Charts()
+      globals.charts.init(globals.agents)
+    } else {
+      globals.charts.update(globals.agents)
+    }    
+  }
 }
 
 // setSimulationFps = function(fps) {
