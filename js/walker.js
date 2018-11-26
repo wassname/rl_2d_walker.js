@@ -329,19 +329,23 @@ Walker.prototype.getState = function () {
     }, [])
 }
 
-Walker.prototype.simulationStep = function (motorSpeeds) {
-  
+Walker.prototype.simulationPreStep = function (motorSpeeds) {  
   // act
-  for(var k = 0; k < this.joints.length; k++) {
-    this.joints[k].SetMotorSpeed(motorSpeeds[k]*3); // action can range from -3 to 3, radians per second
+  for (var k = 0; k < this.joints.length; k++) {
+    this.joints[k].SetMotorSpeed(motorSpeeds[k] * 3); // action can range from -3 to 3, radians per second
   }
+}
+
+Walker.prototype.simulationStep = function (motorSpeeds) {
 
   /* score/reward */
   var head_height_reward = this.head.head.GetPosition().y * 2;  // it's head should be above it's feet 2*(-0.25-2)
 
   // TODO reward for moving one leg beyond the other?
   var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
-  var leg_switch_reward = (left_leg_forward!=this.last_left_left_forward)? 5:0
+  var leg_switch_reward = (left_leg_forward!=this.last_left_left_forward)? 1:0
+
+  var joint_angle_cost = - 0.02 * this.joints.map(j=>j.GetJointAngle()-j.GetReferenceAngle()).reduce((o,v)=>o+v*v,0) // - 0.02 * (0 - 20)
 
   // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
   // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -355,7 +359,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
 
   // punish for using energy, squared
   var quad_ctrl_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
-  var alive_bonus = 1
+  var alive_bonus = 5 // May they find happiness for all their days
 
   // we don't have data on external forces, so I will just punish for contact
   var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
@@ -365,6 +369,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
     lin_vel_reward,
     quad_ctrl_cost,
     quad_impact_cost,
+    joint_angle_cost,
     alive_bonus,
     head_height_reward,
     leg_switch_reward
@@ -374,5 +379,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
 
   this.last_left_left_forward = left_leg_forward
 
-  return
+  var info = {}
+  var done = 0
+  return [this.getState(), this.reward, done, info]
 }

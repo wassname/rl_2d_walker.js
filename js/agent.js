@@ -5,10 +5,11 @@ function Agent(opt, world) {
 
     this.world = world
     this.frequency = 20
-    this.reward = 0
     this.loaded = false
 
-    this.loss = 0
+    this.infos = []
+    this.maxInfos = 2000
+
     this.timer = 0
     this.timerFrequency = 60 / this.frequency
     this.resetFrequency = 30 / this.frequency
@@ -39,7 +40,7 @@ Agent.prototype.init = function (actor, critic) {
         temporalWindow: temporal, 
 
         discount: 0.97, 
-        rate: 0.004,
+        rate: 0.002,
         theta: 0.05, // progressive copy
         alpha: 0.1, // advantage learning
 
@@ -68,21 +69,21 @@ Agent.prototype.step = function () {
     this.timer++
 
     if (this.timer % this.timerFrequency === 0) {
-        
-        // reward from last step
-        this.reward = this.walker.reward
-        // this.reward = this.walker.score * 10
-        // // punish for using energy
-        // this.reward -= this.walker.joints.map(j=>j.GetJointSpeed()).reduce((sum,speed)=>sum+speed**2)
-        // // console.log(this.reward)
-        // this.walker.score = 0
+        var [state, reward, done, info] = this.walker.simulationStep()
+
+        if (done) {
+            // TODO reset?
+        }
+
+        this.infos.push(info)
+        if (this.infos.length>this.maxInfos) this.infos = this.infos.slice(1)
         
         // train
-        this.loss = this.brain.learn(this.reward) 
-        this.action = this.brain.policy(this.walker.getState())
+        this.loss = this.brain.learn(reward) 
+        this.action = this.brain.policy(state)
     }
     if (this.action) {
-        this.walker.simulationStep(this.action)
+        this.walker.simulationPreStep(this.action)
     }
 
     return this.timer % this.timerFrequency === 0
