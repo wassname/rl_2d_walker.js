@@ -2,9 +2,16 @@
 // shape definitions are in the constructor
 
 
+function deg2rad(deg) { 
+  return deg/180*Math.PI
+}
+
+
 var Walker = function() {
   this.__constructor.apply(this, arguments);
 }
+
+const STRENGTH = 6
 
 Walker.prototype.__constructor = function(world) {
   this.world = globals.world;
@@ -95,15 +102,18 @@ Walker.prototype.createTorso = function() {
   lower_torso.CreateFixture(this.fd);
 
   // torso joint
+  // Note for more info see : https://github.com/openai/gym/wiki/Humanoid-V1
+  // For 3d definition https://github.com/openai/gym/blob/master/gym/envs/mujoco/assets/humanoid.xml
   var jd = new b2.RevoluteJointDef();
   var position = upper_torso.GetPosition().Clone();
   position.y -= this.torso_def.upper_height/2;
   position.x -= this.torso_def.lower_width/3;
   jd.Initialize(upper_torso, lower_torso, position);
-  jd.lowerAngle = -Math.PI/18;
-  jd.upperAngle = Math.PI/10;
+  jd.lowerAngle = deg2rad(-30);
+  jd.upperAngle = deg2rad(75);
+  
   jd.enableLimit = true;
-  jd.maxMotorTorque = 250;
+  jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -139,10 +149,10 @@ Walker.prototype.createLeg = function() {
   position.y -= this.leg_def.femur_length/2;
   position.x += this.leg_def.femur_width/4;
   jd.Initialize(upper_leg, lower_leg, position);
-  jd.lowerAngle = -1.4;
-  jd.upperAngle = 0;
+  jd.lowerAngle = deg2rad(-120);
+  jd.upperAngle = deg2rad(-2);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 160;
+  jd.maxMotorTorque = 160 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -154,7 +164,7 @@ Walker.prototype.createLeg = function() {
   jd.lowerAngle = -Math.PI/5;
   jd.upperAngle = Math.PI/6;
   jd.enableLimit = true;
-  jd.maxMotorTorque = 70;
+  jd.maxMotorTorque = 70 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -182,10 +192,10 @@ Walker.prototype.createArm = function() {
   var position = upper_arm.GetPosition().Clone();
   position.y -= this.arm_def.arm_length/2;
   jd.Initialize(upper_arm, lower_arm, position);
-  jd.lowerAngle = 0;
-  jd.upperAngle = Math.PI *4/5;
+  jd.lowerAngle = deg2rad(0);
+  jd.upperAngle = deg2rad(85);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 60;
+  jd.maxMotorTorque = 100 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -216,7 +226,7 @@ Walker.prototype.createHead = function() {
   jd.lowerAngle = -0.1;
   jd.upperAngle = 0.2;
   jd.enableLimit = true;
-  jd.maxMotorTorque = 2;
+  jd.maxMotorTorque = 2 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -240,20 +250,20 @@ Walker.prototype.connectParts = function() {
   position = this.torso.upper_torso.GetPosition().Clone();
   position.y += this.torso_def.upper_height/2;
   jd.Initialize(this.torso.upper_torso, this.right_arm.upper_arm, position);
-  jd.lowerAngle = -Math.PI/5*2;
-  jd.upperAngle = Math.PI/4*3;
+  jd.lowerAngle = deg2rad(-60);
+  jd.upperAngle = deg2rad(125);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 120;
+  jd.maxMotorTorque = 200 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.upper_torso, this.left_arm.upper_arm, position);
-  jd.lowerAngle = -Math.PI/5*2;
-  jd.upperAngle = Math.PI/4*3;
+  jd.lowerAngle = deg2rad(-60);
+  jd.upperAngle = deg2rad(125);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 120;
+  jd.maxMotorTorque = 200 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -263,20 +273,20 @@ Walker.prototype.connectParts = function() {
   position = this.torso.lower_torso.GetPosition().Clone();
   position.y -= this.torso_def.lower_height/2;
   jd.Initialize(this.torso.lower_torso, this.right_leg.upper_leg, position);
-  jd.lowerAngle = -Math.PI/8*2;
-  jd.upperAngle = Math.PI/7*2;
+  jd.lowerAngle = deg2rad(-20);
+  jd.upperAngle = deg2rad(120);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 250;
+  jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.lower_torso, this.left_leg.upper_leg, position);
-  jd.lowerAngle = -Math.PI/8*2;
-  jd.upperAngle = Math.PI/7*2;
+  jd.lowerAngle = deg2rad(-20);
+  jd.upperAngle = deg2rad(120);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 250;
+  jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -335,7 +345,12 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
 
   // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
   // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
-  var velocity = this.torso.upper_torso.GetLinearVelocity().x
+  // https://github.com/openai/gym/blob/master/gym/envs/mujoco/assets/humanoidstandup.xml
+  var position = this.torso.upper_torso.GetPosition().x
+  if (this.last_position === undefined) this.last_position = position
+  var velocity = (position - this.last_position) * 40
+  this.last_position = position
+  // var velocity = this.torso.upper_torso.GetLinearVelocity().x
   lin_vel_reward = 6 * velocity
 
   // punish for using energy, squared
