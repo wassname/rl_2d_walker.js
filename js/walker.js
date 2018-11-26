@@ -149,7 +149,7 @@ Walker.prototype.createLeg = function() {
   position.y -= this.leg_def.femur_length/2;
   position.x += this.leg_def.femur_width/4;
   jd.Initialize(upper_leg, lower_leg, position);
-  jd.lowerAngle = deg2rad(-120);
+  jd.lowerAngle = deg2rad(-100);
   jd.upperAngle = deg2rad(-2);
   jd.enableLimit = true;
   jd.maxMotorTorque = 160 * STRENGTH;
@@ -273,8 +273,8 @@ Walker.prototype.connectParts = function() {
   position = this.torso.lower_torso.GetPosition().Clone();
   position.y -= this.torso_def.lower_height/2;
   jd.Initialize(this.torso.lower_torso, this.right_leg.upper_leg, position);
-  jd.lowerAngle = deg2rad(-20);
-  jd.upperAngle = deg2rad(120);
+  jd.lowerAngle = deg2rad(-10);
+  jd.upperAngle = deg2rad(80);
   jd.enableLimit = true;
   jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
@@ -283,8 +283,8 @@ Walker.prototype.connectParts = function() {
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.lower_torso, this.left_leg.upper_leg, position);
-  jd.lowerAngle = deg2rad(-20);
-  jd.upperAngle = deg2rad(120);
+  jd.lowerAngle = deg2rad(-10);
+  jd.upperAngle = deg2rad(80);
   jd.enableLimit = true;
   jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
