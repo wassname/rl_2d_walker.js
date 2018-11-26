@@ -10,14 +10,14 @@ config = {
   population_size: 4,
   mutation_chance: 0.1,
   mutation_amount: 0.5,
-  walker_health: 300,
+  walker_health: 100, // 300
   fitness_criterium: 'score',
   check_health: true,
   elite_clones: 2,
   max_floor_tiles: 50,
   round_length: 1200,
   min_body_delta: 0,
-  min_leg_delta: 0.4,
+  min_leg_delta: 0.0,
   instadeath_delta: 0.4
 };
 
@@ -71,7 +71,14 @@ gameInit = function() {
   globals.step_counter = 0;
   globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
   globals.draw_interval = setInterval(drawFrame, Math.round(1000 / config.draw_fps));
-  globals.draw_interval = setInterval(resetSimulation, Math.round(8000 * 1000 / config.draw_fps));
+  globals.reset_interval = setInterval(resetSimulation, Math.round(8000 * 1000 / config.draw_fps));
+  globals.logr_interval = setInterval(logRewards, Math.round(800 * 1000 / config.draw_fps));
+}
+
+logRewards = function () { 
+  for(var k = 0; k < config.population_size; k++) {
+    console.log(k, globals.walkers[k].rewards)
+  }
 }
 
 resetSimulation = function () { 

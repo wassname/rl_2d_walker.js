@@ -69,15 +69,17 @@ Agent.prototype.step = function () {
     if (this.timer % this.timerFrequency === 0) {
         
         // reward from last step
-        this.reward = this.walker.score * 10
-        // console.log(this.reward)
-        this.walker.score = 0
+        this.reward = this.walker.reward
+        // this.reward = this.walker.score * 10
+        // // punish for using energy
+        // this.reward -= this.walker.joints.map(j=>j.GetJointSpeed()).reduce((sum,speed)=>sum+speed**2)
+        // // console.log(this.reward)
+        // this.walker.score = 0
         
         // train
-        this.loss = this.brain.learn(this.reward)
+        this.loss = this.brain.learn(this.reward) 
         this.action = this.brain.policy(this.walker.getState())
     }
-    
     if (this.action) {
         this.walker.simulationStep(this.action)
     }

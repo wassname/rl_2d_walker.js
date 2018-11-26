@@ -17,6 +17,8 @@ Walker.prototype.__constructor = function(world) {
   this.low_foot_height = 0;
   this.head_height = 0;
   this.steps = 0;
+  this.distance = 0 
+  this.last_left_left_forward = true
 
   this.hue = Math.randf(200,360)
 
@@ -310,41 +312,41 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   
   // act
   for(var k = 0; k < this.joints.length; k++) {
-    // var oldSpeed = this.joints[k].GetMotorSpeed()
-    // this.joints[k].SetMotorSpeed(oldSpeed + motorSpeeds[k]/10); // action can range from -3 to 3, radians per second
-    this.joints[k].SetMotorSpeed(motorSpeeds[k]*90); // action can range from -3 to 3, radians per second
+    this.joints[k].SetMotorSpeed(motorSpeeds[k]*3); // action can range from -3 to 3, radians per second
   }
-  var oldmax = this.max_distance;
-  var distance = this.torso.upper_torso.GetPosition().x;
-  this.max_distance = Math.max(this.max_distance, distance);
 
   /* score/reward */
-  // it's head should be above it's feet
-  this.head_height = this.head.head.GetPosition().y; 
-  this.low_foot_height = Math.min(this.left_leg.foot.GetPosition().y, this.right_leg.foot.GetPosition().y);
-  var body_delta = this.head_height-this.low_foot_height;
-  var leg_delta = this.right_leg.foot.GetPosition().x - this.left_leg.foot.GetPosition().x;
+  var head_height_reward = this.head.head.GetPosition().y;  // it's head should be above it's feet
 
-  if(body_delta > config.min_body_delta) {
-    this.score += body_delta/50;
-    if(this.max_distance > oldmax) {
-      if(Math.abs(leg_delta) > config.min_leg_delta && this.head.head.m_linearVelocity.y > -2) {
-        if(typeof this.leg_delta_sign == 'undefined') {
-          this.leg_delta_sign = leg_delta/Math.abs(leg_delta);
-        } else if(this.leg_delta_sign * leg_delta < 0) {
-          this.leg_delta_sign = leg_delta/Math.abs(leg_delta);
-          this.steps++;
-          this.score += 100;
-          this.score += this.max_distance;
-          this.health = config.walker_health;
-        }
-      }
-    }
+  // TODO reward for moving one leg beyond the other?
+  var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
+  var leg_switch_reward = (left_leg_forward!=this.last_left_left_forward)? 5:0
+
+  // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
+  // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
+  var velocity = this.torso.upper_torso.GetLinearVelocity().x
+  lin_vel_reward = 6 * velocity
+
+  // punish for using energy, squared
+  var quad_ctrl_cost = -0.1 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
+  var alive_bonus = 5
+
+  // we don't have data on external forces, so I will just punish for contact
+  var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
+  quad_impact_cost = -Math.min(contacts - 2, 10)/4
+
+  this.rewards = {
+    lin_vel_reward,
+    quad_ctrl_cost,
+    quad_impact_cost,
+    alive_bonus,
+    head_height_reward,
+    leg_switch_reward
   }
-  this.health = this.score * 800 + 10
-  // console.log(body_delta, leg_delta)
+  
+  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)
 
+  this.last_left_left_forward = left_leg_forward
 
-
-  return;
+  return
 }

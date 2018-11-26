@@ -18,14 +18,7 @@ TODO: Write usage instructions
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D
 
-## History
+## TODO
 
-TODO: Write history
-
-## Credits
-
-TODO: Write credits
-
-## License
-
-TODO: Write license
+- display/save time for each agent
+- display save loss curves
