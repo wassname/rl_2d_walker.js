@@ -19,7 +19,7 @@ Walker.prototype.__constructor = function(world) {
   this.density = 106.2; // common for all fixtures, no reason to be too specific
 
   this.max_distance = -5;
-  this.health = config.walker_health;
+  this.health = 10 //config.walker_health;
   this.score = 0;
   this.low_foot_height = 0;
   this.head_height = 0;
@@ -337,31 +337,33 @@ Walker.prototype.simulationPreStep = function (motorSpeeds) {
 }
 
 Walker.prototype.simulationStep = function (motorSpeeds) {
-
   /* score/reward */
-  var head_height_reward = this.head.head.GetPosition().y * 2;  // it's head should be above it's feet 2*(-0.25-2)
-
-  // TODO reward for moving one leg beyond the other?
-  var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
-  var leg_switch_reward = (left_leg_forward!=this.last_left_left_forward)? 1:0
-
-  var joint_angle_cost = - 0.02 * this.joints.map(j=>j.GetJointAngle()-j.GetReferenceAngle()).reduce((o,v)=>o+v*v,0) // - 0.02 * (0 - 20)
-
   // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
   // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
   // https://github.com/openai/gym/blob/master/gym/envs/mujoco/assets/humanoidstandup.xml
+
+  // reward for keeping head up
+  var head_height_reward = this.head.head.GetPosition().y * 2;  // it's head should be above it's feet 2*(-0.25-2)
+
+  // reward for moving one leg beyond the other (stepping)
+  var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
+  var leg_switch_reward = (left_leg_forward!=this.last_left_left_forward)? 1:0
+
+  // cost for moving joints to unnatural positions
+  var joint_angle_cost = - 0.02 * this.joints.map(j=>j.GetJointAngle()-j.GetReferenceAngle()).reduce((o,v)=>o+v*v,0) // - 0.02 * (0 - 20)
+
+  // reward for moving rights
   var position = this.torso.upper_torso.GetPosition().x
   if (this.last_position === undefined) this.last_position = position
   var velocity = (position - this.last_position) * 40
   this.last_position = position
-  // var velocity = this.torso.upper_torso.GetLinearVelocity().x
   lin_vel_reward = 6 * velocity
 
   // punish for using energy, squared
   var quad_ctrl_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
-  var alive_bonus = 5 // May they find happiness for all their days
+  var bonus_happiness = 5 // May they find happiness for all their days
 
-  // we don't have data on external forces, so I will just punish for contact
+  // we don't have data on external forces, so I will just punish for contact with the ground
   var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
   quad_impact_cost = -Math.min(contacts - 4, 10)/8
 
@@ -370,12 +372,12 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
     quad_ctrl_cost,
     quad_impact_cost,
     joint_angle_cost,
-    alive_bonus,
+    bonus_happiness,
     head_height_reward,
     leg_switch_reward
   }
   
-  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)/10
+  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0) * 10
 
   this.last_left_left_forward = left_leg_forward
 

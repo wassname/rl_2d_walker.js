@@ -32,9 +32,7 @@ drawFrame = function() {
   globals.ctx.scale(globals.zoom, -globals.zoom);
   drawFloor();
   for(var k = config.population_size - 1; k >= 0 ; k--) {
-    if(globals.walkers[k].health > 0) {
-      drawWalker(globals.walkers[k]);
-    }
+    drawWalker(globals.walkers[k]);
   }
   globals.ctx.restore();
 }
@@ -53,7 +51,7 @@ drawFloor = function() {
 
 drawWalker = function (walker) {
   var hue = walker.hue || 240
-  globals.ctx.strokeStyle = "hsl("+hue+",100%,"+(90-49*walker.health/config.walker_health)+"%)";
+  globals.ctx.strokeStyle = "hsl(" + hue + ",100%,0%)";
   globals.ctx.fillStyle = "hsl("+hue+",45%,"+(100-15*walker.health/config.walker_health)+"%)";
   globals.ctx.lineWidth = 1/globals.zoom;
 
