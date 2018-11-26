@@ -183,7 +183,7 @@ Walker.prototype.createArm = function() {
   position.y -= this.arm_def.arm_length/2;
   jd.Initialize(upper_arm, lower_arm, position);
   jd.lowerAngle = 0;
-  jd.upperAngle = 1.22;
+  jd.upperAngle = Math.PI *4/5;
   jd.enableLimit = true;
   jd.maxMotorTorque = 60;
   jd.motorSpeed = 0;
@@ -214,7 +214,7 @@ Walker.prototype.createHead = function() {
   position.y += this.head_def.neck_height/2;
   jd.Initialize(head, neck, position);
   jd.lowerAngle = -0.1;
-  jd.upperAngle = 0.1;
+  jd.upperAngle = 0.2;
   jd.enableLimit = true;
   jd.maxMotorTorque = 2;
   jd.motorSpeed = 0;
@@ -240,8 +240,8 @@ Walker.prototype.connectParts = function() {
   position = this.torso.upper_torso.GetPosition().Clone();
   position.y += this.torso_def.upper_height/2;
   jd.Initialize(this.torso.upper_torso, this.right_arm.upper_arm, position);
-  jd.lowerAngle = -Math.PI/5;
-  jd.upperAngle = Math.PI/4;
+  jd.lowerAngle = -Math.PI/5*2;
+  jd.upperAngle = Math.PI/4*3;
   jd.enableLimit = true;
   jd.maxMotorTorque = 120;
   jd.motorSpeed = 0;
@@ -250,8 +250,8 @@ Walker.prototype.connectParts = function() {
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.upper_torso, this.left_arm.upper_arm, position);
-  jd.lowerAngle = -Math.PI/5;
-  jd.upperAngle = Math.PI/4;
+  jd.lowerAngle = -Math.PI/5*2;
+  jd.upperAngle = Math.PI/4*3;
   jd.enableLimit = true;
   jd.maxMotorTorque = 120;
   jd.motorSpeed = 0;
@@ -263,8 +263,8 @@ Walker.prototype.connectParts = function() {
   position = this.torso.lower_torso.GetPosition().Clone();
   position.y -= this.torso_def.lower_height/2;
   jd.Initialize(this.torso.lower_torso, this.right_leg.upper_leg, position);
-  jd.lowerAngle = -Math.PI/8;
-  jd.upperAngle = Math.PI/7;
+  jd.lowerAngle = -Math.PI/8*2;
+  jd.upperAngle = Math.PI/7*2;
   jd.enableLimit = true;
   jd.maxMotorTorque = 250;
   jd.motorSpeed = 0;
@@ -273,8 +273,8 @@ Walker.prototype.connectParts = function() {
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.lower_torso, this.left_leg.upper_leg, position);
-  jd.lowerAngle = -Math.PI/8;
-  jd.upperAngle = Math.PI/7;
+  jd.lowerAngle = -Math.PI/8*2;
+  jd.upperAngle = Math.PI/7*2;
   jd.enableLimit = true;
   jd.maxMotorTorque = 250;
   jd.motorSpeed = 0;
@@ -303,9 +303,20 @@ Walker.prototype.getBodies = function() {
 }
 
 Walker.prototype.getState = function () { 
-  return this.bodies
-    .map(b => b.GetPosition())
-    .reduce((o, p) => { o.push(p.x); o.push(p.y); return o }, [])
+  return  this.bodies
+    .reduce((a, body) => {
+      var t = body.GetTransform()
+      var dt = body.GetLinearVelocity()
+
+      a.push(t.p.x)
+      a.push(t.p.y)
+      a.push(dt.x)
+      a.push(dt.y)
+      a.push(t.q.s)
+      a.push(t.q.c)
+      a.push(body.GetAngularVelocity())
+      return a
+    }, [])
 }
 
 Walker.prototype.simulationStep = function (motorSpeeds) {
@@ -316,7 +327,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   }
 
   /* score/reward */
-  var head_height_reward = this.head.head.GetPosition().y;  // it's head should be above it's feet
+  var head_height_reward = this.head.head.GetPosition().y * 2;  // it's head should be above it's feet 2*(-0.25-2)
 
   // TODO reward for moving one leg beyond the other?
   var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
@@ -328,12 +339,12 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   lin_vel_reward = 6 * velocity
 
   // punish for using energy, squared
-  var quad_ctrl_cost = -0.1 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
-  var alive_bonus = 5
+  var quad_ctrl_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
+  var alive_bonus = 1
 
   // we don't have data on external forces, so I will just punish for contact
   var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
-  quad_impact_cost = -Math.min(contacts - 2, 10)/4
+  quad_impact_cost = -Math.min(contacts - 4, 10)/8
 
   this.rewards = {
     lin_vel_reward,
@@ -344,7 +355,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
     leg_switch_reward
   }
   
-  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)
+  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)/10
 
   this.last_left_left_forward = left_leg_forward
 
