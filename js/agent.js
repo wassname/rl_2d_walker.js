@@ -22,7 +22,7 @@ function Agent(opt, world) {
 Agent.prototype.init = function (actor, critic) {
     var actions = this.walker.joints.length
     var temporal = 1
-    var states = this.walker.bodies.length * 2
+    var states = this.walker.bodies.length * 7
 
     var input = window.neurojs.Agent.getInputDimension(states, actions, temporal)
 
@@ -39,6 +39,9 @@ Agent.prototype.init = function (actor, critic) {
         temporalWindow: temporal, 
 
         discount: 0.97, 
+        rate: 0.004,
+        theta: 0.05, // progressive copy
+        alpha: 0.1, // advantage learning
 
         experience: 75e3, 
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
@@ -46,9 +49,7 @@ Agent.prototype.init = function (actor, critic) {
         learningPerTick: 40, 
         startLearningAt: 900,
 
-        theta: 0.05, // progressive copy
 
-        alpha: 0.1 // advantage learning
 
     })
 

@@ -27,7 +27,7 @@ gameInit = function() {
   var joints = 12
   var bodyParts = 14
   var sensors = 14
-  var state = sensors * 2
+  var state = sensors * 7
   var actions = joints
   var input = 2 * state + 1 * actions
 
@@ -81,11 +81,15 @@ logRewards = function () {
   }
 }
 
+
 resetSimulation = function () { 
+  // turn training off temporarlity to avoid NaN's
+  updateIfLearning(false)
   console.log('resetting walkers')
   for(var k = 0; k < config.population_size; k++) {
     globals.agents[k].walker = globals.walkers[k] = new Walker(globals.world)
   }
+  setTimeout(()=>updateIfLearning(true), 1000)
 }
 
 simulationStep = function() {
@@ -97,10 +101,6 @@ simulationStep = function() {
   } else {
     globals.step_counter++;
   }
-  // document.getElementById("generation_timer_bar").style.width = (100*globals.step_counter/config.round_length)+"%";
-  // if(globals.step_counter > config.round_length) {
-  //   nextGeneration();
-  // }
 }
 
 setSimulationFps = function(fps) {
@@ -122,17 +122,9 @@ setSimulationFps = function(fps) {
 }
 
 createPopulation = function(genomes) {
-  // setQuote();
-  // if(typeof globals.generation_count == 'undefined') {
-  //   globals.generation_count = 0;
-  // } else {
-  //   globals.generation_count++;
-  // }
-  // updateGeneration(globals.generation_count);
   var walkers = [];
   var agents = []
   for(var k = 0; k < config.population_size; k++) {
-    // walkers.push(new Walker(globals.world));
     var agent = new Agent({}, globals)
     agents.push(agent);
     walkers.push(agent.walker)
@@ -141,22 +133,11 @@ createPopulation = function(genomes) {
   return [agents, walkers];
 }
 
-randAction= function(){ 
-  var action = []
-  for (let i = 0; i < 12; i++) {
-    action.push(Math.randf(-1,1))
-  }
-  return action
-}
 
 populationSimulationStep = function() {
   for(var k = 0; k < config.population_size; k++) {
-      // var action = randAction()
-    // globals.walkers[k].simulationStep(action);
     globals.agents[k].step()
-    // console.log(globals.walkers[k].walker.getState())
-  }
-  
+  }  
 }
 
 
@@ -207,9 +188,7 @@ readBrain = function (buf) {
 
 
 updateIfLearning = function (value) {
-  for (var i = 0; i <  globals.world.agents.length; i++) {
-    globals.world.agents[i].brain.learning = value
+  for (var i = 0; i <  globals.agents.length; i++) {
+    globals.agents[i].brain.learning = value
   }
-
-  globals.world.plotRewardOnly = !value
 };
