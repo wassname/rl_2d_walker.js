@@ -86,7 +86,7 @@ Walker.prototype.__constructor = function(world) {
   this.bodies = this.getBodies();
 
   // now apply a random starting positions and orientation
-  this.randomise(0.1);
+  this.randomise(0.5);
 
 }
 
@@ -323,21 +323,36 @@ Walker.prototype.randomise = function (n) {
   }
 }
 
-Walker.prototype.getState = function () { 
-  return  this.bodies
-    .reduce((a, body) => {
-      var t = body.GetTransform()
-      var dt = body.GetLinearVelocity()
+Walker.prototype.getState = function () {
+  var self = this; 
+  var state = []
+  this.bodies
+  .forEach((body) => {
+      // see http://www.box2dflash.org/docs/2.0.2/reference/Box2D/Dynamics/b2Body.html#GetLocalVector()
+      var t = body.GetTransform() // world transform of the body's origin. 
+      state.push(t.p.x) // world transform of the body's origin. 
+      state.push(t.p.y) // world transform of the body's origin. 
+      state.push(t.q.s) // world transform of the body's origin. 
+      state.push(t.q.c) // world transform of the body's origin. 
+      
+      var dt = body.GetLinearVelocity() // Get the linear velocity of the center of mass (world).       
+      state.push(dt.x)
+      state.push(dt.y)
 
-      a.push(t.p.x)
-      a.push(t.p.y)
-      a.push(dt.x)
-      a.push(dt.y)
-      a.push(t.q.s)
-      a.push(t.q.c)
-      a.push(body.GetAngularVelocity())
-      return a
+      var lp = self.torso.upper_torso.GetLocalPoint(body.GetWorldCenter())// Get the bodypart position relative to the upper torso
+      state.push(lp.x) 
+      state.push(lp.y)
+
+      state.push(body.GetAngularVelocity()) // the angular velocity in radians/second. 
+      state.push(body.GetAngle())  // the current world rotation angle in radians. 
     }, [])
+  this.joints.forEach(joint => { 
+    // http://www.box2dflash.org/docs/2.0.2/reference/Box2D/Dynamics/Joints/b2RevoluteJoint.html
+    state.push(joint.GetJointAngle()) // Get the current joint angle in radians.
+    state.push(joint.GetJointSpeed()) // Get the current joint angle speed in radians per second
+    state.push(joint.GetMotorSpeed())    
+  })
+  return state
 }
 
 Walker.prototype.simulationPreStep = function (motorSpeeds) {  
