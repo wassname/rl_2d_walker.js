@@ -79,6 +79,7 @@ Agent.prototype.step = function () {
         info.loss = this.brain.learn(reward) 
         this.action = this.brain.policy(state)
         info.x = this.steps
+        info.time = new Date().getTime()
         this.infos.push(info)
     }
     if (this.action) {
