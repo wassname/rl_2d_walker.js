@@ -139,7 +139,7 @@ simulationStep = function () {
   globals.world.Step(1/config.time_step, config.velocity_iterations, config.position_iterations);
   globals.world.ClearForces();
 
-  // step agents
+  // step agents (only after step 50 when they are on the ground)
   populationSimulationStep();
 }
 
@@ -186,8 +186,11 @@ createPopulation = function(genomes) {
 
 
 populationSimulationStep = function() {
-  for(var k = 0; k < config.population_size; k++) {
-    globals.agents[k].step()
+  for (var k = 0; k < config.population_size; k++) {
+    if (globals.walkers[k].steps>150) 
+      globals.agents[k].step()
+    else
+    globals.walkers[k].simulationStep()
   }  
   var steps = globals.agents[0].walker.steps
   if ((steps!==0) && (0 == steps % config.round_length)) {

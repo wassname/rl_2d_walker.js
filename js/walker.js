@@ -84,6 +84,10 @@ Walker.prototype.__constructor = function(world) {
   this.connectParts();
 
   this.bodies = this.getBodies();
+
+  // now apply a random starting positions and orientation
+  this.randomise(0.1);
+
 }
 
 Walker.prototype.createTorso = function() {
@@ -311,6 +315,12 @@ Walker.prototype.getBodies = function() {
     this.right_leg.lower_leg,
     this.right_leg.foot
   ];
+}
+
+Walker.prototype.randomise = function (n) { 
+  for (var k = 0; k < this.joints.length; k++) {
+    this.joints[k].SetMotorSpeed(Math.randf(-n, n))
+  }
 }
 
 Walker.prototype.getState = function () { 
