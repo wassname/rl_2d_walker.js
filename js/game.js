@@ -144,7 +144,7 @@ simulationStep = function () {
 }
 
 updateCharts = function () { 
-  if (globals.agents[0].infos.length) {
+  if (globals.agents[0].infos.length>10) {
     if (!globals.charts) { 
       globals.charts = new Charts()
       globals.charts.init(globals.agents)
