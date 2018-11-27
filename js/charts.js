@@ -6,7 +6,9 @@ var Charts = function() {
 Charts.prototype.__constructor = function () {
 }
 
-Charts.prototype.collect = function (agents) { 
+Charts.prototype.collect = function (agents, n, chunkSize) { 
+    if (n === undefined) n = 1
+    if (chunkSize===undefined) chunkSize=1
     var data = {}
 
     // collect data
@@ -14,7 +16,7 @@ Charts.prototype.collect = function (agents) {
     for (const key of keys) {
         if (key === 'x') continue
         data[key] = []
-        for (let i = 0; i < agents.length; i++) {
+        for (let i = 0; i < agents.length; i+=n) {
             const infos = agents[i].infos;
             // var borderColor = "hsl("+agents[i].walkerhue+",45%,"+(100-15*agents[i].walker.health/config.walker_health)+"%)";
             // build dataset
@@ -29,6 +31,13 @@ Charts.prototype.collect = function (agents) {
                     y: info[key]
                 })
             }
+
+            // take means?
+            var leftOver = dataset.data%chunkSize
+            dataset.data = _.chunk(dataset.data, 4)
+                .map(c => ({ x: _.mean(_.map(c, 'x')), y: _.mean(_.map(c, 'y')) }))
+            if (leftOver) dataset.data.pop()
+
             data[key].push(dataset)
         }
     }
@@ -41,7 +50,7 @@ Charts.prototype.collect = function (agents) {
 
 Charts.prototype.init = function (agents) {
     
-    var data = this.collect(agents)
+    var data = this.collect(agents, 1, 10)
     var div = document.getElementById('charts');
 
     // make charts
@@ -69,7 +78,7 @@ Charts.prototype.init = function (agents) {
 }
 
 Charts.prototype.update = function (agents) {
-    var data = this.collect(agents)
+    var data = this.collect(agents, 1, 10)
     var maxLen = 10000
     for (const chart of this.charts) {
         var newDatasets = data[chart.config.options.title.text]
