@@ -70,11 +70,13 @@ Charts.prototype.init = function (agents) {
 
 Charts.prototype.update = function (agents) {
     var data = this.collect(agents)
+    var maxLen = 10000
     for (const chart of this.charts) {
         var newDatasets = data[chart.config.options.title.text]
         chart.data.datasets.forEach((dataset) => {
             var dat = newDatasets.filter(d=>d.label==dataset.label)[0].data
             dataset.data.push(...dat);
+            if (dataset.data.length>maxLen) dataset.data.splice(0, dataset.data.length-maxLen)
         });
         chart.update();
     }
