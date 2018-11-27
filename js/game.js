@@ -1,3 +1,5 @@
+var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
+
 config = {
   time_step: 60,
   simulation_fps: 60,
@@ -10,7 +12,7 @@ config = {
   population_size: 4,
   walker_health: 100,
   max_floor_tiles: 30,
-  round_length: 8000,
+  round_length: 18000,
   min_body_delta: 0,
   min_leg_delta: 0.0,
 };
@@ -25,7 +27,7 @@ chooseQoute = function () {
     'Only the humans that like to dance survived',
     'Classic robot dance move - the human',
     'First we dance Manhatten, then we dance the world',
-    'One hour after ingesting substance 1043',
+    'Video of subjects one hour after ingesting substance q1043',
     'Red robot redemption',
     'Father was a rolling robot',
     'Light as a trash can, nimble as a ox',
@@ -43,6 +45,7 @@ displayProgress = function () {
     'trainingTime': globals.step_counter / config.simulation_fps,
     'meanProgress': globals.walkers.map(w => w.last_position).reduce((s, v) => s + v) / globals.walkers.length,
     'meanReward': globals.walkers.map(w => w.reward).reduce((s, v) => s + v) / globals.walkers.length,
+    'bufferSize': globals.agents[0].brain.buffer.size
   } 
   document.getElementById('stats-prog').innerText = JSON.stringify(stats, null, 2)
 }
@@ -59,8 +62,15 @@ gameInit = function() {
     actor: new window.neurojs.Network.Model([
       { type: 'input', size: input },
       { type: 'fc', size: 60, activation: 'relu' },
+      { type: 'noise', sigma: 0.3, delta: 0.1, theta: 0.15 },
+      { type: 'fc', size: 40, activation: 'relu' },
+      { type: 'noise', sigma: 0.3, delta: 0.1, theta: 0.15 },
       { type: 'fc', size: 40, activation: 'relu' },
       { type: 'fc', size: 40, activation: 'relu', dropout: 0.30 },
+      //  delta represents the equilibrium or mean value supported by fundamentals; 
+      // sigma the degree of volatility around it caused by shocks, 
+      // theta the rate by which these shocks dissipate and the variable reverts towards the mean. 
+      { type: 'noise', sigma: 0.1, delta: 0.1, theta: 0.15 },
       { type: 'fc', size: actions, activation: 'tanh' },
       { type: 'regression' }
       
@@ -94,12 +104,21 @@ gameInit = function() {
   drawInit();
 
   globals.step_counter = 0;
-  globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
-  globals.draw_interval = setInterval(drawFrame, Math.round(1000 / config.draw_fps));
-  globals.reset_interval = setInterval(resetSimulation, Math.round(config.round_length * 1000 / config.draw_fps));
-  globals.display_interval = setInterval(displayProgress, Math.round(80 * 1000 / config.draw_fps));
-  globals.charts_interval = setInterval(updateCharts, Math.round(80 * 1000 / config.draw_fps));
+  // globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
+  // globals.draw_interval = setInterval(drawFrame, Math.round(1000 / config.draw_fps));
 
+  globals.display_interval = setInterval(displayProgress, Math.round(380 * 1000 / config.draw_fps));
+  globals.charts_interval = setInterval(updateCharts, Math.round(380 * 1000 / config.draw_fps));
+
+  globals.running = true
+  requestAnimFrame(loop)
+
+}
+
+loop = function () { 
+  simulationStep()
+  drawFrame()
+  if (globals.running) requestAnimFrame(loop); // start next timer
 }
 
 
@@ -170,6 +189,10 @@ populationSimulationStep = function() {
   for(var k = 0; k < config.population_size; k++) {
     globals.agents[k].step()
   }  
+  var steps = globals.agents[0].walker.steps
+  if ((steps!==0) && (0 == steps % config.round_length)) {
+    resetSimulation()
+  }
 }
 
 
