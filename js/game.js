@@ -53,7 +53,8 @@ displayProgress = function () {
 gameInit = function() {
   var joints = 12
   var bodyParts = 14
-  var state = bodyParts * 7
+  var joints = 12
+  var state = bodyParts * 10 + joints * 3
   var actions = joints
   var input = 2 * state + 1 * actions
 

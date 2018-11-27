@@ -23,7 +23,7 @@ function Agent(opt, world) {
 Agent.prototype.init = function (actor, critic) {
     var actions = this.walker.joints.length
     var temporal = 1
-    var states = this.walker.bodies.length * 7
+    var states = this.walker.bodies.length * 10 + this.walker.joints.length * 3
 
     var input = window.neurojs.Agent.getInputDimension(states, actions, temporal)
 
