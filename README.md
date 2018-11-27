@@ -25,9 +25,14 @@ TODO: Write usage instructions
 - make diff env's, copy humanoidwalker, humanoid, learning2run etc
 - display
     - display/save time for each agent
+        - globals.step_counter
+    - x progress
     - smile frown?
     - save checkpoints
-
+- [ ] obstacles later on
+- [ ] load pretrained
+- [ ] reward hacking
+    - [ ] head high, feet on ground, legs crossing, moving forward, angles near 0
 
 # Credits
 

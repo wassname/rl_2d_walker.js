@@ -11,8 +11,8 @@ config = {
   max_motor_speed: 2,
   population_size: 4,
   walker_health: 100,
-  max_floor_tiles: 30,
-  round_length: 18000,
+  max_floor_tiles: 50,
+  round_length: 4000,
   min_body_delta: 0,
   min_leg_delta: 0.0,
 };
@@ -30,9 +30,12 @@ chooseQoute = function () {
     'Video of subjects one hour after ingesting substance q1043',
     'Red robot redemption',
     'Father was a rolling robot',
-    'Light as a trash can, nimble as a ox',
+    'Float like a bumblebee, string like a butterfly',
+    'Dance evolution',
     'Have you tried turning it off and on again?',
     'Eurovision 2050',
+    'Humans must learn to crawl then walk. Robots break dance then walk',
+    ''
   ]
   var qoute = qoutes[Math.randi(0,qoutes.length)]
   document.getElementById('page_quote').innerText = '"'+qoute+'"'

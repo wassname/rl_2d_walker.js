@@ -17,7 +17,7 @@ function createFloor() {
     // add uneven floor by continuing from the last point, plus some random jittering
     edges.push(new b2.Vec2(
       edges[edges.length - 1].x + (1 + ratio * Math.random() - ratio / 2),
-      edges[edges.length - 1].y + (ratio * Math.random() - ratio / 2)* 2));
+      edges[edges.length - 1].y + (ratio * Math.random() - ratio / 2)));
 //    edges.push(new b2.Vec2(edges[edges.length-1].x + 1,-0.16));
   }
   edges.push(new b2.Vec2(edges[edges.length-1].x, edges[edges.length-1].y + 8)); // front wall

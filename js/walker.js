@@ -113,12 +113,11 @@ Walker.prototype.createTorso = function() {
   position.y -= this.torso_def.upper_height/2;
   position.x -= this.torso_def.lower_width/3;
   jd.Initialize(upper_torso, lower_torso, position);
-  jd.lowerAngle = deg2rad(-30/2);
-  jd.upperAngle = deg2rad(75 / 2);
-  jd.user_data = 'torso_joint'
-  
+  jd.lowerAngle = deg2rad(-75/2);
+  jd.upperAngle = deg2rad(30 / 2);
+  jd.user_data = 'torso_joint'  
   jd.enableLimit = true;
-  jd.maxMotorTorque = 200 * STRENGTH;
+  jd.maxMotorTorque = 100 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
@@ -160,6 +159,7 @@ Walker.prototype.createLeg = function() {
   jd.maxMotorTorque = 160 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
+  jd.user_data = 'leg_joint'
   this.joints.push(this.world.CreateJoint(jd));
 
   // foot joint
@@ -171,6 +171,7 @@ Walker.prototype.createLeg = function() {
   jd.enableLimit = true;
   jd.maxMotorTorque = 70 * STRENGTH;
   jd.motorSpeed = 0;
+  jd.user_data = 'foot_joint'
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
@@ -202,6 +203,7 @@ Walker.prototype.createArm = function() {
   jd.enableLimit = true;
   jd.maxMotorTorque = 100 * STRENGTH;
   jd.motorSpeed = 0;
+  jd.user_data = 'arm_joint'
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
@@ -234,6 +236,7 @@ Walker.prototype.createHead = function() {
   jd.maxMotorTorque = 4 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
+  jd.user_data = 'neck_joint'
   this.joints.push(this.world.CreateJoint(jd));
 
   return {head: head, neck: neck};
@@ -260,6 +263,7 @@ Walker.prototype.connectParts = function() {
   jd.enableLimit = true;
   jd.maxMotorTorque = 200 * STRENGTH;
   jd.motorSpeed = 0;
+  jd.user_data = 'shoulder_right_joint'
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
@@ -270,6 +274,7 @@ Walker.prototype.connectParts = function() {
   jd.enableLimit = true;
   jd.maxMotorTorque = 200 * STRENGTH;
   jd.motorSpeed = 0;
+  jd.user_data = 'shoulder_right_joint'
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
@@ -283,6 +288,7 @@ Walker.prototype.connectParts = function() {
   jd.enableLimit = true;
   jd.maxMotorTorque = 350 * STRENGTH;
   jd.motorSpeed = 0;
+  jd.user_data = 'waist_right_joint'
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 
@@ -293,6 +299,7 @@ Walker.prototype.connectParts = function() {
   jd.enableLimit = true;
   jd.maxMotorTorque = 350 * STRENGTH;
   jd.motorSpeed = 0;
+  jd.user_data = 'waist_left_joint'
   jd.enableMotor = true;
   this.joints.push(this.world.CreateJoint(jd));
 }
@@ -369,31 +376,35 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
   // https://github.com/openai/gym/blob/master/gym/envs/mujoco/assets/humanoidstandup.xml
 
-  // reward for keeping head up
-  var head_height_reward = this.head.head.GetPosition().y * 8;  // it's head should be above it's feet 2*(-0.25-2)
+  // reward for keeping head up, compared to feet
+  var mean_foot_height = (this.left_leg.foot.GetPosition().y + this.right_leg.foot.GetPosition().y)/2
+  
+  var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height)* 20;  // it's head should be above it's feet 2*(-0.25-2)
 
   // reward for moving one leg beyond the other (stepping)
   var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
-  var leg_switch_reward = (left_leg_forward != this.last_left_left_forward) ? 1 : 0
+  var leg_switch_reward = (left_leg_forward != this.last_left_left_forward) ? 4 : 0
+  this.last_left_left_forward = left_leg_forward
 
-  // cost for moving joints to unnatural positions
-
-  var jointFractionMovement = j => j.GetJointAngle() > 0 ? j.GetJointAngle() / (j.GetUpperLimit() + 1) : j.GetJointAngle() / (j.GetLowerLimit() + 1)
-  var quad_joint_angle_cost = - 0.004 * this.joints.map(j => jointFractionMovement(j) * 1.2)
+  // cost for moving joints to unnatural positions (fraction of movement range in the relevant direction)
+  var jointFractionMovement = j => j.GetJointAngle() > 0 ? j.GetJointAngle() / (j.GetUpperLimit() + 1) : j.GetJointAngle() / (j.GetLowerLimit() - 1)
+  var quad_joint_angle_cost = - 0.15 * this.joints.map(j => jointFractionMovement(j) * 1.2)
     .reduce((o, v) => o + v * v, 0)
   quad_joint_angle_cost = Math.max(quad_joint_angle_cost, -10)
 
-  // reward for moving rights
+  // reward for moving right
   var position = this.torso.upper_torso.GetPosition().x
   if (this.last_position === undefined) this.last_position = position
-  var velocity = (position - this.last_position) * 40
+  var velocity = (position - this.last_position) * 130
   this.last_position = position
   lin_vel_reward = 6 * velocity
 
   // punish for using energy, squared
-  var quad_ctrl_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
-  quad_ctrl_cost = Math.max(quad_ctrl_cost, -10)
-  var bonus_happiness = 5 // May they find happiness for all their days
+  var quad_power_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
+  quad_power_cost = Math.max(quad_power_cost, -10)
+
+  // Lets be nice, all entities should find overall happiness in what they do
+  var bonus_happiness = 5 
 
   // we don't have data on external forces, so I will just punish for contact with the ground
   http://blog.sethladd.com/2011/09/box2d-collision-damage-for-javascript.html
@@ -405,12 +416,12 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   //   globals.world.SetContactListener(listener)
   // }
   var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
-  quad_impact_cost = -Math.min(contacts - 4, 10)/3
+  quad_contact_cost = -Math.min(contacts - 4, 10)/2
 
   this.rewards = {
     lin_vel_reward,
-    quad_ctrl_cost,
-    quad_impact_cost,
+    quad_power_cost,
+    quad_contact_cost,
     quad_joint_angle_cost,
     bonus_happiness,
     head_height_reward,
@@ -418,8 +429,6 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   }
   
   this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)
-
-  this.last_left_left_forward = left_leg_forward
 
   var info = {
     episodeSteps: this.steps,
