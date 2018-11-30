@@ -77,6 +77,7 @@ Walker.prototype.__constructor = function(world) {
   }
 
   this.joints = [];
+  this.grips = [false, false, false, false]
   // this.frictionJoints = []
 
   this.torso = this.createTorso();
@@ -103,23 +104,23 @@ Walker.prototype.__constructor = function(world) {
     if (contact.m_fixtureA.m_body.m_userData == "floor" | contact.m_fixtureB.m_body.m_userData) {
       var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
       if (otherFixture.m_body.m_userData == "right_foot") {
-        console.log('grip on ' + otherFixture.m_body.m_userData)
+        // console.log('grip on ' + otherFixture.m_body.m_userData)
         // TODO let the agent act to grip or not. Only if palm or foot down?
-        self.right_leg.frictionJoint.maxForce = 1000
-        self.right_leg.frictionJoint.maxTorque = 1000
+        self.right_leg.frictionJoint.maxForce = 1000 * self.grips[0]
+        self.right_leg.frictionJoint.maxTorque = 1000 * self.grips[0]
       } else if (otherFixture.m_body.m_userData == "left_foot") {
-        console.log('grip on ' + otherFixture.m_body.m_userData)
-        self.left_leg.frictionJoint.maxForce = 1000
-        self.left_leg.frictionJoint.maxTorque = 1000
+        // console.log('grip on ' + otherFixture.m_body.m_userData)
+        self.left_leg.frictionJoint.maxForce = 1000 * self.grips[1]
+        self.left_leg.frictionJoint.maxTorque = 1000 * self.grips[1]
       } else if (otherFixture.m_body.m_userData == "right_lower_arm") { 
-        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // console.log('grip off ' + otherFixture.m_body.m_userData)
         // TODO let the agent act to grip or not
-        self.right_arm.frictionJoint.maxForce = 1000
-        self.right_arm.frictionJoint.maxTorque = 1000
+        self.right_arm.frictionJoint.maxForce = 1000 * self.grips[2]
+        self.right_arm.frictionJoint.maxTorque = 1000 * self.grips[2]
       } else if (otherFixture.m_body.m_userData == "left_lower_arm") { 
-        console.log('grip off ' + otherFixture.m_body.m_userData)
-        self.left_arm.frictionJoint.maxForce = 1000
-        self.left_arm.frictionJoint.maxTorque = 1000
+        // console.log('grip off ' + otherFixture.m_body.m_userData)
+        self.left_arm.frictionJoint.maxForce = 1000 * self.grips[3]
+        self.left_arm.frictionJoint.maxTorque = 1000 * self.grips[3]
       }
     }
   }
@@ -127,21 +128,21 @@ Walker.prototype.__constructor = function(world) {
     if (contact.m_fixtureA.m_body.m_userData == "floor" | contact.m_fixtureB.m_body.m_userData) {
       var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
       if (otherFixture.m_body.m_userData == "right_foot") { 
-        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // console.log('grip off ' + otherFixture.m_body.m_userData)
         // TODO let the agent act to grip or not
         setTimeout(() => { self.right_leg.frictionJoint.maxForce = 0 }, 100)
         setTimeout(() => { self.right_leg.frictionJoint.maxTorque = 0 }, 100)
       } else if (otherFixture.m_body.m_userData == "left_foot") { 
-        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // console.log('grip off ' + otherFixture.m_body.m_userData)
         self.left_leg.frictionJoint.maxForce = 0
         self.left_leg.frictionJoint.maxTorque = 0
       } else if (otherFixture.m_body.m_userData == "right_lower_arm") { 
-        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // console.log('grip off ' + otherFixture.m_body.m_userData)
         // TODO let the agent act to grip or not
         setTimeout(() => { self.right_arm.frictionJoint.maxForce = 0 }, 100)
         setTimeout(() => { self.right_arm.frictionJoint.maxTorque = 0 }, 100)
       } else if (otherFixture.m_body.m_userData == "left_lower_arm") { 
-        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // console.log('grip off ' + otherFixture.m_body.m_userData)
         self.left_arm.frictionJoint.maxForce = 0
         self.left_arm.frictionJoint.maxTorque = 0
       }
@@ -509,6 +510,14 @@ Walker.prototype.simulationPreStep = function (motorSpeeds) {
   for (var k = 0; k < this.joints.length; k++) {
     this.joints[k].SetMotorSpeed(motorSpeeds[k] * 10); // action can range from -3 to 3, radians per second
   }
+  for (let i = this.joints.length; i < motorSpeeds.length; i++) {
+    this.grips[i] = motorSpeeds[i] > 0
+  }
+  if (motorSpeeds[0] <= 0) this.right_leg.frictionJoint.maxForce = this.right_leg.frictionJoint.maxTorque
+  if (motorSpeeds[1] <= 0) this.left_leg.frictionJoint.maxForce = this.left_leg.frictionJoint.maxTorque
+  if (motorSpeeds[2] <= 0) this.left_arm.frictionJoint.maxForce = this.left_arm.frictionJoint.maxTorque
+  if (motorSpeeds[3] <= 0) this.right_arm.frictionJoint.maxForce = this.right_arm.frictionJoint.maxTorque
+  // TODO turn of grups
 }
 
 Walker.prototype.simulationStep = function (motorSpeeds) {

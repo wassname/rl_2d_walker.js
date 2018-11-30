@@ -21,7 +21,7 @@ function Agent(opt, world) {
 };
 
 Agent.prototype.init = function (actor, critic) {
-    var actions = this.walker.joints.length
+    var actions = this.walker.joints.length + 4
     var temporal = 1
     var states = this.walker.bodies.length * 10 + this.walker.joints.length * 3
 
