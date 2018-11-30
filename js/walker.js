@@ -65,8 +65,8 @@ Walker.prototype.__constructor = function(world) {
     arm_length: 0.37,
     forearm_width: 0.1,
     forearm_length: 0.42,
-    // hand_height: 0.08,
-    // hand_length: 0.20,
+    hand_height: 0.08,
+    hand_length: 0.18,
   }
 
   this.head_def = {
@@ -112,12 +112,12 @@ Walker.prototype.__constructor = function(world) {
         // console.log('grip on ' + otherFixture.m_body.m_userData)
         self.left_leg.frictionJoint.maxForce = 1000 * self.grips[1]
         self.left_leg.frictionJoint.maxTorque = 1000 * self.grips[1]
-      } else if (otherFixture.m_body.m_userData == "right_lower_arm") { 
+      } else if (otherFixture.m_body.m_userData == "right_hand") { 
         // console.log('grip off ' + otherFixture.m_body.m_userData)
         // TODO let the agent act to grip or not
         self.right_arm.frictionJoint.maxForce = 1000 * self.grips[2]
         self.right_arm.frictionJoint.maxTorque = 1000 * self.grips[2]
-      } else if (otherFixture.m_body.m_userData == "left_lower_arm") { 
+      } else if (otherFixture.m_body.m_userData == "left_hand") { 
         // console.log('grip off ' + otherFixture.m_body.m_userData)
         self.left_arm.frictionJoint.maxForce = 1000 * self.grips[3]
         self.left_arm.frictionJoint.maxTorque = 1000 * self.grips[3]
@@ -136,12 +136,12 @@ Walker.prototype.__constructor = function(world) {
         // console.log('grip off ' + otherFixture.m_body.m_userData)
         self.left_leg.frictionJoint.maxForce = 0
         self.left_leg.frictionJoint.maxTorque = 0
-      } else if (otherFixture.m_body.m_userData == "right_lower_arm") { 
+      } else if (otherFixture.m_body.m_userData == "right_hand") { 
         // console.log('grip off ' + otherFixture.m_body.m_userData)
         // TODO let the agent act to grip or not
         setTimeout(() => { self.right_arm.frictionJoint.maxForce = 0 }, 100)
         setTimeout(() => { self.right_arm.frictionJoint.maxTorque = 0 }, 100)
-      } else if (otherFixture.m_body.m_userData == "left_lower_arm") { 
+      } else if (otherFixture.m_body.m_userData == "left_hand") { 
         // console.log('grip off ' + otherFixture.m_body.m_userData)
         self.left_arm.frictionJoint.maxForce = 0
         self.left_arm.frictionJoint.maxTorque = 0
@@ -214,7 +214,6 @@ Walker.prototype.createLeg = function(label) {
   this.fd.shape.SetAsBox(this.leg_def.foot_length/2, this.leg_def.foot_height/2);
   foot.CreateFixture(this.fd);
   foot.SetUserData(label + 'foot')
-  // foot.GetLinearDamping(100)
 
   var fjd = new b2.FrictionJointDef();
   var position = new b2.Vec2(0,0)
@@ -246,8 +245,8 @@ Walker.prototype.createLeg = function(label) {
   var position = lower_leg.GetPosition().Clone();
   position.y -= this.leg_def.tibia_length/2;
   jd.Initialize(lower_leg, foot, position);
-  jd.lowerAngle = -Math.PI/5;
-  jd.upperAngle = Math.PI/6;
+  jd.lowerAngle = -deg2rad(-36);
+  jd.upperAngle = deg2rad(30);
   jd.enableLimit = true;
   jd.maxMotorTorque = 90 * STRENGTH;
   jd.motorSpeed = 0;
@@ -276,28 +275,19 @@ Walker.prototype.createArm = function(label) {
   lower_arm.CreateFixture(this.fd);
   lower_arm.SetUserData(label + 'lower_arm')
 
+  // hand
+  this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height - this.arm_def.arm_length - this.arm_def.forearm_length - this.arm_def.hand_length/2);
+  // this.bd.position.Set(0.5, this.arm_def.hand_height/2);
+  var hand = this.world.CreateBody(this.bd);
 
-  // // hand
-  // this.bd.position.Set(0.5, this.leg_def.hand_height/2);
-  // var hand = this.world.CreateBody(this.bd);
-
-  // this.fd.shape.SetAsBox(this.leg_def.hand_length/2, this.leg_def.hand_height/2);
-  // hand.CreateFixture(this.fd);
-  // hand.SetUserData(label + 'hand')
-
-  // var fjd = new b2.FrictionJointDef();
-  // var position = new b2.Vec2(0,0)
-  // fjd.Initialize(lower_arm, globals.floor, position)
-  // fjd.maxForce = 100; //This the most force the joint will apply to your object. The faster its moving the more force applied
-  // fjd.maxTorque = 100; //Set to 0 to prevent rotation
-  // var frictionJoint = this.world.CreateJoint(fjd)
-  // // TODO only present when colliding?
-  // // TODO this seems to preclude colliding, so made an ankle that has this?
+  this.fd.shape.SetAsBox(this.arm_def.hand_height/2, this.arm_def.hand_length/2);
+  hand.CreateFixture(this.fd);
+  hand.SetUserData(label + 'hand')
 
 
   var fjd = new b2.FrictionJointDef();
   var position = new b2.Vec2(0,0)
-  fjd.Initialize(lower_arm, globals.floor, position)
+  fjd.Initialize(hand, globals.floor, position)
   fjd.maxForce = 0; //This the most force the joint will apply to your object. The faster its moving the more force applied
   fjd.maxTorque = 0; //Set to 0 to prevent rotation
   fjd.userData = label+'hand_friction_joint'
@@ -320,24 +310,24 @@ Walker.prototype.createArm = function(label) {
   j.SetUserData(label + 'arm_joint')
   this.joints.push(j);
 
-  // // hand joint
-  // var jd = new b2.RevoluteJointDef();
-  // var position = lower_arm.GetPosition().Clone();
-  // position.y -= this.arm_def.forearm_length/2;
-  // jd.Initialize(lower_arm, hand, position);
-  // jd.lowerAngle = deg2rad(-85);
-  // jd.upperAngle = deg2rad(85);
-  // jd.enableLimit = true;
-  // jd.maxMotorTorque = 90 * STRENGTH;
-  // jd.motorSpeed = 0;
-  // jd.enableMotor = true;
-  // var j = this.world.CreateJoint(jd)
-  // j.SetUserData(label + 'hand_joint')
-  // this.joints.push(j);
+  // hand joint
+  var jd = new b2.RevoluteJointDef();
+  var position = lower_arm.GetPosition().Clone();
+  position.y -= this.arm_def.forearm_length/2;
+  jd.Initialize(lower_arm, hand, position);
+  jd.lowerAngle = deg2rad(-35);
+  jd.upperAngle = deg2rad(35);
+  jd.enableLimit = true;
+  jd.maxMotorTorque = 90 * STRENGTH;
+  jd.motorSpeed = 0;
+  jd.enableMotor = true;
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData(label + 'hand_joint')
+  this.joints.push(j);
 
   return {
     upper_arm: upper_arm, lower_arm: lower_arm,
-    // hand: hand,
+    hand: hand,
     frictionJoint:frictionJoint
   };
 }
@@ -454,10 +444,10 @@ Walker.prototype.getBodies = function() {
     this.torso.lower_torso,
     this.left_arm.upper_arm,
     this.left_arm.lower_arm,
-    // this.left_arm.hand,
+    this.left_arm.hand,
     this.right_arm.upper_arm,
     this.right_arm.lower_arm,
-    // this.right_arm.hand,
+    this.right_arm.hand,
     this.left_leg.upper_leg,
     this.left_leg.lower_leg,
     this.left_leg.foot,
