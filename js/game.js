@@ -9,7 +9,7 @@ config = {
   max_zoom_factor: 130,
   min_motor_speed: -2,
   max_motor_speed: 2,
-  population_size: 4,
+  population_size: 1,
   walker_health: 100,
   max_floor_tiles: 50,
   round_length: 1000,
@@ -100,7 +100,7 @@ gameInit = function() {
   
   chooseQoute()
   globals.world = new b2.World(new b2.Vec2(0, -10));
-  globals.floor = createFloor();
+  globals.floor = createFloor(globals.world);
   [globals.agents, globals.walkers] = createPopulation();
 
   drawInit();
@@ -118,6 +118,7 @@ gameInit = function() {
 }
 
 loop = function () { 
+  drawFrame()
   simulationStep()
   drawFrame()
   if (globals.running) requestAnimFrame(loop); // start next timer
@@ -127,11 +128,19 @@ loop = function () {
 resetSimulation = function () { 
   // turn training off temporarlity to avoid NaN's
   updateIfLearning(false)
-  console.log('resetting walkers')
-  for(var k = 0; k < config.population_size; k++) {
-    globals.agents[k].walker = globals.walkers[k] = new Walker(globals.world)
+  // globals.running = false
+
+  globals.world.Destroy() // this way we get rid of listeners and body parts and joints
+  globals.world = new b2.World(new b2.Vec2(0, -10));
+  globals.floor = createFloor(globals.world);
+  for (var k = 0; k < config.population_size; k++) {
+    globals.agents[k].walker = globals.walkers[k] = new Walker(globals.world, globals.floor)
   }
-  setTimeout(()=>updateIfLearning(true), 1000)
+
+  // globals.running = true
+  setTimeout(() => updateIfLearning(true), 1000)
+  // setTimeout(() => requestAnimFrame(loop), 1000)
+
 }
 
 simulationStep = function () {
@@ -139,10 +148,10 @@ simulationStep = function () {
 
   // step world
   globals.world.Step(1/config.time_step, config.velocity_iterations, config.position_iterations);
+  populationSimulationStep();
   globals.world.ClearForces();
 
   // step agents (only after step 50 when they are on the ground)
-  populationSimulationStep();
 }
 
 updateCharts = function () { 
@@ -156,24 +165,6 @@ updateCharts = function () {
     }    
   }
 }
-
-// setSimulationFps = function(fps) {
-//   config.simulation_fps = fps;
-//   clearInterval(globals.simulation_interval);
-//   if(fps > 0) {
-//     globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
-//     if(globals.paused) {
-//       globals.paused = false;
-//       if(config.draw_fps > 0) {
-//         globals.draw_interval = setInterval(drawFrame, Math.round(1000/config.draw_fps));
-//       }
-//     }
-//   } else {
-//     // pause the drawing as well
-//     clearInterval(globals.draw_interval);
-//     globals.paused = true;
-//   }
-// }
 
 createPopulation = function(genomes) {
   var walkers = [];

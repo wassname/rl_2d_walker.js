@@ -1,9 +1,9 @@
 
-function Agent(opt, world) {
-    this.walker = new Walker(world.world)
+function Agent(opt, globals) {
+    this.walker = new Walker(globals.world, globals.floor)
     this.options = opt
 
-    this.world = world
+    this.globals = globals
     this.frequency = 20
     this.loaded = false
 
@@ -15,7 +15,7 @@ function Agent(opt, world) {
     this.timerFrequency = 60 / this.frequency
 
     if (this.options.dynamicallyLoaded !== true) {
-    	this.init(world.brains.actor.newConfiguration(), null)
+    	this.init(globals.brains.actor.newConfiguration(), null)
     }
     
 };
@@ -54,8 +54,8 @@ Agent.prototype.init = function (actor, critic) {
     this.brain.algorithm.critic.optim.regularization.l2 = 0.0001
     this.brain.algorithm.actor.optim.regularization.l2 = 0.0001
 
-    // this.world.brains.shared.add('actor', this.brain.algorithm.actor)
-    this.world.brains.shared.add('critic', this.brain.algorithm.critic)
+    // this.globals.brains.shared.add('actor', this.brain.algorithm.actor)
+    this.globals.brains.shared.add('critic', this.brain.algorithm.critic)
 
     this.actions = actions
 	this.loaded = true

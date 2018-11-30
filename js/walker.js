@@ -13,8 +13,9 @@ var Walker = function() {
 }
 
 
-Walker.prototype.__constructor = function(world) {
-  this.world = globals.world;
+Walker.prototype.__constructor = function(world, floor) {
+  this.world = world;
+  this.floor = floor
 
   this.density = 106.2; // common for all fixtures, no reason to be too specific
 
@@ -77,6 +78,8 @@ Walker.prototype.__constructor = function(world) {
   }
 
   this.joints = [];
+  this.otherJoints = []
+  this.otherBodies = []
   this.grips = [false, false, false, false]
   // this.frictionJoints = []
 
@@ -144,9 +147,16 @@ Walker.prototype.__constructor = function(world) {
       }
      }
   }
-  globals.world.SetContactListener(this.contactListener)
+  this.world.SetContactListener(this.contactListener)
 
 }
+
+// Walker.prototype.destroy = function () { 
+//   this.bodies.map(body=>body.DestroyFixture(body.GetFixtureList()))
+//   this.bodies.map(body=>this.world.DestroyBody(body))  
+//   this.joints.map(joint => this.world.DestroyJoint(joint))
+//   this.otherJoints.map(joint => this.world.DestroyJoint(joint))
+// }
 
 Walker.prototype.createTorso = function() {
   // upper torso
@@ -213,12 +223,13 @@ Walker.prototype.createLeg = function(label) {
 
   var fjd = new b2.FrictionJointDef();
   var position = new b2.Vec2(0,0)
-  fjd.Initialize(foot, globals.floor, position)
+  fjd.Initialize(foot, this.floor, position)
   fjd.maxForce = 0; //This the most force the joint will apply to your object. The faster its moving the more force applied
   fjd.maxTorque = 0; //Set to 0 to prevent rotation
   fjd.userData = label+'foot_friction_joint'
   fjd.collideConnected = true
   var frictionJoint = this.world.CreateJoint(fjd)
+  this.otherJoints.push(frictionJoint)
 
   // leg joints
   var jd = new b2.RevoluteJointDef();
@@ -273,7 +284,6 @@ Walker.prototype.createArm = function(label) {
 
   // hand
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height - this.arm_def.arm_length - this.arm_def.forearm_length - this.arm_def.hand_length/2);
-  // this.bd.position.Set(0.5, this.arm_def.hand_height/2);
   var hand = this.world.CreateBody(this.bd);
 
   this.fd.shape.SetAsBox(this.arm_def.hand_height/2, this.arm_def.hand_length/2);
@@ -283,12 +293,13 @@ Walker.prototype.createArm = function(label) {
 
   var fjd = new b2.FrictionJointDef();
   var position = new b2.Vec2(0,0)
-  fjd.Initialize(hand, globals.floor, position)
+  fjd.Initialize(hand, this.floor, position)
   fjd.maxForce = 0; //This the most force the joint will apply to your object. The faster its moving the more force applied
   fjd.maxTorque = 0; //Set to 0 to prevent rotation
   fjd.userData = label+'hand_friction_joint'
   fjd.collideConnected = true
   var frictionJoint = this.world.CreateJoint(fjd)
+  this.otherJoints.push(frictionJoint)
 
 
   // arm join
@@ -550,7 +561,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   // listener.PostSolve = function (contact, impulse) {
   //     if (contact) console.log(contact)
   //   }
-  //   globals.world.SetContactListener(listener)
+  //   this.world.SetContactListener(listener)
   // }
   var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
   quad_contact_cost = -Math.min(contacts - 4, 10)/2
