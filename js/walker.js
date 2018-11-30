@@ -33,14 +33,14 @@ Walker.prototype.__constructor = function(world) {
   this.bd.position.x += Math.randf(-10, 10)
   this.bd.type = b2.Body.b2_dynamicBody;
   this.bd.linearDamping = 0;
-  this.bd.angularDamping = 20; // decay in force
+  this.bd.angularDamping = 20; // decay in force/ air friction
   this.bd.allowSleep = true;
   this.bd.awake = true;
 
   this.fd = new b2.FixtureDef();
   this.fd.density = this.density;
-  this.fd.restitution = 0.1;
-  this.fd.friction = 100000; // only on contact (grip)
+  this.fd.restitution = 0.1; // bounciness
+  this.fd.friction = 100; // only on contact (grip)
   this.fd.shape = new b2.PolygonShape();
   this.fd.filter.groupIndex = -1;
 
@@ -77,6 +77,7 @@ Walker.prototype.__constructor = function(world) {
   }
 
   this.joints = [];
+  // this.frictionJoints = []
 
   this.torso = this.createTorso();
   this.left_leg = this.createLeg('left_');
@@ -90,6 +91,63 @@ Walker.prototype.__constructor = function(world) {
 
   // now apply a random starting positions and orientation
   this.randomise(0.5);
+
+
+  // add grip
+  // we don't have data on external forces, so I will just punish for contact with the ground
+  http://blog.sethladd.com/2011/09/box2d-collision-damage-for-javascript.html
+  // However we could use a listener or calc force
+  var self = this
+  this.contactListener = new b2.ContactListener()
+  this.contactListener.BeginContact = function (contact, impulse) {
+    if (contact.m_fixtureA.m_body.m_userData == "floor" | contact.m_fixtureB.m_body.m_userData) {
+      var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
+      if (otherFixture.m_body.m_userData == "right_foot") {
+        console.log('grip on ' + otherFixture.m_body.m_userData)
+        // TODO let the agent act to grip or not. Only if palm or foot down?
+        self.right_leg.frictionJoint.maxForce = 1000
+        self.right_leg.frictionJoint.maxTorque = 1000
+      } else if (otherFixture.m_body.m_userData == "left_foot") {
+        console.log('grip on ' + otherFixture.m_body.m_userData)
+        self.left_leg.frictionJoint.maxForce = 1000
+        self.left_leg.frictionJoint.maxTorque = 1000
+      } else if (otherFixture.m_body.m_userData == "right_lower_arm") { 
+        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // TODO let the agent act to grip or not
+        self.right_arm.frictionJoint.maxForce = 1000
+        self.right_arm.frictionJoint.maxTorque = 1000
+      } else if (otherFixture.m_body.m_userData == "left_lower_arm") { 
+        console.log('grip off ' + otherFixture.m_body.m_userData)
+        self.left_arm.frictionJoint.maxForce = 1000
+        self.left_arm.frictionJoint.maxTorque = 1000
+      }
+    }
+  }
+  this.contactListener.EndContact = function (contact, impulse) {
+    if (contact.m_fixtureA.m_body.m_userData == "floor" | contact.m_fixtureB.m_body.m_userData) {
+      var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
+      if (otherFixture.m_body.m_userData == "right_foot") { 
+        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // TODO let the agent act to grip or not
+        setTimeout(() => { self.right_leg.frictionJoint.maxForce = 0 }, 100)
+        setTimeout(() => { self.right_leg.frictionJoint.maxTorque = 0 }, 100)
+      } else if (otherFixture.m_body.m_userData == "left_foot") { 
+        console.log('grip off ' + otherFixture.m_body.m_userData)
+        self.left_leg.frictionJoint.maxForce = 0
+        self.left_leg.frictionJoint.maxTorque = 0
+      } else if (otherFixture.m_body.m_userData == "right_lower_arm") { 
+        console.log('grip off ' + otherFixture.m_body.m_userData)
+        // TODO let the agent act to grip or not
+        setTimeout(() => { self.right_arm.frictionJoint.maxForce = 0 }, 100)
+        setTimeout(() => { self.right_arm.frictionJoint.maxTorque = 0 }, 100)
+      } else if (otherFixture.m_body.m_userData == "left_lower_arm") { 
+        console.log('grip off ' + otherFixture.m_body.m_userData)
+        self.left_arm.frictionJoint.maxForce = 0
+        self.left_arm.frictionJoint.maxTorque = 0
+      }
+     }
+  }
+  globals.world.SetContactListener(this.contactListener)
 
 }
 
@@ -157,13 +215,14 @@ Walker.prototype.createLeg = function(label) {
   foot.SetUserData(label + 'foot')
   // foot.GetLinearDamping(100)
 
-  // var fjd = new b2.FrictionJointDef();
-  // var position = new b2.Vec2(0,0)
-  // fjd.Initialize(foot, globals.floor, position)
-  // fjd.maxForce = 100; //This the most force the joint will apply to your object. The faster its moving the more force applied
-  // fjd.maxTorque = 100; //Set to 0 to prevent rotation
-  // var frictionJoint = this.world.CreateJoint(fjd)
-  // // TODO only present when colliding?
+  var fjd = new b2.FrictionJointDef();
+  var position = new b2.Vec2(0,0)
+  fjd.Initialize(foot, globals.floor, position)
+  fjd.maxForce = 0; //This the most force the joint will apply to your object. The faster its moving the more force applied
+  fjd.maxTorque = 0; //Set to 0 to prevent rotation
+  fjd.userData = label+'foot_friction_joint'
+  fjd.collideConnected = true
+  var frictionJoint = this.world.CreateJoint(fjd)
 
   // leg joints
   var jd = new b2.RevoluteJointDef();
@@ -196,7 +255,7 @@ Walker.prototype.createLeg = function(label) {
   j.SetUserData(label + 'foot_joint')
   this.joints.push(j);
 
-  return {upper_leg: upper_leg, lower_leg: lower_leg, foot:foot};
+  return {upper_leg: upper_leg, lower_leg: lower_leg, foot:foot, frictionJoint:frictionJoint};
 }
 
 Walker.prototype.createArm = function(label) {
@@ -235,6 +294,16 @@ Walker.prototype.createArm = function(label) {
   // // TODO this seems to preclude colliding, so made an ankle that has this?
 
 
+  var fjd = new b2.FrictionJointDef();
+  var position = new b2.Vec2(0,0)
+  fjd.Initialize(lower_arm, globals.floor, position)
+  fjd.maxForce = 0; //This the most force the joint will apply to your object. The faster its moving the more force applied
+  fjd.maxTorque = 0; //Set to 0 to prevent rotation
+  fjd.userData = label+'hand_friction_joint'
+  fjd.collideConnected = true
+  var frictionJoint = this.world.CreateJoint(fjd)
+
+
   // arm join
   var jd = new b2.RevoluteJointDef();
   var position = upper_arm.GetPosition().Clone();
@@ -267,7 +336,8 @@ Walker.prototype.createArm = function(label) {
 
   return {
     upper_arm: upper_arm, lower_arm: lower_arm,
-    // hand: hand
+    // hand: hand,
+    frictionJoint:frictionJoint
   };
 }
 

@@ -1,6 +1,7 @@
 function createFloor() {
   var body_def = new b2.BodyDef();
   var body = globals.world.CreateBody(body_def);
+  body.SetUserData('floor')
   var fix_def = new b2.FixtureDef();
   fix_def.friction = 0.8;
   fix_def.shape = new b2.ChainShape();

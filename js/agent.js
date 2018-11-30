@@ -27,8 +27,8 @@ Agent.prototype.init = function (actor, critic) {
 
     var input = window.neurojs.Agent.getInputDimension(states, actions, temporal)
 
+    // Example params https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-bipedal/ddpg_agent.py
     this.brain = new window.neurojs.Agent({
-
         actor: actor,
         critic: critic,
 
@@ -39,17 +39,20 @@ Agent.prototype.init = function (actor, critic) {
 
         temporalWindow: temporal, 
 
-        discount: 0.97,  // time discount
-        rate: 0.001,  // learning rate,
-        theta: 0.05, // progressive copy
-        alpha: 0.1, // advantage learning
+        discount: 0.99,  // time discount
+        rate: 3e-4,  // learning rate,
+        theta: 1e-3, // progressive copy
+        // alpha: 0.1, // advantage learning
 
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
-        experience: 3e3, 
+        experience: 100e3, 
 
-        learningPerTick: 40, 
-        startLearningAt: 900,
+        learningPerTick: 128, 
+        startLearningAt: 3000,
     })
+
+    this.brain.algorithm.critic.optim.regularization.l2 = 0.0001
+    this.brain.algorithm.actor.optim.regularization.l2 = 0.0001
 
     // this.world.brains.shared.add('actor', this.brain.algorithm.actor)
     this.world.brains.shared.add('critic', this.brain.algorithm.critic)
