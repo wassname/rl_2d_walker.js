@@ -64,7 +64,7 @@ Walker.prototype.__constructor = function(world) {
     arm_width: 0.12,
     arm_length: 0.37,
     forearm_width: 0.1,
-    forearm_length: 0.42,
+    forearm_length: 0.30,
     hand_height: 0.08,
     hand_length: 0.18,
   }

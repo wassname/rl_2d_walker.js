@@ -9,7 +9,7 @@ config = {
   max_zoom_factor: 130,
   min_motor_speed: -2,
   max_motor_speed: 2,
-  population_size: 1,
+  population_size: 4,
   walker_health: 100,
   max_floor_tiles: 50,
   round_length: 1000,
