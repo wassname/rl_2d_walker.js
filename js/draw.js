@@ -56,6 +56,7 @@ drawWalker = function (walker) {
   globals.ctx.lineWidth = 1/globals.zoom;
 
   // left legs and arms first
+  // drawRect(walker.left_arm.hand);
   drawRect(walker.left_arm.lower_arm);
   drawRect(walker.left_arm.upper_arm);
   drawRect(walker.left_leg.foot);
@@ -71,6 +72,7 @@ drawWalker = function (walker) {
   drawRect(walker.torso.upper_torso);
 
   // right legs and arms
+  // drawRect(walker.right_arm.hand);
   drawRect(walker.right_leg.upper_leg);
   drawRect(walker.right_leg.lower_leg);
   drawRect(walker.right_leg.foot);

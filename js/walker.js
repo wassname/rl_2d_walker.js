@@ -6,7 +6,7 @@ function deg2rad(deg) {
   return deg/180*Math.PI
 }
 
-const STRENGTH = 2
+const STRENGTH = 3
 
 var Walker = function() {
   this.__constructor.apply(this, arguments);
@@ -33,13 +33,14 @@ Walker.prototype.__constructor = function(world) {
   this.bd.position.x += Math.randf(-10, 10)
   this.bd.type = b2.Body.b2_dynamicBody;
   this.bd.linearDamping = 0;
-  this.bd.angularDamping = 0.01;
+  this.bd.angularDamping = 20; // decay in force
   this.bd.allowSleep = true;
   this.bd.awake = true;
 
   this.fd = new b2.FixtureDef();
   this.fd.density = this.density;
   this.fd.restitution = 0.1;
+  this.fd.friction = 100000; // only on contact (grip)
   this.fd.shape = new b2.PolygonShape();
   this.fd.filter.groupIndex = -1;
 
@@ -63,7 +64,9 @@ Walker.prototype.__constructor = function(world) {
     arm_width: 0.12,
     arm_length: 0.37,
     forearm_width: 0.1,
-    forearm_length: 0.42
+    forearm_length: 0.42,
+    // hand_height: 0.08,
+    // hand_length: 0.20,
   }
 
   this.head_def = {
@@ -76,10 +79,10 @@ Walker.prototype.__constructor = function(world) {
   this.joints = [];
 
   this.torso = this.createTorso();
-  this.left_leg = this.createLeg();
-  this.right_leg = this.createLeg();
-  this.left_arm = this.createArm();
-  this.right_arm = this.createArm();
+  this.left_leg = this.createLeg('left_');
+  this.right_leg = this.createLeg('right_');
+  this.left_arm = this.createArm('left_');
+  this.right_arm = this.createArm('right_');
   this.head = this.createHead();
   this.connectParts();
 
@@ -94,6 +97,7 @@ Walker.prototype.createTorso = function() {
   // upper torso
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height/2);
   var upper_torso = this.world.CreateBody(this.bd);
+  upper_torso.SetUserData('upper_torso')
 
   this.fd.shape.SetAsBox(this.torso_def.upper_width/2, this.torso_def.upper_height/2);
   upper_torso.CreateFixture(this.fd);
@@ -101,6 +105,7 @@ Walker.prototype.createTorso = function() {
   // lower torso
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height/2);
   var lower_torso = this.world.CreateBody(this.bd);
+  lower_torso.SetUserData('lower_torso'  )
 
   this.fd.shape.SetAsBox(this.torso_def.lower_width/2, this.torso_def.lower_height/2);
   lower_torso.CreateFixture(this.fd);
@@ -115,23 +120,25 @@ Walker.prototype.createTorso = function() {
   jd.Initialize(upper_torso, lower_torso, position);
   jd.lowerAngle = deg2rad(-75/2);
   jd.upperAngle = deg2rad(30 / 2);
-  jd.user_data = 'torso_joint'  
   jd.enableLimit = true;
-  jd.maxMotorTorque = 100 * STRENGTH;
+  jd.maxMotorTorque = 150 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData('torso_joint'  )
+  this.joints.push(j);
 
   return {upper_torso: upper_torso, lower_torso: lower_torso};
 }
 
-Walker.prototype.createLeg = function() {
+Walker.prototype.createLeg = function(label) {
   // upper leg
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length/2);
   var upper_leg = this.world.CreateBody(this.bd);
 
   this.fd.shape.SetAsBox(this.leg_def.femur_width/2, this.leg_def.femur_length/2);
   upper_leg.CreateFixture(this.fd);
+  upper_leg.SetUserData(label + 'upper_leg')
 
   // lower leg
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length/2);
@@ -139,6 +146,7 @@ Walker.prototype.createLeg = function() {
 
   this.fd.shape.SetAsBox(this.leg_def.tibia_width/2, this.leg_def.tibia_length/2);
   lower_leg.CreateFixture(this.fd);
+  lower_leg.SetUserData(label + 'lower_leg')
 
   // foot
   this.bd.position.Set(0.5, this.leg_def.foot_height/2);
@@ -146,6 +154,16 @@ Walker.prototype.createLeg = function() {
 
   this.fd.shape.SetAsBox(this.leg_def.foot_length/2, this.leg_def.foot_height/2);
   foot.CreateFixture(this.fd);
+  foot.SetUserData(label + 'foot')
+  // foot.GetLinearDamping(100)
+
+  // var fjd = new b2.FrictionJointDef();
+  // var position = new b2.Vec2(0,0)
+  // fjd.Initialize(foot, globals.floor, position)
+  // fjd.maxForce = 100; //This the most force the joint will apply to your object. The faster its moving the more force applied
+  // fjd.maxTorque = 100; //Set to 0 to prevent rotation
+  // var frictionJoint = this.world.CreateJoint(fjd)
+  // // TODO only present when colliding?
 
   // leg joints
   var jd = new b2.RevoluteJointDef();
@@ -156,35 +174,39 @@ Walker.prototype.createLeg = function() {
   jd.lowerAngle = deg2rad(-100);
   jd.upperAngle = deg2rad(-2);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 160 * STRENGTH;
+  jd.maxMotorTorque = 260 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
-  jd.user_data = 'leg_joint'
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData(label + 'leg_joint')
+  this.joints.push(j);
 
   // foot joint
+  var jd = new b2.RevoluteJointDef();
   var position = lower_leg.GetPosition().Clone();
   position.y -= this.leg_def.tibia_length/2;
   jd.Initialize(lower_leg, foot, position);
   jd.lowerAngle = -Math.PI/5;
   jd.upperAngle = Math.PI/6;
   jd.enableLimit = true;
-  jd.maxMotorTorque = 70 * STRENGTH;
+  jd.maxMotorTorque = 90 * STRENGTH;
   jd.motorSpeed = 0;
-  jd.user_data = 'foot_joint'
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData(label + 'foot_joint')
+  this.joints.push(j);
 
   return {upper_leg: upper_leg, lower_leg: lower_leg, foot:foot};
 }
 
-Walker.prototype.createArm = function() {
+Walker.prototype.createArm = function(label) {
   // upper arm
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height - this.arm_def.arm_length/2);
   var upper_arm = this.world.CreateBody(this.bd);
 
   this.fd.shape.SetAsBox(this.arm_def.arm_width/2, this.arm_def.arm_length/2);
   upper_arm.CreateFixture(this.fd);
+  upper_arm.SetUserData(label + 'upper_arm')
 
   // lower arm
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height - this.arm_def.arm_length - this.arm_def.forearm_length/2);
@@ -192,8 +214,28 @@ Walker.prototype.createArm = function() {
 
   this.fd.shape.SetAsBox(this.arm_def.forearm_width/2, this.arm_def.forearm_length/2);
   lower_arm.CreateFixture(this.fd);
+  lower_arm.SetUserData(label + 'lower_arm')
 
-  // arm joint
+
+  // // hand
+  // this.bd.position.Set(0.5, this.leg_def.hand_height/2);
+  // var hand = this.world.CreateBody(this.bd);
+
+  // this.fd.shape.SetAsBox(this.leg_def.hand_length/2, this.leg_def.hand_height/2);
+  // hand.CreateFixture(this.fd);
+  // hand.SetUserData(label + 'hand')
+
+  // var fjd = new b2.FrictionJointDef();
+  // var position = new b2.Vec2(0,0)
+  // fjd.Initialize(lower_arm, globals.floor, position)
+  // fjd.maxForce = 100; //This the most force the joint will apply to your object. The faster its moving the more force applied
+  // fjd.maxTorque = 100; //Set to 0 to prevent rotation
+  // var frictionJoint = this.world.CreateJoint(fjd)
+  // // TODO only present when colliding?
+  // // TODO this seems to preclude colliding, so made an ankle that has this?
+
+
+  // arm join
   var jd = new b2.RevoluteJointDef();
   var position = upper_arm.GetPosition().Clone();
   position.y -= this.arm_def.arm_length/2;
@@ -201,22 +243,42 @@ Walker.prototype.createArm = function() {
   jd.lowerAngle = deg2rad(0);
   jd.upperAngle = deg2rad(85);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 100 * STRENGTH;
+  jd.maxMotorTorque = 150 * STRENGTH;
   jd.motorSpeed = 0;
-  jd.user_data = 'arm_joint'
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData(label + 'arm_joint')
+  this.joints.push(j);
 
-  return {upper_arm: upper_arm, lower_arm: lower_arm};
+  // // hand joint
+  // var jd = new b2.RevoluteJointDef();
+  // var position = lower_arm.GetPosition().Clone();
+  // position.y -= this.arm_def.forearm_length/2;
+  // jd.Initialize(lower_arm, hand, position);
+  // jd.lowerAngle = deg2rad(-85);
+  // jd.upperAngle = deg2rad(85);
+  // jd.enableLimit = true;
+  // jd.maxMotorTorque = 90 * STRENGTH;
+  // jd.motorSpeed = 0;
+  // jd.enableMotor = true;
+  // var j = this.world.CreateJoint(jd)
+  // j.SetUserData(label + 'hand_joint')
+  // this.joints.push(j);
+
+  return {
+    upper_arm: upper_arm, lower_arm: lower_arm,
+    // hand: hand
+  };
 }
 
 Walker.prototype.createHead = function() {
   // neck
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height + this.head_def.neck_height/2);
   var neck = this.world.CreateBody(this.bd);
-
+  
   this.fd.shape.SetAsBox(this.head_def.neck_width/2, this.head_def.neck_height/2);
   neck.CreateFixture(this.fd);
+  neck.SetUserData('neck')
 
   // head
   this.bd.position.Set(0.5 - this.leg_def.foot_length/2 + this.leg_def.tibia_width/2, this.leg_def.foot_height/2 + this.leg_def.foot_height/2 + this.leg_def.tibia_length + this.leg_def.femur_length + this.torso_def.lower_height + this.torso_def.upper_height + this.head_def.neck_height + this.head_def.head_height/2);
@@ -224,6 +286,7 @@ Walker.prototype.createHead = function() {
 
   this.fd.shape.SetAsBox(this.head_def.head_width/2, this.head_def.head_height/2);
   head.CreateFixture(this.fd);
+  head.SetUserData('head')
 
   // neck joint
   var jd = new b2.RevoluteJointDef();
@@ -236,8 +299,9 @@ Walker.prototype.createHead = function() {
   jd.maxMotorTorque = 4 * STRENGTH;
   jd.motorSpeed = 0;
   jd.enableMotor = true;
-  jd.user_data = 'neck_joint'
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData('neck_joint')
+  this.joints.push(j);
 
   return {head: head, neck: neck};
 }
@@ -251,7 +315,9 @@ Walker.prototype.connectParts = function() {
   jd.localAnchorA = new b2.Vec2(0, -this.head_def.neck_height/2);
   jd.localAnchorB = new b2.Vec2(0, this.torso_def.upper_height/2);
   jd.referenceAngle = 0;
-  this.world.CreateJoint(jd);
+  var j = this.world.CreateJoint(jd);
+  j.SetUserData('neck-joint')
+
 
   // torso/arms
   var jd = new b2.RevoluteJointDef();
@@ -261,22 +327,24 @@ Walker.prototype.connectParts = function() {
   jd.lowerAngle = deg2rad(-60);
   jd.upperAngle = deg2rad(125);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 200 * STRENGTH;
+  jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
-  jd.user_data = 'shoulder_right_joint'
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData('shoulder_right_joint')
+  this.joints.push(j);
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.upper_torso, this.left_arm.upper_arm, position);
   jd.lowerAngle = deg2rad(-60);
   jd.upperAngle = deg2rad(125);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 200 * STRENGTH;
+  jd.maxMotorTorque = 250 * STRENGTH;
   jd.motorSpeed = 0;
-  jd.user_data = 'shoulder_right_joint'
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData('shoulder_right_joint')
+  this.joints.push(j);
 
   // torso/legs
   var jd = new b2.RevoluteJointDef();
@@ -286,22 +354,24 @@ Walker.prototype.connectParts = function() {
   jd.lowerAngle = deg2rad(-10);
   jd.upperAngle = deg2rad(80);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 350 * STRENGTH;
+  jd.maxMotorTorque = 400 * STRENGTH;
   jd.motorSpeed = 0;
-  jd.user_data = 'waist_right_joint'
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData('waist_right_joint')
+  this.joints.push(j);
 
   var jd = new b2.RevoluteJointDef();
   jd.Initialize(this.torso.lower_torso, this.left_leg.upper_leg, position);
   jd.lowerAngle = deg2rad(-10);
   jd.upperAngle = deg2rad(80);
   jd.enableLimit = true;
-  jd.maxMotorTorque = 350 * STRENGTH;
+  jd.maxMotorTorque = 400 * STRENGTH;
   jd.motorSpeed = 0;
-  jd.user_data = 'waist_left_joint'
   jd.enableMotor = true;
-  this.joints.push(this.world.CreateJoint(jd));
+  var j = this.world.CreateJoint(jd)
+  j.SetUserData('waist_left_joint')
+  this.joints.push(j);
 }
 
 Walker.prototype.getBodies = function() {
@@ -313,8 +383,10 @@ Walker.prototype.getBodies = function() {
     this.torso.lower_torso,
     this.left_arm.upper_arm,
     this.left_arm.lower_arm,
+    // this.left_arm.hand,
     this.right_arm.upper_arm,
     this.right_arm.lower_arm,
+    // this.right_arm.hand,
     this.left_leg.upper_leg,
     this.left_leg.lower_leg,
     this.left_leg.foot,
@@ -365,7 +437,7 @@ Walker.prototype.getState = function () {
 Walker.prototype.simulationPreStep = function (motorSpeeds) {  
   // act
   for (var k = 0; k < this.joints.length; k++) {
-    this.joints[k].SetMotorSpeed(motorSpeeds[k] * 3); // action can range from -3 to 3, radians per second
+    this.joints[k].SetMotorSpeed(motorSpeeds[k] * 10); // action can range from -3 to 3, radians per second
   }
 }
 
@@ -379,7 +451,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
   // reward for keeping head up, compared to feet
   var mean_foot_height = (this.left_leg.foot.GetPosition().y + this.right_leg.foot.GetPosition().y)/2
   
-  var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height)* 20;  // it's head should be above it's feet 2*(-0.25-2)
+  var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height)* 400;  // it's head should be above it's feet 2*(-0.25-2)
 
   // reward for moving one leg beyond the other (stepping)
   var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
@@ -388,16 +460,16 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
 
   // cost for moving joints to unnatural positions (fraction of movement range in the relevant direction)
   var jointFractionMovement = j => j.GetJointAngle() > 0 ? j.GetJointAngle() / (j.GetUpperLimit() + 1) : j.GetJointAngle() / (j.GetLowerLimit() - 1)
-  var quad_joint_angle_cost = - 0.15 * this.joints.map(j => jointFractionMovement(j) * 1.2)
+  var quad_joint_angle_cost = - 0.10 * this.joints.map(j => jointFractionMovement(j) * 1.2)
     .reduce((o, v) => o + v * v, 0)
   quad_joint_angle_cost = Math.max(quad_joint_angle_cost, -10)
 
   // reward for moving right
   var position = this.torso.upper_torso.GetPosition().x
   if (this.last_position === undefined) this.last_position = position
-  var velocity = (position - this.last_position) * 130
+  var velocity = (position - this.last_position) * 100
   this.last_position = position
-  lin_vel_reward = 6 * velocity
+  lin_vel_reward = 3 * velocity
 
   // punish for using energy, squared
   var quad_power_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
@@ -428,7 +500,7 @@ Walker.prototype.simulationStep = function (motorSpeeds) {
     leg_switch_reward
   }
   
-  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)
+  this.reward = Object.values(this.rewards).reduce((tot,v)=>tot+v, 0)/3
 
   var info = {
     episodeSteps: this.steps,

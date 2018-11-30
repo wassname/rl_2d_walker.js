@@ -9,10 +9,10 @@ config = {
   max_zoom_factor: 130,
   min_motor_speed: -2,
   max_motor_speed: 2,
-  population_size: 4,
+  population_size: 1,
   walker_health: 100,
   max_floor_tiles: 50,
-  round_length: 4000,
+  round_length: 1000,
   min_body_delta: 0,
   min_leg_delta: 0.0,
 };
@@ -54,7 +54,6 @@ displayProgress = function () {
 }
 
 gameInit = function() {
-  var joints = 12
   var bodyParts = 14
   var joints = 12
   var state = bodyParts * 10 + joints * 3
@@ -65,17 +64,17 @@ gameInit = function() {
   globals.brains = {
     actor: new window.neurojs.Network.Model([
       { type: 'input', size: input },
-      { type: 'fc', size: 60, activation: 'relu' },
-      { type: 'noise', sigma: 0.3, delta: 0.1, theta: 0.15 },
-      { type: 'fc', size: 40, activation: 'relu' },
-      { type: 'noise', sigma: 0.3, delta: 0.1, theta: 0.15 },
-      { type: 'fc', size: 40, activation: 'relu' },
-      { type: 'fc', size: 40, activation: 'relu', dropout: 0.30 },
+      { type: 'fc', size: 256, activation: 'relu' },
+      // { type: 'noise', sigma: 0.2, delta: 0.001, theta: 0.15 },
+      // { type: 'fc', size: 160, activation: 'relu' },
+      // { type: 'noise', sigma: 0.2, delta: 0.001, theta: 0.15 },
+      // { type: 'fc', size: 100, activation: 'relu' },
+      { type: 'fc', size: 100, activation: 'relu', dropout: 0.30 },
       //  delta represents the equilibrium or mean value supported by fundamentals; 
       // sigma the degree of volatility around it caused by shocks, 
       // theta the rate by which these shocks dissipate and the variable reverts towards the mean. 
-      { type: 'noise', sigma: 0.1, delta: 0.1, theta: 0.15 },
       { type: 'fc', size: actions, activation: 'tanh' },
+      { type: 'noise', sigma: 0.3, delta: 0.1, theta: 0.15 },
       { type: 'regression' }
       
     ]),
@@ -83,10 +82,9 @@ gameInit = function() {
     critic: new window.neurojs.Network.Model([
       
       { type: 'input', size: input + actions },
-      { type: 'fc', size: 80, activation: 'relu' },
-      { type: 'fc', size: 70, activation: 'relu' },
-      { type: 'fc', size: 60, activation: 'relu' },
-      { type: 'fc', size: 50, activation: 'relu' },
+      { type: 'fc', size: 256, activation: 'relu' },
+      { type: 'fc', size: 256, activation: 'relu' },
+      { type: 'fc', size: 128, activation: 'relu' },
       { type: 'fc', size: 1 },
       { type: 'regression' }
       
@@ -102,9 +100,9 @@ gameInit = function() {
   
   chooseQoute()
   globals.world = new b2.World(new b2.Vec2(0, -10));
+  globals.floor = createFloor();
   [globals.agents, globals.walkers] = createPopulation();
 
-  globals.floor = createFloor();
   drawInit();
 
   globals.step_counter = 0;
@@ -148,12 +146,13 @@ simulationStep = function () {
 }
 
 updateCharts = function () { 
-  if (globals.agents[0].infos.length>10) {
+  var groupN = 100
+  if (globals.agents[0].infos.length>=groupN) {
     if (!globals.charts) { 
       globals.charts = new Charts()
-      globals.charts.init(globals.agents)
+      globals.charts.init(globals.agents, groupN)
     } else {
-      globals.charts.update(globals.agents)
+      globals.charts.update(globals.agents, groupN, 100000)
     }    
   }
 }
