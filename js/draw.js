@@ -57,27 +57,33 @@ drawWalker = function (walker) {
 
   // left legs and arms first
   // drawRect(walker.left_arm.hand);
-  drawRect(walker.left_arm.lower_arm);
   drawRect(walker.left_arm.upper_arm);
-  drawRect(walker.left_leg.foot);
   drawRect(walker.left_leg.lower_leg);
   drawRect(walker.left_leg.upper_leg);
-
+  
+  
   // head
   drawRect(walker.head.neck);
   drawRect(walker.head.head);
-
+  
   // torso
   drawRect(walker.torso.lower_torso);
   drawRect(walker.torso.upper_torso);
-
+  
   // right legs and arms
   // drawRect(walker.right_arm.hand);
   drawRect(walker.right_leg.upper_leg);
   drawRect(walker.right_leg.lower_leg);
-  drawRect(walker.right_leg.foot);
   drawRect(walker.right_arm.upper_arm);
+  
+  if (walker.left_leg.frictionJoint.maxForce) globals.ctx.lineWidth = 4/globals.zoom;
+  drawRect(walker.left_leg.foot);
+  if (walker.right_leg.frictionJoint.maxForce) globals.ctx.lineWidth = 4/globals.zoom;
+  drawRect(walker.right_leg.foot);
+  if (walker.right_arm.frictionJoint.maxForce) globals.ctx.lineWidth = 4 / globals.zoom;
   drawRect(walker.right_arm.lower_arm);
+  if (walker.left_arm.frictionJoint.maxForce) globals.ctx.lineWidth = 4/globals.zoom;
+  drawRect(walker.left_arm.lower_arm);
 }
 
 drawRect = function(body) {

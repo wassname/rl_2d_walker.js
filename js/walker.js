@@ -510,7 +510,7 @@ Walker.prototype.simulationPreStep = function (motorSpeeds) {
   for (var k = 0; k < this.joints.length; k++) {
     this.joints[k].SetMotorSpeed(motorSpeeds[k] * 10); // action can range from -3 to 3, radians per second
   }
-  for (let i = this.joints.length; i < motorSpeeds.length; i++) {
+  for (let i = 0; i < motorSpeeds.length-this.joints.length; i++) {
     this.grips[i] = motorSpeeds[i] > 0
   }
   if (motorSpeeds[0] <= 0) this.right_leg.frictionJoint.maxForce = this.right_leg.frictionJoint.maxTorque
