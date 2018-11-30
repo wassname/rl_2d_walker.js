@@ -103,22 +103,18 @@ Walker.prototype.__constructor = function(world) {
   this.contactListener.BeginContact = function (contact, impulse) {
     if (contact.m_fixtureA.m_body.m_userData == "floor" | contact.m_fixtureB.m_body.m_userData) {
       var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
-      if (otherFixture.m_body.m_userData == "right_foot") {
-        // console.log('grip on ' + otherFixture.m_body.m_userData)
+      if (otherFixture.m_body === self.right_leg.foot) {        
         // TODO let the agent act to grip or not. Only if palm or foot down?
         self.right_leg.frictionJoint.maxForce = 1000 * self.grips[0]
         self.right_leg.frictionJoint.maxTorque = 1000 * self.grips[0]
-      } else if (otherFixture.m_body.m_userData == "left_foot") {
-        // console.log('grip on ' + otherFixture.m_body.m_userData)
+      } else if (otherFixture.m_body === self.left_leg.foot) {
         self.left_leg.frictionJoint.maxForce = 1000 * self.grips[1]
         self.left_leg.frictionJoint.maxTorque = 1000 * self.grips[1]
-      } else if (otherFixture.m_body.m_userData == "right_hand") { 
-        // console.log('grip off ' + otherFixture.m_body.m_userData)
+      } else if (otherFixture.m_body == self.right_arm.hand) { 
         // TODO let the agent act to grip or not
         self.right_arm.frictionJoint.maxForce = 1000 * self.grips[2]
         self.right_arm.frictionJoint.maxTorque = 1000 * self.grips[2]
-      } else if (otherFixture.m_body.m_userData == "left_hand") { 
-        // console.log('grip off ' + otherFixture.m_body.m_userData)
+      } else if (otherFixture.m_body === self.left_arm.hand) { 
         self.left_arm.frictionJoint.maxForce = 1000 * self.grips[3]
         self.left_arm.frictionJoint.maxTorque = 1000 * self.grips[3]
       }
