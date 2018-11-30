@@ -76,13 +76,13 @@ drawWalker = function (walker) {
   drawRect(walker.right_leg.lower_leg);
   drawRect(walker.right_arm.upper_arm);
   
-  if (walker.left_leg.frictionJoint.maxForce) globals.ctx.lineWidth = 4/globals.zoom;
+  globals.ctx.lineWidth = walker.left_leg.frictionJoint.maxForce? 4/globals.zoom : 1/globals.zoom;
   drawRect(walker.left_leg.foot);
-  if (walker.right_leg.frictionJoint.maxForce) globals.ctx.lineWidth = 4/globals.zoom;
+  globals.ctx.lineWidth = walker.right_leg.frictionJoint.maxForce? 4/globals.zoom : 1/globals.zoom;
   drawRect(walker.right_leg.foot);
-  if (walker.right_arm.frictionJoint.maxForce) globals.ctx.lineWidth = 4 / globals.zoom;
+  globals.ctx.lineWidth = walker.right_arm.frictionJoint.maxForce? 4/globals.zoom : 1/globals.zoom;
   drawRect(walker.right_arm.lower_arm);
-  if (walker.left_arm.frictionJoint.maxForce) globals.ctx.lineWidth = 4/globals.zoom;
+  globals.ctx.lineWidth = walker.left_arm.frictionJoint.maxForce? 4/globals.zoom : 1/globals.zoom;
   drawRect(walker.left_arm.lower_arm);
 }
 
