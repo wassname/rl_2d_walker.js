@@ -1,10 +1,7 @@
 // walker has fixed shapes and structures
 // shape definitions are in the constructor
-var randf = (low, high) => Math.random() * (high - low) + low
-
-function deg2rad(deg) {
-  return deg / 180 * Math.PI
-}
+const b2 = require('../vendor/jsbox2d')
+const { randf, deg2rad } = require('./utils.js')
 
 const STRENGTH = 3
 
@@ -631,49 +628,4 @@ Walker.prototype.shuffle = function () {
   console.log('shuffle not implemented')
 }
 
-
-config = {
-  time_step: 60,
-  simulation_fps: 60,
-  draw_fps: 60,
-  velocity_iterations: 8,
-  position_iterations: 3,
-  max_zoom_factor: 130,
-  min_motor_speed: -2,
-  max_motor_speed: 2,
-  population_size: 1,
-  walker_health: 100,
-  max_floor_tiles: 50,
-  round_length: 1000,
-  min_body_delta: 0,
-  min_leg_delta: 0.0,
-};
-
-var b2 = require('../vendor/jsbox2d')
-var createFloor = require('./floor.js')
-var DDPGAgent = require('./ddpg/ddpg_agent')
-var DDPGAgent = require('./ddpg/ddpg_agent')
-
-
-var world = new b2.World(new b2.Vec2(0, -10))
-floor = createFloor(world, config.max_floor_tiles);
-var env = new Walker(world, floor, config)
-
-var nbActions = env.joints.length + 4
-var stateSize = env.bodies.length * 10 + env.joints.length * 3
-
-var agent = new DDPGAgent(env, {
-  stateSize,
-  nbActions,
-  resetEpisode: true,
-  desiredActionStddev: 0.4,
-  initialStddev: 0.4,
-  actorFirstLayerSize: 128,
-  actorSecondLayerSize: 64,
-  criticFirstLayerSSize: 128,
-  criticFirstLayerASize: 128,
-  criticSecondLayerSize: 64,
-  nbEpochs: 1000
-});
-agent.train(true);
-
+module.exports = {Walker, randf}
