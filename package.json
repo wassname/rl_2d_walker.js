@@ -3,7 +3,12 @@
   "version": "0.0.1",
   "description": "TODO: Write a project description",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "@tensorflow/tfjs": "^0.14.0",
+    "canvas": "^2.1.0",
+    "jsdom": "^13.0.0",
+    "phaser": "^3.15.1"
+  },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

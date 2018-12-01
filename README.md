@@ -37,4 +37,4 @@ TODO: Write usage instructions
 # Credits
 
 - The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">http://rednuht.org/genetic_walkers/</a>
-- The refinforcement learning code uses <a href="https://github.com/janhuenermann/neurojs">neurojs</a>
+- DDPG code from metacar

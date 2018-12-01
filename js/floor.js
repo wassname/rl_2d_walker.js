@@ -1,4 +1,6 @@
-function createFloor(world) {
+var b2 = require('../vendor/jsbox2d')
+
+function createFloor(world, max_floor_tiles) {
   var body_def = new b2.BodyDef();
   var body = world.CreateBody(body_def);
   body.SetUserData('floor')
@@ -13,8 +15,8 @@ function createFloor(world) {
     new b2.Vec2(2.5, -0.16)
   ];
 
-  for(var k = 2; k < config.max_floor_tiles; k++) {
-    var ratio = k / config.max_floor_tiles;
+  for(var k = 2; k < max_floor_tiles; k++) {
+    var ratio = k / max_floor_tiles;
     // add uneven floor by continuing from the last point, plus some random jittering
     edges.push(new b2.Vec2(
       edges[edges.length - 1].x + (1 + ratio * Math.random() - ratio / 2),
@@ -26,3 +28,5 @@ function createFloor(world) {
   body.CreateFixture(fix_def);
   return body;
 }
+
+module.exports=createFloor
