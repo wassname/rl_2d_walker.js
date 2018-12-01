@@ -3,6 +3,13 @@ const AdaptiveParamNoiseSpec = require('./noise')
 const PrioritizedMemory = require('./prioritized_memory')
 const { Actor, Critic, } = require('./models')
 const { DDPG, logTfMemory } = require('./ddpg')
+const { mean } = require('../utils')
+
+
+function setMetric(name, value) { 
+    console.debug('metric', name, value)
+}
+
 
 // This class is called from js/DDPG/index.js
 class DDPGAgent {
