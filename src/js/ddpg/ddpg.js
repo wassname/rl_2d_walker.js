@@ -1,5 +1,5 @@
 const { tf } = require('./tf_import')
-const {copyModel, Actor, Critic, assignAndStd } = require('./models')
+const { copyModel, Actor, Critic, assignAndStd, targetUpdate } = require('./models')
 
 function logTfMemory(){
     let mem = tf.memory();
@@ -210,7 +210,8 @@ class DDPG {
     getTfBatch(){
         // Get batch
         const batch = this.memory.popBatch(this.config.batchSize);
-        // Convert to tensors
+
+        // Convert to tensors        
         const tfActions = tf.tensor2d(batch.actions);
         const tfObs0 = tf.tensor2d(batch.obs0);
         const tfObs1 = tf.tensor2d(batch.obs1);

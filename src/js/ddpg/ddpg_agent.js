@@ -141,8 +141,8 @@ class DDPGAgent {
         // Get actions
         const tfActions = this.ddpg.perturbedPrediction(tfPreviousStep);
         // Step in the environment with theses actions
-        let mAcions = tfActions.buffer().values;
-        let [mState, mReward, mDone, info] = this.env.step(mAcions);
+        let mActions = Array.from(tfActions.buffer().values);
+        let [mState, mReward, mDone, info] = this.env.step(mActions);
         this.rewardsList.push(mReward);
         // Get the new observations
         let tfState = tf.tensor2d([mState]);
@@ -150,7 +150,7 @@ class DDPGAgent {
             mDone = 1;
         }
         // Add the new tuple to the buffer
-        this.ddpg.memory.append(mPreviousStep, mAcions, mReward, mState, mDone);
+        this.ddpg.memory.append(mPreviousStep, mActions, mReward, mState, mDone);
         // Dispose tensors
         tfPreviousStep.dispose();
         tfActions.dispose();
