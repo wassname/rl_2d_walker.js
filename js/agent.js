@@ -47,8 +47,8 @@ Agent.prototype.init = function (actor, critic) {
         // buffer: window.neurojs.Buffers.UniformReplayBuffer,
         experience: 100e3, 
 
-        learningPerTick: 128, 
-        startLearningAt: 3000,
+        learningPerTick: 512, 
+        startLearningAt: 10000,
     })
 
     this.brain.algorithm.critic.optim.regularization.l2 = 0.0001

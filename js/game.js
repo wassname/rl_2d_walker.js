@@ -69,7 +69,7 @@ gameInit = function() {
       // { type: 'fc', size: 160, activation: 'relu' },
       // { type: 'noise', sigma: 0.2, delta: 0.001, theta: 0.15 },
       // { type: 'fc', size: 100, activation: 'relu' },
-      { type: 'fc', size: 100, activation: 'relu', dropout: 0.30 },
+      { type: 'fc', size: 40, activation: 'relu', dropout: 0.30 },
       //  delta represents the equilibrium or mean value supported by fundamentals; 
       // sigma the degree of volatility around it caused by shocks, 
       // theta the rate by which these shocks dissipate and the variable reverts towards the mean. 
@@ -83,8 +83,8 @@ gameInit = function() {
       
       { type: 'input', size: input + actions },
       { type: 'fc', size: 256, activation: 'relu' },
-      { type: 'fc', size: 256, activation: 'relu' },
-      { type: 'fc', size: 128, activation: 'relu' },
+      // { type: 'fc', size: 256, activation: 'relu' },
+      { type: 'fc', size: 40, activation: 'relu' },
       { type: 'fc', size: 1 },
       { type: 'regression' }
       
@@ -106,8 +106,6 @@ gameInit = function() {
   drawInit();
 
   globals.step_counter = 0;
-  // globals.simulation_interval = setInterval(simulationStep, Math.round(1000/config.simulation_fps));
-  // globals.draw_interval = setInterval(drawFrame, Math.round(1000 / config.draw_fps));
 
   globals.display_interval = setInterval(displayProgress, Math.round(380 * 1000 / config.draw_fps));
   globals.charts_interval = setInterval(updateCharts, Math.round(380 * 1000 / config.draw_fps));
