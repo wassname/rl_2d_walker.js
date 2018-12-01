@@ -677,7 +677,3 @@ var agent = new DDPGAgent(env, {
 });
 agent.train(true);
 
-// setInterval(() => {
-//   walker.step()
-//   console.log(walker.getState())
-// }, 100)
