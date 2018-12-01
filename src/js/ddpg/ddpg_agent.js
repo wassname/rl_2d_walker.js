@@ -142,12 +142,10 @@ class DDPGAgent {
         const tfActions = this.ddpg.perturbedPrediction(tfPreviousStep);
         // Step in the environment with theses actions
         let mAcions = tfActions.buffer().values;
-        let mReward = this.env.step(mAcions);
+        let [mState, mReward, mDone, info] = this.env.step(mAcions);
         this.rewardsList.push(mReward);
         // Get the new observations
-        let mState = this.env.getState();
         let tfState = tf.tensor2d([mState]);
-        let mDone = 0;
         if (mReward == -1 && this.config.stopOnRewardError){
             mDone = 1;
         }
