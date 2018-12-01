@@ -17,7 +17,7 @@ class Walker {
     this.floor = floor
     this.config = config
 
-    this.rewardAverage = new MovingAverage(1000)
+    this.rewardAverage = new MovingAverage(5000)
 
     this.density = 106.2; // common for all fixtures, no reason to be too specific
 
@@ -554,7 +554,9 @@ class Walker {
         @action: (Integer) The action to take (can be null if no action)
     */
     this.simulationPreStep(motorSpeeds)
-    this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
+    for (let i = 0; i < this.config.action_repeat; i++) {
+      this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
+    }
     this.steps++
     /* score/reward */
     // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
@@ -615,7 +617,7 @@ class Walker {
     var done = 0
     this.world.ClearForces();
     this.rewardAverage.add(this.reward)
-    if (this.steps % 500 == 0)
+    if (this.steps % 1000 == 0)
       console.debug('reward', this.steps, this.rewardAverage.mean())
     return [this.getState(), this.reward, done, info]
   }
@@ -635,11 +637,11 @@ class Walker {
   }
   reset() {
     /** Reset position to initial or random position TODO */
-    console.log('reset not implemented')
+    // console.log('reset not implemented')
   }
   shuffle() {
     /** Reset position to initial or random position TODO */
-    console.log('shuffle not implemented')
+    // console.log('shuffle not implemented')
   }
 }
 
