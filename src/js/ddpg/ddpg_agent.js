@@ -80,8 +80,14 @@ class DDPGAgent {
         /*
             Save the network
         */
-       this.ddpg.critic.model.save('downloads://critic-' + name);
-       this.ddpg.actor.model.save('downloads://actor-'+ name);
+        if (typeof window === "undefined") {
+            this.ddpg.actor.model.save('file://./outputs/actor-' + name);
+            this.ddpg.actor.model.save('file://./outputs/actor-' + name);
+        } else {
+            this.ddpg.critic.model.save('downloads://critic-' + name);
+            this.ddpg.actor.model.save('downloads://actor-'+ name);
+        }
+
     }
 
     async restore(folder, name){
@@ -229,7 +235,7 @@ class DDPGAgent {
                 this._optimize();
             }
             if (this.config.saveDuringTraining && this.epoch % this.config.saveInterval == 0 && this.epoch != 0){
-                this.save("model-ddpg-traffic-epoch-"+this.epoch);
+                this.save("model-ddpg-walker-epoch-"+this.epoch);
             }
             setMetric("Reward", mean(this.rewardsList));
             setMetric("EpisodeDuration", mean(this.stepList));
