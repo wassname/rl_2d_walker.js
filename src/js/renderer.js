@@ -64,7 +64,7 @@ class Renderer {
     let radius = shape.m_radius
     // this.ctx.moveTo(p0.x, p0.y);
     this.ctx.arc(p0.x, p0.y, radius, 0, Math.PI*2)
-    this.ctx.fill();
+    // this.ctx.fill();
     this.ctx.stroke();
   }
 

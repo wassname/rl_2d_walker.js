@@ -3,7 +3,8 @@
 const b2 = require('../vendor/jsbox2d')
 const {
   randf,
-  deg2rad
+  deg2rad,
+  clamp
 } = require('./utils.js')
 const {
   Renderer
@@ -480,7 +481,7 @@ class Walker {
     this.joints.push(j);
   }
 
-  addBall(x, y, r) { 
+  addBall(x, y, r) {
     var bodyDef = new b2.BodyDef()
     bodyDef.type = b2.Body.b2_dynamicBody
     bodyDef.position.x = x
@@ -490,13 +491,13 @@ class Walker {
     // Create a circle shape and set its radius to 6
     var circle = new b2.CircleShape();
     // circle.setRadius(6)
-    circle.m_radius=r
+    circle.m_radius = r
 
 
     // Create a fixture definition to apply our shape to
     var fixtureDef = new b2.FixtureDef();
     fixtureDef.shape = circle;
-    fixtureDef.density = 0.5; 
+    fixtureDef.density = 100;
     fixtureDef.friction = 0.4;
     fixtureDef.restitution = 0.6; // Make it bounce a little bit
 
@@ -588,8 +589,8 @@ class Walker {
         @action: (Integer) The action to take (can be null if no action)
     */
 
-    if (Math.random() < 0.05) {
-       this.addBallOnWalker()
+    if (Math.random() < 0.005) {
+      this.addBallOnWalker()
     }
 
     // repeat actions
@@ -685,7 +686,18 @@ class Walker {
 
   addBallOnWalker() {
     let p = this.torso.upper_torso.GetPosition()
-    this.addBall(p.x, randf(1, 4), randf(0.03,0.3))
+    this.addBall(p.x + randf(-2, 2), randf(1, 4), randf(0.03, 0.3))
+  }
+
+  chuckBalls() { 
+    for (const ball of this.balls) {
+      let pb = ball.GetPosition()
+      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*2
+      let dy = (this.torso.upper_torso.GetPosition().y - pb.y + 1) * 3
+      dx = clamp(dx, -6, 6)
+      dy = clamp(dy, -6, 6)
+      ball.SetLinearVelocity(new b2.Vec2(dx,dy))
+    }
   }
 
 
@@ -695,12 +707,11 @@ class Walker {
     if (this.bodies) this.destroy();
     this.build();
     this.initGrip()
-    
+
     this.episodeSteps = 0
 
     this.randomise(0.5)
 
-    this.addBallOnWalker()
     this.addBallOnWalker()
     this.addBallOnWalker()
 
@@ -719,15 +730,17 @@ class Walker {
 
     // })
 
+    this.chuckBalls()
 
-    // console.log('shuffle not implemented')
-    var b = this.torso.upper_torso
-    let angle = b.GetAngle()
-    let pos = b.GetPosition()
-    // pos.x += randf(-1, 1)
-    // pos.y += randf(0, 2)
-    angle += Math.PI
-    b.SetTransform(pos, angle)
+
+    // // console.log('shuffle not implemented')
+    // var b = this.torso.upper_torso
+    // let angle = b.GetAngle()
+    // let pos = b.GetPosition()
+    // // pos.x += randf(-1, 1)
+    // // pos.y += randf(0, 2)
+    // angle += Math.PI
+    // b.SetTransform(pos, angle)
 
     // let dx = randf(-1, 1)
     // let dy = randf(-1, 1)

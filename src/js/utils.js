@@ -5,6 +5,9 @@ function deg2rad(deg) {
   return deg / 180 * Math.PI
 }
 
+function clamp(x, a, b) {
+  return Math.max(a, Math.min(b, x))
+}
 
 class MovingAverage {
   constructor(N) {
@@ -37,5 +40,6 @@ module.exports = {
   randf,
   randi,
   MovingAverage,
-  mean
+  mean,
+  clamp
 }
