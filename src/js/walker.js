@@ -3,9 +3,9 @@
 const b2 = require('../vendor/jsbox2d')
 const {
   randf,
-  deg2rad,
-  MovingAverage
+  deg2rad
 } = require('./utils.js')
+const {Renderer} = require('./renderer')
 
 const STRENGTH = 3
 
@@ -16,8 +16,6 @@ class Walker {
     this.world = world;
     this.floor = floor
     this.config = config
-
-    this.rewardAverage = new MovingAverage(5000)
 
     this.density = 106.2; // common for all fixtures, no reason to be too specific
 
@@ -85,8 +83,10 @@ class Walker {
     }
 
 
-    // if (typeof document!==undefined)
-    //   this.renderer = new Renderer()
+    if (typeof WEB !== "undefined") {
+      console.log('rendering', typeof WEB)
+      this.renderer = new Renderer(this.config, this, this.floor)
+    }
 
     this.build()
     this.initGrip()
@@ -553,9 +553,10 @@ class Walker {
         @delta (Float) time since the last update
         @action: (Integer) The action to take (can be null if no action)
     */
-    this.simulationPreStep(motorSpeeds)
-    for (let i = 0; i < this.config.action_repeat; i++) {
+   for (let i = 0; i < this.config.action_repeat; i++) {
+      this.simulationPreStep(motorSpeeds)
       this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
+      if (typeof WEB!=="undefined") this.renderer.drawFrame()
     }
     this.steps++
     /* score/reward */
@@ -616,9 +617,6 @@ class Walker {
     }
     var done = 0
     this.world.ClearForces();
-    this.rewardAverage.add(this.reward)
-    if (this.steps % 1000 == 0)
-      console.debug('reward', this.steps, this.rewardAverage.mean())
     return [this.getState(), this.reward, done, info]
   }
 

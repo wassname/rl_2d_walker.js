@@ -91,4 +91,4 @@ Charts.prototype.update = function (agents) {
     }
 }
 
-module.exports ={Chart}
+module.exports ={Charts}

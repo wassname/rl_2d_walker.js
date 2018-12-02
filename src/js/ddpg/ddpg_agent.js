@@ -1,7 +1,7 @@
 const { tf } = require('./tf_import')
 const AdaptiveParamNoiseSpec = require('./noise')
 const PrioritizedMemory = require('./prioritized_memory')
-const { Actor, Critic, } = require('./models')
+const { Actor, Critic, copyFromSave, copyModel} = require('./models')
 const { DDPG, logTfMemory } = require('./ddpg')
 const { mean } = require('../utils')
 
@@ -80,22 +80,29 @@ class DDPGAgent {
         /*
             Save the network
         */
-        if (typeof window === "undefined") {
-            this.ddpg.actor.model.save('file://./outputs/actor-' + name);
+        if (typeof WEB === "undefined") {
+            this.ddpg.critic.model.save('file://./outputs/critic-' + name);
             this.ddpg.actor.model.save('file://./outputs/actor-' + name);
         } else {
-            this.ddpg.critic.model.save('downloads://critic-' + name);
             this.ddpg.actor.model.save('downloads://actor-'+ name);
+            this.ddpg.critic.model.save('downloads://critic-' + name);
         }
-
     }
 
     async restore(folder, name){
         /*
             Restore the weights of the network
         */
-        const critic = await tf.loadModel('https://metacar-project.com/public/models/'+folder+'/critic-'+name+'.json');
-        const actor = await tf.loadModel("https://metacar-project.com/public/models/"+folder+"/actor-"+name+".json");
+       var critic, actor
+        if (typeof WEB === "undefined") {
+            critic = await tf.loadModel('file://'+folder+'/critic-'+name+'.json');
+            actor = await tf.loadModel("file://"+folder+"/actor-"+name+".json");
+        } else {
+            critic = await tf.loadModel(window.location.href+folder+'/critic-'+name+'.json');
+            actor = await tf.loadModel(window.location.href+folder+"/actor-"+name+".json");
+            // const critic = await tf.loadModel('https://metacar-project.com/public/models/'+folder+'/critic-'+name+'.json');
+            // const actor = await tf.loadModel("https://metacar-project.com/public/models/"+folder+"/actor-"+name+".json");
+        }
 
         this.ddpg.critic = copyFromSave(critic, Critic, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
         this.ddpg.actor = copyFromSave(actor, Actor, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
@@ -119,7 +126,7 @@ class DDPGAgent {
         // Pick an action
         const tfActions = this.ddpg.predict(tf.tensor2d([state]));
         const actions = tfActions.buffer().values;
-        agent.env.step(actions);
+        this.env.step(actions);
         tfActions.dispose();
     }
 

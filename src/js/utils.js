@@ -1,4 +1,5 @@
 var randf = (low, high) => Math.random() * (high - low) + low
+var randi = (low, high) => (Math.random() * (high - low) + low)//1
 
 function deg2rad(deg) {
   return deg / 180 * Math.PI
@@ -29,4 +30,4 @@ function mean(array){
 }
 
 
-module.exports = {deg2rad, randf, MovingAverage, mean}
+module.exports = {deg2rad, randf, randi, MovingAverage, mean}

@@ -1,8 +1,14 @@
 const config = require('./config')
-const {Charts} = require('./charts')
+const { Charts } = require('./charts')
+const { randi } = require('./utils')
+const b2 = require('../vendor/jsbox2d')
+const createFloor = require('./floor.js')
+const DDPGAgent = require('./ddpg/ddpg_agent')
+const {
+    Walker
+} = require('./walker')
 
-
-if typeof window !=="undefined"
+if (typeof window !=="undefined")
   var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
 else
   var requestAnimFrame = function (callback) { window.setTimeout(callback, 1000 / 60); };
@@ -26,34 +32,80 @@ chooseQoute = function () {
     'Humans must learn to crawl then walk. Robots break dance then walk',
     ''
   ]
-  var qoute = qoutes[Math.randi(0,qoutes.length)]
+  var qoute = qoutes[randi(0,qoutes.length)]
   document.getElementById('page_quote').innerText = '"'+qoute+'"'
-
 }
 
-class Game { 
-  constructor(params) {
-    var bodyParts = 16
-    var joints = 14
-    var state = bodyParts * 10 + joints * 3
-    var actions = joints + 4
-    var input = 2 * state + 1 * actions
-  
-    
+
+class HeadlessGame { 
+  constructor(config) {
+    this.config = config
+    this.initWorld()
+  }
+
+  initWorld() {
+        
+    var gravity = new b2.Vec2(0, -10)
+    this.world = new b2.World(gravity)
+    this.floor = createFloor(this.world, this.config.max_floor_tiles);
+    this.env = new Walker(this.world, this.floor, this.config)
+
+    const nbActions = this.env.joints.length + 4
+    const stateSize = this.env.bodies.length * 10 + this.env.joints.length * 3
+
+    this.agent = new DDPGAgent(this.env, {
+        stateSize,
+        nbActions,
+        resetEpisode: true,
+        batchSize: 128,
+        actorLr: 0.0001,
+        criticLr: 0.001,
+        memorySize: 30000,
+        gamma: 0.99,
+
+        desiredActionStddev: 0.1,
+        initialStddev: 0.4,
+
+        actorFirstLayerSize: 128,
+        actorSecondLayerSize: 64,
+        criticFirstLayerSSize: 128,
+        criticFirstLayerASize: 128,
+        criticSecondLayerSize: 64,
+
+        nbEpochs: 1000,
+        nbEpochsCycle: 10,
+        nbTrainSteps: 100,
+        maxStep: 800,
+        saveDuringTraining: true,
+        saveInterval: 20,
+
+        tau: 0.008,
+        adoptionCoefficient: 1.01,
+
+
+    });
+  }
+}
+
+class Game extends HeadlessGame { 
+  constructor(config) {
+    super(config)
+
     chooseQoute()
-    this.world = new b2.World(new b2.Vec2(0, -10));
-    this.floor = createFloor(this.world);
-    [this.agents, this.walkers] = createPopulation();
+    // this.agent.stop()
+    // this.agent.env.render(true)
+    this.agent.restore('../outputs', 'model-ddpg-walker/model')
+    setInterval(()=>this.agent.play(), 100)
   
-    drawInit();
+    // drawInit();
   
-    this.step_counter = 0;
+    // this.step_counter = 0;
   
-    this.display_interval = setInterval(displayProgress, Math.round(380 * 1000 / config.draw_fps));
-    this.charts_interval = setInterval(updateCharts, Math.round(380 * 1000 / config.draw_fps));
+    // this.display_interval = setInterval(displayProgress, Math.round(380 * 1000 / config.draw_fps));
+    // this.charts_interval = setInterval(updateCharts, Math.round(380 * 1000 / config.draw_fps));
   
-    this.running = true
-    requestAnimFrame(loop)
+    // this.running = true
+    // requestAnimFrame(loop)
   }
   
   displayProgress() { 
@@ -67,30 +119,30 @@ class Game {
   }
   
   
-  resetSimulation() { 
-    // turn training off temporarlity to avoid NaN's
-    updateIfLearning(false)
-    // this.running = false
+  // resetSimulation() { 
+  //   // turn training off temporarlity to avoid NaN's
+  //   updateIfLearning(false)
+  //   // this.running = false
   
-    this.world.Destroy() // this way we get rid of listeners and body parts and joints
-    this.world = new b2.World(new b2.Vec2(0, -10));
-    this.floor = createFloor(this.world);
-    for (var k = 0; k < config.population_size; k++) {
-      this.agents[k].walker = this.walkers[k] = new Walker(this.world, this.floor)
-    }
+  //   this.world.Destroy() // this way we get rid of listeners and body parts and joints
+  //   this.world = new b2.World(new b2.Vec2(0, -10));
+  //   this.floor = createFloor(this.world);
+  //   for (var k = 0; k < config.population_size; k++) {
+  //     this.agents[k].walker = this.walkers[k] = new Walker(this.world, this.floor)
+  //   }
   
-    // this.running = true
-    setTimeout(() => updateIfLearning(true), 1000)
-    // setTimeout(() => requestAnimFrame(loop), 1000)
+  //   // this.running = true
+  //   setTimeout(() => updateIfLearning(true), 1000)
+  //   // setTimeout(() => requestAnimFrame(loop), 1000)
   
-  }
+  // }
   
-  loop() { 
-    drawFrame()
-    simulationStep()
-    drawFrame()
-    if (this.running) requestAnimFrame(loop); // start next timer
-  }
+  // loop() { 
+  //   drawFrame()
+  //   simulationStep()
+  //   drawFrame()
+  //   if (this.running) requestAnimFrame(loop); // start next timer
+  // }
   
   
   updateCharts() { 
@@ -152,6 +204,4 @@ function saveAs(dv, name) {
 
 //   reader.readAsArrayBuffer(input.files[0]);
 // };
-
-
-module.exports = {Game, chooseQoute, saveAs}
+module.exports = {Game, chooseQoute, saveAs, HeadlessGame}

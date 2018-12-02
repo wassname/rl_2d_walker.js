@@ -2,42 +2,43 @@ class Renderer {
   constructor(config, walker, floor) {
     this.config = config
     this.walkers = [walker]
-    this.floor = foor
+    this.floor = floor
 
     this.main_screen = document.getElementById("main_screen");
     this.ctx = main_screen.getContext("2d");
-    resetCamera();
+    this.resetCamera();
   }
 
   resetCamera() {
-    this.zoom = config.max_zoom_factor;
+    this.zoom = this.config.max_zoom_factor;
     this.translate_x = 0;
     this.translate_y = 280;
   }
 
   setFps(fps) {
-    config.draw_fps = fps;
+    this.config.draw_fps = fps;
     if(this.draw_interval)
       clearInterval(this.draw_interval);
-    if(fps > 0 && config.simulation_fps > 0) {
-      this.draw_interval = setInterval(drawFrame, Math.round(1000/config.draw_fps));
+    if(fps > 0 && this.config.simulation_fps > 0) {
+      this.draw_interval = setInterval(this.drawFrame.bind(this), Math.round(1000/this.config.draw_fps));
     }
   }
 
   drawFrame() {
-    var minmax = getMinMaxDistance();
-    this.target_zoom = Math.min(config.max_zoom_factor, getZoom(minmax.min_x, minmax.max_x + 4, minmax.min_y + 2, minmax.max_y + 2.5));
+    this.ctx.clearRect(0, 0, this.main_screen.width, this.main_screen.height);
+    this.ctx.save();
+    
+    var minmax = this.getMinMaxDistance();
+    this.target_zoom = Math.min(this.config.max_zoom_factor, this.getZoom(minmax.min_x, minmax.max_x + 4, minmax.min_y + 2, minmax.max_y + 2.5));
     this.zoom += 0.1*(this.target_zoom - this.zoom);
     this.translate_x += 0.1*(1.5-minmax.min_x - this.translate_x);
     this.translate_y += 0.3*(minmax.min_y*this.zoom + 280 - this.translate_y);
-    //this.translate_y = minmax.max_y*this.zoom + 150;
-    this.ctx.clearRect(0, 0, this.main_screen.width, this.main_screen.height);
-    this.ctx.save();
     this.ctx.translate(this.translate_x*this.zoom, this.translate_y);
     this.ctx.scale(this.zoom, -this.zoom);
-    drawFloor();
-    for(var k = config.population_size - 1; k >= 0 ; k--) {
-      drawWalker(this.walkers[k]);
+
+    this.drawFloor();
+    for(var k = this.config.population_size - 1; k >= 0 ; k--) {
+      this.drawWalker(this.walkers[k]);
     }
     this.ctx.restore();
   }
@@ -57,42 +58,42 @@ class Renderer {
   drawWalker (walker) {
     var hue = walker.hue || 240
     this.ctx.strokeStyle = "hsl(" + hue + ",100%,0%)";
-    this.ctx.fillStyle = "hsl("+hue+",45%,"+(100-15*walker.health/config.walker_health)+"%)";
+    this.ctx.fillStyle = "hsl("+hue+",45%,"+(100-15*walker.health/this.config.walker_health)+"%)";
     this.ctx.lineWidth = 1/this.zoom;
 
     // left legs and arms first
-    drawRect(walker.left_leg.lower_leg);
-    drawRect(walker.left_leg.upper_leg);
-    drawRect(walker.left_arm.upper_arm);
-    drawRect(walker.left_arm.lower_arm);
+    this.drawRect(walker.left_leg.lower_leg);
+    this.drawRect(walker.left_leg.upper_leg);
+    this.drawRect(walker.left_arm.upper_arm);
+    this.drawRect(walker.left_arm.lower_arm);
 
     this.ctx.lineWidth = walker.left_leg.frictionJoint.maxForce? 4/this.zoom : 1/this.zoom;
-    drawRect(walker.left_leg.foot);
+    this.drawRect(walker.left_leg.foot);
     this.ctx.lineWidth = 1/this.zoom;
     
     this.ctx.lineWidth = walker.left_arm.frictionJoint.maxForce? 4/this.zoom : 1/this.zoom;
-    drawRect(walker.left_arm.hand);
+    this.drawRect(walker.left_arm.hand);
     this.ctx.lineWidth = 1/this.zoom;
     
     // head
-    drawRect(walker.head.neck);
-    drawRect(walker.head.head);
+    this.drawRect(walker.head.neck);
+    this.drawRect(walker.head.head);
     
     // torso
-    drawRect(walker.torso.lower_torso);
-    drawRect(walker.torso.upper_torso);
+    this.drawRect(walker.torso.lower_torso);
+    this.drawRect(walker.torso.upper_torso);
     
     // right legs and arms
-    drawRect(walker.right_leg.upper_leg);
-    drawRect(walker.right_leg.lower_leg);
-    drawRect(walker.right_arm.upper_arm);
-    drawRect(walker.right_arm.lower_arm);
+    this.drawRect(walker.right_leg.upper_leg);
+    this.drawRect(walker.right_leg.lower_leg);
+    this.drawRect(walker.right_arm.upper_arm);
+    this.drawRect(walker.right_arm.lower_arm);
     
     this.ctx.lineWidth = walker.right_leg.frictionJoint.maxForce? 4/this.zoom : 1/this.zoom;
-    drawRect(walker.right_leg.foot);
+    this.drawRect(walker.right_leg.foot);
     this.ctx.lineWidth = 1/this.zoom;
     this.ctx.lineWidth = walker.right_arm.frictionJoint.maxForce? 4/this.zoom : 1/this.zoom;
-    drawRect(walker.right_arm.hand);
+    this.drawRect(walker.right_arm.hand);
     this.ctx.lineWidth = 1/this.zoom;
   }
 
@@ -151,4 +152,4 @@ class Renderer {
     return zoom;
   }
 }
-module.export = {Renderer}
+module.exports = {Renderer}

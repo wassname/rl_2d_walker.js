@@ -38,3 +38,9 @@ TODO: Write usage instructions
 
 - The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">http://rednuht.org/genetic_walkers/</a>
 - DDPG code from metacar
+
+# Notes
+
+- Without node: Training: 52732.152ms
+- With node:    Training: 17211.739ms
+- With cuda     LoopTime: 12583.449ms
