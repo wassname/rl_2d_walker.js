@@ -20,19 +20,22 @@ TODO: Write usage instructions
 
 ## TODO
 
-- make walker into an env, with reset, done etc
-- display save loss curves... everything from info
-- make diff env's, copy humanoidwalker, humanoid, learning2run etc
-- display
-    - display/save time for each agent
-        - globals.step_counter
-    - x progress
-    - smile frown?
-    - save checkpoints
+- [x] make walker into an env, with reset, done etc
+- [x] display save loss curves... everything from info
+- [x] make diff env's, copy humanoidwalker, humanoid, learning2run etc
+- [ ] display
+    - [x] display/save time for each agent
+        - [x] globals.step_counter
+    - [x] x progress
+    - [ ] smile frown?
+    - [ ] fix my frameskip
+    - [x] save checkpoints
 - [ ] obstacles later on
-- [ ] load pretrained
-- [ ] reward hacking
-    - [ ] head high, feet on ground, legs crossing, moving forward, angles near 0
+    - [x] balls
+    - [ ] Allow user to chuck bouncing balls. Some can remain as obstacles
+- [x] load pretrained
+- [x] reward hacking
+    - [x] head high, feet on ground, legs crossing, moving forward, angles near 0
 
 # Credits
 
@@ -41,6 +44,10 @@ TODO: Write usage instructions
 
 # Notes
 
-- Without node: Training: 52732.152ms
-- With node:    Training: 17211.739ms
-- With cuda     LoopTime: 12583.449ms
+- Training times:
+    - Without node: Training: 52732.152ms
+    - With node:    Training: 17211.739ms
+    - With cuda     LoopTime: 12583.449ms
+- tfjs-node-gpu needs python2 to compile
+
+- is is slipping, what about with more friction?

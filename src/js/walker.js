@@ -95,13 +95,14 @@ class Walker {
     this.fd = new b2.FixtureDef();
     this.fd.density = this.density;
     this.fd.restitution = 0.1; // bounciness
-    this.fd.friction = 100; // only on contact (grip)
+    this.fd.friction = 10000; // only on contact (grip)
     this.fd.shape = new b2.PolygonShape();
     this.fd.filter.groupIndex = -1;
 
     this.joints = [];
     this.otherJoints = []
     this.otherBodies = []
+    this.balls = []
     this.grips = [false, false, false, false]
     // this.frictionJoints = []
 
@@ -170,10 +171,16 @@ class Walker {
   destroy() {
     this.joints.map(joint => this.world.DestroyJoint(joint))
     this.otherJoints.map(joint => this.world.DestroyJoint(joint))
+
     this.bodies.map(body => body.DestroyFixture(body.GetFixtureList()))
     this.bodies.map(body => this.world.DestroyBody(body))
+
+    this.balls.map(body => body.DestroyFixture(body.GetFixtureList()))
+    this.balls.map(body => this.world.DestroyBody(body))
+
     this.bodies = []
     this.joints = []
+    this.balls = []
     this.otherJoints = []
   }
 
@@ -473,6 +480,33 @@ class Walker {
     this.joints.push(j);
   }
 
+  addBall(x, y, r) { 
+    var bodyDef = new b2.BodyDef()
+    bodyDef.type = b2.Body.b2_dynamicBody
+    bodyDef.position.x = x
+    bodyDef.position.y = y
+    var ball = this.world.CreateBody(bodyDef);
+
+    // Create a circle shape and set its radius to 6
+    var circle = new b2.CircleShape();
+    // circle.setRadius(6)
+    circle.m_radius=r
+
+
+    // Create a fixture definition to apply our shape to
+    var fixtureDef = new b2.FixtureDef();
+    fixtureDef.shape = circle;
+    fixtureDef.density = 0.5; 
+    fixtureDef.friction = 0.4;
+    fixtureDef.restitution = 0.6; // Make it bounce a little bit
+
+    // Create our fixture and attach it to the body
+    var fixture = ball.CreateFixture(fixtureDef);
+    // circle.dispose();
+
+    this.balls.push(ball)
+  }
+
   getBodies() {
 
     return [
@@ -491,7 +525,7 @@ class Walker {
       this.left_leg.foot,
       this.right_leg.upper_leg,
       this.right_leg.lower_leg,
-      this.right_leg.foot
+      this.right_leg.foot,
     ];
   }
 
@@ -554,7 +588,12 @@ class Walker {
         @action: (Integer) The action to take (can be null if no action)
     */
 
+    if (Math.random() < 0.05) {
+       this.addBallOnWalker()
+    }
+
     // repeat actions
+    // FIXME I need to delay between drawing each frame. Right now action repeat makes it look like frames are skipping
     for (let i = 0; i < this.config.action_repeat; i++) {
       // TODO add sitcky actions once it's working
       this.world.ClearForces();
@@ -612,7 +651,8 @@ class Walker {
       leg_switch_reward,
       head_height: (this.head.head.GetPosition().y - mean_foot_height),
       center_x: this.torso.upper_torso.GetPosition().x,
-      center_y: this.torso.upper_torso.GetPosition().y
+      center_y: this.torso.upper_torso.GetPosition().y,
+      mean_foot_height
     }
 
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3
@@ -642,15 +682,27 @@ class Walker {
       this.steping = false;
     }
   }
+
+  addBallOnWalker() {
+    let p = this.torso.upper_torso.GetPosition()
+    this.addBall(p.x, randf(1, 4), randf(0.03,0.3))
+  }
+
+
   reset() {
     /** Reset position to initial or random position TODO */
     // console.log('reset not implemented')
     if (this.bodies) this.destroy();
     this.build();
     this.initGrip()
+    
     this.episodeSteps = 0
 
     this.randomise(0.5)
+
+    this.addBallOnWalker()
+    this.addBallOnWalker()
+    this.addBallOnWalker()
 
     // run for a few warm up steps (to let it fall over... we don't want to reward it just for restarting the episode upright)
     for (let i = 0; i < 200; i++) {
@@ -659,7 +711,7 @@ class Walker {
       this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
       if (typeof WEB !== "undefined") this.renderer.drawFrame()
     }
-    console.debug('warm up finished')
+    // console.debug('warm up finished')
   }
   shuffle() {
     /** Reset position to initial or random position TODO */

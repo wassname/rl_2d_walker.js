@@ -25,9 +25,11 @@ class Renderer {
   }
 
   drawFrame() {
+    // clear
     this.ctx.clearRect(0, 0, this.main_screen.width, this.main_screen.height);
     this.ctx.save();
 
+    // camera
     var minmax = this.getMinMaxDistance();
     this.target_zoom = Math.min(this.config.max_zoom_factor, this.getZoom(minmax.min_x, minmax.max_x + 4, minmax.min_y + 2, minmax.max_y + 2.5));
     this.zoom += 0.1 * (this.target_zoom - this.zoom);
@@ -36,11 +38,34 @@ class Renderer {
     this.ctx.translate(this.translate_x * this.zoom, this.translate_y);
     this.ctx.scale(this.zoom, -this.zoom);
 
+    // bodies
     this.drawFloor();
+
     for (var k = this.config.population_size - 1; k >= 0; k--) {
       this.drawWalker(this.walkers[k]);
     }
+
+    for (let i = 0; i < this.walkers[0].balls.length; i++) {
+      const ball = this.walkers[0].balls[i];
+      this.drawCircle(ball)
+      
+    }
+
+
     this.ctx.restore();
+  }
+
+  drawCircle(body) { 
+    // set strokestyle and fillstyle before call
+    this.ctx.beginPath();
+    var fixture = body.GetFixtureList();
+    var shape = fixture.GetShape();
+    var p0 = body.GetWorldPoint(shape.m_p);
+    let radius = shape.m_radius
+    // this.ctx.moveTo(p0.x, p0.y);
+    this.ctx.arc(p0.x, p0.y, radius, 0, Math.PI*2)
+    this.ctx.fill();
+    this.ctx.stroke();
   }
 
   drawFloor() {
@@ -62,10 +87,7 @@ class Renderer {
     this.ctx.lineWidth = 1 / this.zoom;
 
     // left legs and arms first
-    this.drawRect(walker.left_leg.lower_leg);
-    this.drawRect(walker.left_leg.upper_leg);
-    this.drawRect(walker.left_arm.upper_arm);
-    this.drawRect(walker.left_arm.lower_arm);
+
 
     this.ctx.lineWidth = walker.left_leg.frictionJoint.maxForce ? 4 / this.zoom : 1 / this.zoom;
     this.drawRect(walker.left_leg.foot);
@@ -74,6 +96,12 @@ class Renderer {
     this.ctx.lineWidth = walker.left_arm.frictionJoint.maxForce ? 4 / this.zoom : 1 / this.zoom;
     this.drawRect(walker.left_arm.hand);
     this.ctx.lineWidth = 1 / this.zoom;
+
+    this.drawRect(walker.left_leg.lower_leg);
+    this.drawRect(walker.left_leg.upper_leg);
+    this.drawRect(walker.left_arm.lower_arm);
+    this.drawRect(walker.left_arm.upper_arm);
+
 
     // head
     this.drawRect(walker.head.neck);
