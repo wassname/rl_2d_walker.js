@@ -1,4 +1,5 @@
 const { Game } = require('./js/game')
+window.b2 = require('./vendor/jsbox2d')
 const config = require('./js/config')
 
 var game
