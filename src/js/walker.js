@@ -592,7 +592,7 @@ class Walker {
     quad_power_cost = Math.max(quad_power_cost, -10)
 
     // Lets be nice, all entities should find overall happiness in what they do
-    var bonus_happiness = 5
+    var bonus_happiness = 40
 
     var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
     var quad_contact_cost = -Math.min(contacts - 4, 10) / 2

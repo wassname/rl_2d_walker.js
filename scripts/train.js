@@ -6,4 +6,4 @@ var game = new HeadlessGame(config)
 game.agent.train(true);
 
 // game.agent.save("model-ddpg-traffic");
-game.agent.save("model-ddpg-walker");
+// game.agent.save("model-ddpg-walker");
