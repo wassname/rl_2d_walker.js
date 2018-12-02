@@ -83,7 +83,7 @@ class HeadlessGame {
       nbEpochs: 1000,
       nbEpochsCycle: 10,
       nbTrainSteps: 100,
-      maxStep: 800,
+      maxStep: 1800,
       saveDuringTraining: true,
       saveInterval: 5,
 
@@ -101,7 +101,7 @@ class Game extends HeadlessGame {
 
     this.agent.stop()
     console.log('../outputs', 'model-ddpg-walker/model')
-    // this.agent.restore('../outputs', 'model-ddpg-walker/model')
+    this.agent.restore('../outputs', 'model-ddpg-walker/model')
     setInterval(() => this.agent.play(), 100)
     chooseQoute()
   }
