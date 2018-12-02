@@ -15,18 +15,18 @@ function createFloor(world, max_floor_tiles) {
     new b2.Vec2(2.5, -0.16)
   ];
 
-  for(var k = 2; k < max_floor_tiles; k++) {
+  for (var k = 2; k < max_floor_tiles; k++) {
     var ratio = k / max_floor_tiles;
     // add uneven floor by continuing from the last point, plus some random jittering
     edges.push(new b2.Vec2(
       edges[edges.length - 1].x + (1 + ratio * Math.random() - ratio / 2),
       edges[edges.length - 1].y + (ratio * Math.random() - ratio / 2)));
-//    edges.push(new b2.Vec2(edges[edges.length-1].x + 1,-0.16));
+    //    edges.push(new b2.Vec2(edges[edges.length-1].x + 1,-0.16));
   }
-  edges.push(new b2.Vec2(edges[edges.length-1].x, edges[edges.length-1].y + 8)); // front wall
+  edges.push(new b2.Vec2(edges[edges.length - 1].x, edges[edges.length - 1].y + 8)); // front wall
   fix_def.shape.CreateChain(edges, edges.length);
   body.CreateFixture(fix_def);
   return body;
 }
 
-module.exports=createFloor
+module.exports = createFloor

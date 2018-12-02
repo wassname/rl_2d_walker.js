@@ -5,9 +5,11 @@ const {
   randf,
   deg2rad
 } = require('./utils.js')
-const {Renderer} = require('./renderer')
+const {
+  Renderer
+} = require('./renderer')
 
-const STRENGTH = 3
+const STRENGTH = 4
 
 class Walker {
   constructor(world, floor, config) {
@@ -147,22 +149,14 @@ class Walker {
       if (contact.m_fixtureA.m_body.m_userData == "floor" | contact.m_fixtureB.m_body.m_userData) {
         var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
         if (otherFixture.m_body === self.right_leg.foot) {
-          setTimeout(() => {
-            self.right_leg.frictionJoint.maxForce = 0
-          }, 100)
-          setTimeout(() => {
-            self.right_leg.frictionJoint.maxTorque = 0
-          }, 100)
+          self.right_leg.frictionJoint.maxForce = 0
+          self.right_leg.frictionJoint.maxTorque = 0
         } else if (otherFixture.m_body === self.left_leg.foot) {
           self.left_leg.frictionJoint.maxForce = 0
           self.left_leg.frictionJoint.maxTorque = 0
         } else if (otherFixture.m_body == self.right_arm.hand) {
-          setTimeout(() => {
-            self.right_arm.frictionJoint.maxForce = 0
-          }, 100)
-          setTimeout(() => {
-            self.right_arm.frictionJoint.maxTorque = 0
-          }, 100)
+          self.right_arm.frictionJoint.maxForce = 0
+          self.right_arm.frictionJoint.maxTorque = 0
         } else if (otherFixture.m_body === self.left_arm.hand) {
           self.left_arm.frictionJoint.maxForce = 0
           self.left_arm.frictionJoint.maxTorque = 0
@@ -559,10 +553,10 @@ class Walker {
         @delta (Float) time since the last update
         @action: (Integer) The action to take (can be null if no action)
     */
-   for (let i = 0; i < this.config.action_repeat; i++) {
-      if (this.step>50) this.simulationPreStep(motorSpeeds)
+    for (let i = 0; i < this.config.action_repeat; i++) {
+      if (this.step > 50) this.simulationPreStep(motorSpeeds)
       this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
-      if (typeof WEB!=="undefined") this.renderer.drawFrame()
+      if (typeof WEB !== "undefined") this.renderer.drawFrame()
     }
     this.steps++
     this.episodeSteps++
@@ -611,7 +605,10 @@ class Walker {
       quad_joint_angle_cost,
       bonus_happiness,
       head_height_reward,
-      leg_switch_reward
+      leg_switch_reward,
+      head_height: (this.head.head.GetPosition().y - mean_foot_height),
+      center_x: this.torso.upper_torso.GetPosition().x,
+      center_y: this.torso.upper_torso.GetPosition().y
     }
 
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3
@@ -644,7 +641,7 @@ class Walker {
   reset() {
     /** Reset position to initial or random position TODO */
     // console.log('reset not implemented')
-    if (this.bodies)  this.destroy();
+    if (this.bodies) this.destroy();
     this.build();
     this.initGrip()
     this.episodeSteps = 0
@@ -653,7 +650,7 @@ class Walker {
   shuffle() {
     /** Reset position to initial or random position TODO */
     // this.joints.forEach(j => {
-      
+
     // })
 
 
@@ -664,7 +661,7 @@ class Walker {
     // pos.x += randf(-1, 1)
     // pos.y += randf(0, 2)
     angle += Math.PI
-    b.SetTransform(pos, angle)      
+    b.SetTransform(pos, angle)
 
     // let dx = randf(-1, 1)
     // let dy = randf(-1, 1)

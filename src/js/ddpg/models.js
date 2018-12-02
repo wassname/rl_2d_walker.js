@@ -1,4 +1,6 @@
-const { tf } = require('./tf_import')
+const {
+    tf
+} = require('./tf_import')
 
 /**
  * Copy a model
@@ -6,13 +8,13 @@ const { tf } = require('./tf_import')
  * @param instance Actor|Critic
  * @return Copy of the model
  */
-function copyFromSave(model, instance, config, obs, action){
+function copyFromSave(model, instance, config, obs, action) {
     return tf.tidy(() => {
         nModel = new instance(config);
         // action might be not required
         nModel.buildModel(obs, action);
         const weights = model.weights;
-        for (let m=0; m < weights.length; m++){
+        for (let m = 0; m < weights.length; m++) {
             nModel.model.weights[m].val.assign(weights[m].val);
         }
         return nModel;
@@ -26,13 +28,13 @@ function copyFromSave(model, instance, config, obs, action){
  * @param instance Actor|Critic
  * @return Copy of the model
  */
-function copyModel(model, instance){
+function copyModel(model, instance) {
     return tf.tidy(() => {
         nModel = new instance(model.config);
         // action might be not required
         nModel.buildModel(model.obs, model.action);
         const weights = model.model.weights;
-        for (let m=0; m < weights.length; m++){
+        for (let m = 0; m < weights.length; m++) {
             nModel.model.weights[m].val.assign(weights[m].val);
         }
         return nModel;
@@ -47,10 +49,10 @@ function copyModel(model, instance){
  * @param stddev (number)
  * @return Copy of the model
  */
-function assignAndStd(model, perturbedModel, stddev, seed){
+function assignAndStd(model, perturbedModel, stddev, seed) {
     return tf.tidy(() => {
         const weights = model.model.trainableWeights;
-        for (let m=0; m < weights.length; m++){
+        for (let m = 0; m < weights.length; m++) {
             let shape = perturbedModel.model.trainableWeights[m].val.shape;
             let randomTensor = tf.randomNormal(shape, 0, stddev, "float32", seed);
             let nValue = weights[m].val.add(randomTensor);
@@ -66,20 +68,20 @@ function assignAndStd(model, perturbedModel, stddev, seed){
  * @param config (Object)
  * @return Copy of the model
  */
-function targetUpdate(target, original, config){
+function targetUpdate(target, original, config) {
     return tf.tidy(() => {
         const originalW = original.model.trainableWeights;
         const targetW = target.model.trainableWeights;
-    
+
         const one = tf.scalar(1);
         const tau = tf.scalar(config.tau);
-    
-        for (let m=0; m < originalW.length; m++){
+
+        for (let m = 0; m < originalW.length; m++) {
             const lastValue = target.model.trainableWeights[m].val.clone();
             let nValue = tau.mul(originalW[m].val).add(targetW[m].val.mul(one.sub(tau)));
             target.model.trainableWeights[m].val.assign(nValue);
             const diff = lastValue.sub(target.model.trainableWeights[m].val).mean().buffer().values;
-            if (diff[0] == 0){
+            if (diff[0] == 0) {
                 console.warn("targetUpdate: Nothing have been changed!")
             }
         }
@@ -87,7 +89,7 @@ function targetUpdate(target, original, config){
 }
 
 
-class Actor{
+class Actor {
 
     /**
         @param config (Object)
@@ -109,13 +111,15 @@ class Actor{
      * 
      * @param obs tf.input
      */
-    buildModel(obs){
+    buildModel(obs) {
         this.obs = obs;
 
         // First layer
         this.firstLayer = tf.layers.dense({
             units: this.firstLayerSize,
-            kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
+            kernelInitializer: tf.initializers.glorotUniform({
+                seed: this.seed
+            }),
             activation: 'relu',
             useBias: true,
             biasInitializer: "zeros"
@@ -123,7 +127,9 @@ class Actor{
         // Second layer
         this.secondLayer = tf.layers.dense({
             units: this.secondLayerSize,
-            kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
+            kernelInitializer: tf.initializers.glorotUniform({
+                seed: this.seed
+            }),
             activation: 'relu',
             useBias: true,
             biasInitializer: "zeros"
@@ -132,15 +138,18 @@ class Actor{
         this.outputLayer = tf.layers.dense({
             units: this.nbActions,
             kernelInitializer: tf.initializers.randomUniform({
-                minval: 0.003, maxval: 0.003, seed: this.seed}),
+                minval: 0.003,
+                maxval: 0.003,
+                seed: this.seed
+            }),
             activation: 'tanh',
             useBias: true,
             biasInitializer: "zeros"
         });
         // Actor prediction
         this.predict = (tfState) => {
-            return tf.tidy(() => {               
-                if (tfState){
+            return tf.tidy(() => {
+                if (tfState) {
                     obs = tfState;
                 }
 
@@ -151,7 +160,10 @@ class Actor{
             });
         }
         const output = this.predict();
-        this.model = tf.model({inputs: obs, outputs: output});
+        this.model = tf.model({
+            inputs: obs,
+            outputs: output
+        });
     }
 };
 
@@ -180,7 +192,7 @@ class Critic {
      * @param obs tf.input
      * @param action tf.input
      */
-    buildModel(obs, action){
+    buildModel(obs, action) {
         this.obs = obs;
         this.action = action;
 
@@ -190,7 +202,9 @@ class Critic {
         // First layer
         this.firstLayerS = tf.layers.dense({
             units: this.firstLayerSSize,
-            kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
+            kernelInitializer: tf.initializers.glorotUniform({
+                seed: this.seed
+            }),
             activation: 'linear', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
@@ -198,7 +212,9 @@ class Critic {
         // First layer
         this.firstLayerA = tf.layers.dense({
             units: this.firstLayerASize,
-            kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
+            kernelInitializer: tf.initializers.glorotUniform({
+                seed: this.seed
+            }),
             activation: 'linear', // relu is add later
             useBias: true,
             biasInitializer: "zeros"
@@ -206,7 +222,9 @@ class Critic {
         // Second layer
         this.secondLayer = tf.layers.dense({
             units: this.secondLayerSize,
-            kernelInitializer: tf.initializers.glorotUniform({seed: this.seed}),
+            kernelInitializer: tf.initializers.glorotUniform({
+                seed: this.seed
+            }),
             activation: 'relu',
             useBias: true,
             biasInitializer: "zeros"
@@ -216,34 +234,47 @@ class Critic {
         this.outputLayer = tf.layers.dense({
             units: 1,
             kernelInitializer: tf.initializers.randomUniform({
-                minval: 0.003, maxval: 0.003, seed: this.seed}),
+                minval: 0.003,
+                maxval: 0.003,
+                seed: this.seed
+            }),
             activation: 'linear',
             useBias: true,
             biasInitializer: "zeros"
         });
-        
+
         // Critic prediction
         this.predict = (tfState, tfActions) => {
             return tf.tidy(() => {
-                if (tfState && tfActions){
+                if (tfState && tfActions) {
                     obs = tfState;
                     action = tfActions;
                 }
-                
+
                 let l1A = this.firstLayerA.apply(action);
                 let l1S = this.firstLayerS.apply(obs)
                 // Merged layers
                 let concat = this.add.apply([l1A, l1S])
 
                 let l2 = this.secondLayer.apply(concat);
-               
-               return this.outputLayer.apply(l2);
+
+                return this.outputLayer.apply(l2);
             });
         }
 
         const output = this.predict();
-        this.model = tf.model({inputs: [obs, action], outputs: output});
+        this.model = tf.model({
+            inputs: [obs, action],
+            outputs: output
+        });
     }
 };
 
-module.exports = {Actor, Critic, copyFromSave, copyModel, assignAndStd, targetUpdate}
+module.exports = {
+    Actor,
+    Critic,
+    copyFromSave,
+    copyModel,
+    assignAndStd,
+    targetUpdate
+}

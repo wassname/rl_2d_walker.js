@@ -1,14 +1,12 @@
-
-var Charts = function() {
+var Charts = function () {
     this.__constructor.apply(this, arguments);
-  }
-  
-Charts.prototype.__constructor = function () {
 }
 
-Charts.prototype.collect = function (agents, n, chunkSize) { 
+Charts.prototype.__constructor = function () {}
+
+Charts.prototype.collect = function (agents, n, chunkSize) {
     if (n === undefined) n = 1
-    if (chunkSize===undefined) chunkSize=1
+    if (chunkSize === undefined) chunkSize = 1
     var data = {}
 
     // collect data
@@ -16,12 +14,14 @@ Charts.prototype.collect = function (agents, n, chunkSize) {
     for (const key of keys) {
         if (key === 'x') continue
         data[key] = []
-        for (let i = 0; i < agents.length; i+=n) {
+        for (let i = 0; i < agents.length; i += n) {
             const infos = agents[i].infos;
             // var borderColor = "hsl("+agents[i].walkerhue+",45%,"+(100-15*agents[i].walker.health/config.walker_health)+"%)";
             // build dataset
             var dataset = {
-                label: 'Agent ' + i, data: [], fill: false,
+                label: 'Agent ' + i,
+                data: [],
+                fill: false,
                 // borderColor
             }
             for (const info of infos) {
@@ -33,9 +33,12 @@ Charts.prototype.collect = function (agents, n, chunkSize) {
             }
 
             // take means?
-            var leftOver = dataset.data%chunkSize
+            var leftOver = dataset.data % chunkSize
             dataset.data = _.chunk(dataset.data, 4)
-                .map(c => ({ x: _.mean(_.map(c, 'x')), y: _.mean(_.map(c, 'y')) }))
+                .map(c => ({
+                    x: _.mean(_.map(c, 'x')),
+                    y: _.mean(_.map(c, 'y'))
+                }))
             if (leftOver) dataset.data.pop()
 
             data[key].push(dataset)
@@ -44,26 +47,31 @@ Charts.prototype.collect = function (agents, n, chunkSize) {
     for (let i = 0; i < agents.length; i++) {
         agents[i].infos = [] // empty it
     }
-    
+
     return data
 }
 
 Charts.prototype.init = function (agents) {
-    
+
     var data = this.collect(agents, 1, 10)
     var div = document.getElementById('charts');
 
     // make charts
     this.charts = []
     for (const key in data) {
-        var canvas = document.createElement("canvas"); 
+        var canvas = document.createElement("canvas");
         div.appendChild(canvas)
         var ctx = canvas.getContext('2d');
         var lineChart = new Chart(ctx, {
             type: 'scatter',
-            data: { datasets: data[key] },
+            data: {
+                datasets: data[key]
+            },
             options: {
-                title: { text: key, display: true },
+                title: {
+                    text: key,
+                    display: true
+                },
                 scales: {
                     xAxes: [{
                         type: 'linear',
@@ -71,7 +79,7 @@ Charts.prototype.init = function (agents) {
                     }]
                 }
             }
-        });    
+        });
         this.charts.push(lineChart)
     }
 
@@ -83,12 +91,14 @@ Charts.prototype.update = function (agents) {
     for (const chart of this.charts) {
         var newDatasets = data[chart.config.options.title.text]
         chart.data.datasets.forEach((dataset) => {
-            var dat = newDatasets.filter(d=>d.label==dataset.label)[0].data
+            var dat = newDatasets.filter(d => d.label == dataset.label)[0].data
             dataset.data.push(...dat);
-            if (dataset.data.length>maxLen) dataset.data.splice(0, dataset.data.length-maxLen)
+            if (dataset.data.length > maxLen) dataset.data.splice(0, dataset.data.length - maxLen)
         });
         chart.update();
     }
 }
 
-module.exports ={Charts}
+module.exports = {
+    Charts
+}

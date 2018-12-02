@@ -1,12 +1,24 @@
-const { tf } = require('./tf_import')
+const {
+    tf
+} = require('./tf_import')
 const AdaptiveParamNoiseSpec = require('./noise')
 const PrioritizedMemory = require('./prioritized_memory')
-const { Actor, Critic, copyFromSave, copyModel} = require('./models')
-const { DDPG, logTfMemory } = require('./ddpg')
-const { mean } = require('../utils')
+const {
+    Actor,
+    Critic,
+    copyFromSave,
+    copyModel
+} = require('./models')
+const {
+    DDPG,
+    logTfMemory
+} = require('./ddpg')
+const {
+    mean
+} = require('../utils')
 
 
-function setMetric(name, value) { 
+function setMetric(name, value) {
     console.debug('metric', name, value)
 }
 
@@ -17,7 +29,7 @@ class DDPGAgent {
     /**
      * @param env (metacar.env) Set in js/DDPG/index.js
      */
-    constructor(env, config){
+    constructor(env, config) {
 
         this.stopTraining = false;
         this.env = env;
@@ -30,7 +42,7 @@ class DDPGAgent {
             "seed": config.seed || 0,
             "batchSize": config.batchSize || 128,
             "actorLr": config.actorLr || 0.0001,
-            "criticLr": config .criticLr || 0.001,
+            "criticLr": config.criticLr || 0.001,
             "memorySize": config.memorySize || 30000,
             "gamma": config.gamme || 0.99,
             "noiseDecay": config.noiseDecay || 0.99,
@@ -48,10 +60,10 @@ class DDPGAgent {
             "criticFirstLayerASize": config.criticFirstLayerASize || 64,
             "criticSecondLayerSize": config.criticSecondLayerSize || 32,
             "maxStep": config.maxStep || 800,
-            "stopOnRewardError": config.stopOnRewardError != undefined ? config.stopOnRewardError:true,
-            "resetEpisode": config.resetEpisode != undefined ? config.resetEpisode:false,
+            "stopOnRewardError": config.stopOnRewardError != undefined ? config.stopOnRewardError : true,
+            "resetEpisode": config.resetEpisode != undefined ? config.resetEpisode : false,
             "saveDuringTraining": config.saveDuringTraining || false,
-            "saveInterval": config.saveInterval ||  20
+            "saveInterval": config.saveInterval || 20
         };
         this.epoch = 0;
         // From js/DDPG/noise.js
@@ -77,7 +89,7 @@ class DDPGAgent {
         this.ddpg = new DDPG(this.actor, this.critic, this.memory, this.noise, this.config);
     }
 
-    save(name){
+    save(name) {
         /*
             Save the network
         */
@@ -85,22 +97,22 @@ class DDPGAgent {
             this.ddpg.critic.model.save('file://./outputs/critic-' + name);
             this.ddpg.actor.model.save('file://./outputs/actor-' + name);
         } else {
-            this.ddpg.actor.model.save('downloads://actor-'+ name);
+            this.ddpg.actor.model.save('downloads://actor-' + name);
             this.ddpg.critic.model.save('downloads://critic-' + name);
         }
     }
 
-    async restore(folder, name){
+    async restore(folder, name) {
         /*
             Restore the weights of the network
         */
-       var critic, actor
+        var critic, actor
         if (typeof WEB === "undefined") {
-            critic = await tf.loadModel('file://'+folder+'/critic-'+name+'.json');
-            actor = await tf.loadModel("file://"+folder+"/actor-"+name+".json");
+            critic = await tf.loadModel('file://' + folder + '/critic-' + name + '.json');
+            actor = await tf.loadModel("file://" + folder + "/actor-" + name + ".json");
         } else {
-            critic = await tf.loadModel(window.location.href+folder+'/critic-'+name+'.json');
-            actor = await tf.loadModel(window.location.href+folder+"/actor-"+name+".json");
+            critic = await tf.loadModel(window.location.href + folder + '/critic-' + name + '.json');
+            actor = await tf.loadModel(window.location.href + folder + "/actor-" + name + ".json");
             // const critic = await tf.loadModel('https://metacar-project.com/public/models/'+folder+'/critic-'+name+'.json');
             // const actor = await tf.loadModel("https://metacar-project.com/public/models/"+folder+"/actor-"+name+".json");
         }
@@ -121,7 +133,7 @@ class DDPGAgent {
     /**
      * Play one step
      */
-    play(){
+    play() {
         // Get the current state
         const state = this.env.getState();
         // Pick an action
@@ -137,11 +149,11 @@ class DDPGAgent {
      * @param state number[]
      * @param action [a, steering]
      */
-    getQvalue(state, a){
+    getQvalue(state, a) {
         return this.ddpg.getQvalue(state, a);
     }
 
-    stop(){
+    stop() {
         this.stopTraining = true;
     }
 
@@ -151,7 +163,7 @@ class DDPGAgent {
      * @param mPreviousStep number[]
      * @return {done, state} One boolean and the new state
      */
-    stepTrain(tfPreviousStep, mPreviousStep){
+    stepTrain(tfPreviousStep, mPreviousStep) {
         // Get actions
         const tfActions = this.ddpg.perturbedPrediction(tfPreviousStep);
         // Step in the environment with theses actions
@@ -161,7 +173,7 @@ class DDPGAgent {
         this.infoList.push(info);
         // Get the new observations
         let tfState = tf.tensor2d([mState]);
-        if (mReward == -1 && this.config.stopOnRewardError){
+        if (mReward == -1 && this.config.stopOnRewardError) {
             mDone = 1;
         }
         // Add the new tuple to the buffer
@@ -170,19 +182,26 @@ class DDPGAgent {
         tfPreviousStep.dispose();
         tfActions.dispose();
 
-        return {mDone, mState, tfState};
+        return {
+            mDone,
+            mState,
+            tfState
+        };
     }
 
     /**
      * Optimize models and log states
      */
-    _optimize(){
+    _optimize() {
         this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
         let lossValuesCritic = [];
         let lossValuesActor = [];
         console.time("Training");
-        for (let t=0; t < this.config.nbTrainSteps; t++){
-            let {lossC, lossA} = this.ddpg.optimizeCriticActor();
+        for (let t = 0; t < this.config.nbTrainSteps; t++) {
+            let {
+                lossC,
+                lossA
+            } = this.ddpg.optimizeCriticActor();
             lossValuesCritic.push(lossC);
             lossValuesActor.push(lossA);
         }
@@ -195,31 +214,33 @@ class DDPGAgent {
     /**
      * Train DDPG Agent
      */
-    async train(realTime){
+    async train(realTime) {
         this.stopTraining = false;
         // One epoch
-        for (this.epoch; this.epoch < this.config.nbEpochs; this.epoch++){
+        for (this.epoch; this.epoch < this.config.nbEpochs; this.epoch++) {
             // Perform cycles.
             this.rewardsList = [];
             this.stepList = [];
             this.distanceList = [];
             // document.getElementById("trainingProgress").innerHTML = "Progression: "+this.epoch+"/"+this.config.nbEpochs+"<br>";
-            console.log("Progression: "+this.epoch+"/"+this.config.nbEpochs+" epochs")
-            for (let c=0; c < this.config.nbEpochsCycle; c++){
-                if (c%10==0){ logTfMemory(); }
+            console.log("Progression: " + this.epoch + "/" + this.config.nbEpochs + " epochs")
+            for (let c = 0; c < this.config.nbEpochsCycle; c++) {
+                if (c % 10 == 0) {
+                    logTfMemory();
+                }
                 let mPreviousStep = this.env.getState();
                 let tfPreviousStep = tf.tensor2d([mPreviousStep]);
                 let step = 0;
 
                 console.time("LoopTime");
-                for (step=0; step < this.config.maxStep; step++){
+                for (step = 0; step < this.config.maxStep; step++) {
                     let rel = this.stepTrain(tfPreviousStep, mPreviousStep);
                     mPreviousStep = rel.mState;
                     tfPreviousStep = rel.tfState;
-                    if (rel.mDone && this.config.stopOnRewardError){
+                    if (rel.mDone && this.config.stopOnRewardError) {
                         break;
                     }
-                    if (this.stopTraining){
+                    if (this.stopTraining) {
                         this.env.render(true);
                         return;
                     }
@@ -231,19 +252,21 @@ class DDPGAgent {
                 let distance = this.ddpg.adaptParamNoise();
                 this.distanceList.push(distance[0]);
 
-                if (this.config.resetEpisode){
+                if (this.config.resetEpisode) {
                     this.env.reset();
                 }
-                this.env.shuffle({cars: false});
+                this.env.shuffle({
+                    cars: false
+                });
                 tfPreviousStep.dispose();
-                console.log("e="+ this.epoch +", c="+c);
-         
+                console.log("e=" + this.epoch + ", c=" + c);
+
                 await tf.nextFrame();
             }
-            if (this.epoch > 5){
+            if (this.epoch > 5) {
                 this._optimize();
             }
-            if (this.config.saveDuringTraining && this.epoch % this.config.saveInterval == 0 && this.epoch != 0){
+            if (this.config.saveDuringTraining && this.epoch % this.config.saveInterval == 0 && this.epoch != 0) {
                 this.save("model-ddpg-walker-epoch-" + this.epoch);
                 this.save("model-ddpg-walker");
             }
@@ -251,7 +274,7 @@ class DDPGAgent {
                 let vals = this.infoList.map(info => info[name])
                 if (vals.length) {
                     let meanVal = mean(vals)
-                    setMetric(name, mean(vals));                        
+                    setMetric(name, mean(vals));
                 } else {
                     console.log('WARN: empty metric', name)
                 }
@@ -260,7 +283,7 @@ class DDPGAgent {
             setMetric("EpisodeDuration", mean(this.stepList));
             setMetric("NoiseDistance", mean(this.distanceList));
             await tf.nextFrame();
-        }            
+        }
 
         this.env.render(true);
     }

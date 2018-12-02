@@ -12,7 +12,6 @@ module.exports = {
     max_floor_tiles: 50,
     round_length: 1000,
     min_body_delta: 0,
-   min_leg_delta: 0.0,
-   action_repeat: 4,
-  };
-  
+    min_leg_delta: 0.0,
+    action_repeat: 4,
+};
