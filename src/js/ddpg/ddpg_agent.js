@@ -221,6 +221,7 @@ class DDPGAgent {
             // Perform cycles.
             this.rewardsList = [];
             this.stepList = [];
+            this.infoList = [];
             this.distanceList = [];
             // document.getElementById("trainingProgress").innerHTML = "Progression: "+this.epoch+"/"+this.config.nbEpochs+"<br>";
             console.log("Progression: " + this.epoch + "/" + this.config.nbEpochs + " epochs")
