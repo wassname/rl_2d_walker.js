@@ -1,9 +1,9 @@
-var config = require('./js/config')
+var config = require('../src/js/config')
 
 
-const { HeadlessGame } = require('./js/game')
+const { HeadlessGame } = require('../src/js/game')
 var game = new HeadlessGame(config)
-game.agent.train(true);
+game.agent.restore('./outputs', 'model-ddpg-walker/model') // resume
+game.agent.train(true); 
 
-// game.agent.save("model-ddpg-traffic");
 // game.agent.save("model-ddpg-walker");
