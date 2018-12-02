@@ -9,7 +9,7 @@ const {
   Renderer
 } = require('./renderer')
 
-const STRENGTH = 4
+const STRENGTH = 2
 
 class Walker {
   constructor(world, floor, config) {
@@ -536,7 +536,7 @@ class Walker {
   simulationPreStep(motorSpeeds) {
     // act
     for (var k = 0; k < this.joints.length; k++) {
-      this.joints[k].SetMotorSpeed(motorSpeeds[k] * 10); // action can range from -3 to 3, radians per second
+      this.joints[k].SetMotorSpeed(motorSpeeds[k] * 30); // action can range from -3 to 3, radians per second
     }
     for (let i = 0; i < motorSpeeds.length - this.joints.length; i++) {
       this.grips[i] = motorSpeeds[i] > 0
@@ -553,8 +553,12 @@ class Walker {
         @delta (Float) time since the last update
         @action: (Integer) The action to take (can be null if no action)
     */
+
+    // repeat actions
     for (let i = 0; i < this.config.action_repeat; i++) {
-      if (this.step > 50) this.simulationPreStep(motorSpeeds)
+      // TODO add sitcky actions once it's working
+      this.world.ClearForces();
+      this.simulationPreStep(motorSpeeds)
       this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
       if (typeof WEB !== "undefined") this.renderer.drawFrame()
     }
@@ -621,7 +625,7 @@ class Walker {
       ...this.rewards
     }
     var done = 0
-    this.world.ClearForces();
+    // this.world.ClearForces();
     return [this.getState(), this.reward, done, info]
   }
 
@@ -645,7 +649,17 @@ class Walker {
     this.build();
     this.initGrip()
     this.episodeSteps = 0
-    // this.shuffle()
+
+    this.randomise(0.5)
+
+    // run for a few warm up steps (to let it fall over... we don't want to reward it just for restarting the episode upright)
+    for (let i = 0; i < 200; i++) {
+      this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
+      this.world.ClearForces();
+      this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
+      if (typeof WEB !== "undefined") this.renderer.drawFrame()
+    }
+    console.debug('warm up finished')
   }
   shuffle() {
     /** Reset position to initial or random position TODO */

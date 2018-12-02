@@ -138,12 +138,12 @@ class Actor {
         this.outputLayer = tf.layers.dense({
             units: this.nbActions,
             kernelInitializer: tf.initializers.randomUniform({
-                minval: 0.003,
-                maxval: 0.003,
+                minval: -0.03,
+                maxval: 0.03,
                 seed: this.seed
             }),
             activation: 'tanh',
-            useBias: true,
+            useBias: false,
             biasInitializer: "zeros"
         });
         // Actor prediction
@@ -234,8 +234,8 @@ class Critic {
         this.outputLayer = tf.layers.dense({
             units: 1,
             kernelInitializer: tf.initializers.randomUniform({
-                minval: 0.003,
-                maxval: 0.003,
+                minval: -0.3,
+                maxval: 0.3,
                 seed: this.seed
             }),
             activation: 'linear',
