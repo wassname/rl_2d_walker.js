@@ -45,7 +45,6 @@ chooseQoute = function () {
   document.getElementById('page_quote').innerText = '"' + qoute + '"'
 }
 
-
 class HeadlessGame {
   constructor(config) {
     this.config = config
@@ -100,21 +99,11 @@ class Game extends HeadlessGame {
   constructor(config) {
     super(config)
 
-    chooseQoute()
-    // this.agent.stop()
-    // this.agent.env.render(true)
-    this.agent.restore('../outputs', 'model-ddpg-walker/model')
+    this.agent.stop()
+    console.log('../outputs', 'model-ddpg-walker/model')
+    // this.agent.restore('../outputs', 'model-ddpg-walker/model')
     setInterval(() => this.agent.play(), 100)
-
-    // drawInit();
-
-    // this.step_counter = 0;
-
-    // this.display_interval = setInterval(displayProgress, Math.round(380 * 1000 / config.draw_fps));
-    // this.charts_interval = setInterval(updateCharts, Math.round(380 * 1000 / config.draw_fps));
-
-    // this.running = true
-    // requestAnimFrame(loop)
+    chooseQoute()
   }
 
   displayProgress() {
@@ -126,33 +115,6 @@ class Game extends HeadlessGame {
     }
     document.getElementById('stats-prog').innerText = JSON.stringify(stats, null, 2)
   }
-
-
-  // resetSimulation() { 
-  //   // turn training off temporarlity to avoid NaN's
-  //   updateIfLearning(false)
-  //   // this.running = false
-
-  //   this.world.Destroy() // this way we get rid of listeners and body parts and joints
-  //   this.world = new b2.World(new b2.Vec2(0, -10));
-  //   this.floor = createFloor(this.world);
-  //   for (var k = 0; k < config.population_size; k++) {
-  //     this.agents[k].walker = this.walkers[k] = new Walker(this.world, this.floor)
-  //   }
-
-  //   // this.running = true
-  //   setTimeout(() => updateIfLearning(true), 1000)
-  //   // setTimeout(() => requestAnimFrame(loop), 1000)
-
-  // }
-
-  // loop() { 
-  //   drawFrame()
-  //   simulationStep()
-  //   drawFrame()
-  //   if (this.running) requestAnimFrame(loop); // start next timer
-  // }
-
 
   updateCharts() {
     var groupN = 100
@@ -168,56 +130,8 @@ class Game extends HeadlessGame {
   }
 }
 
-
-
-function saveAs(dv, name) {
-  var a;
-  if (typeof window.downloadAnchor == 'undefined') {
-    a = window.downloadAnchor = document.createElement("a");
-    a.style = "display: none";
-    document.body.appendChild(a);
-  } else {
-    a = window.downloadAnchor
-  }
-
-  var blob = new Blob([dv], {
-      type: 'application/octet-binary'
-    }),
-    tmpURL = window.URL.createObjectURL(blob);
-
-  a.href = tmpURL;
-  a.download = name;
-  a.click();
-
-  window.URL.revokeObjectURL(tmpURL);
-  a.href = "";
-}
-
-// downloadBrain = function (n) {
-//   var ts = (new Date()).toISOString().replace(':','_')
-//   var buf = this.agents[n].brain.export()
-// 	saveAs(new DataView(buf), 'walker_brain_'+n+'_'+ts+'.bin')
-// };
-
-
-// readBrain = function (buf) {
-//   var input = event.target;
-//   var reader = new FileReader();
-//   reader.onload = function(){
-//       var buffer = reader.result
-//       var imported = window.neurojs.NetOnDisk.readMultiPart(buffer)
-
-//       for (var i = 0; i <  this.agents.length; i++) {
-//           this.agents[i].brain.algorithm.actor.set(imported.actor.clone())
-//           this.agents[i].brain.algorithm.critic.set(imported.critic)
-//       }
-//   };
-
-//   reader.readAsArrayBuffer(input.files[0]);
-// };
 module.exports = {
   Game,
   chooseQoute,
-  saveAs,
   HeadlessGame
 }
