@@ -1,32 +1,9 @@
 <!doctype html>
 <html>
   <head>
-    <title>HTML5 Genetic Algorithm Biped Walkers</title>
+    <title>Reinforcement Learning 2D Biped Walkers</title>
     <link rel="stylesheet" href="css/walkers.css" type="text/css" />
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
-    <script src="vendor/jsbox2d.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"> </script> -->
-
-    <!-- <script type="text/javascript" src="/js/ddpg/models.js"></script> -->
-    <!-- <script type="text/javascript" src="/js/ddpg/memory.js"></script> -->
-    <!-- <script type="text/javascript" src="/js/ddpg/prioritized_memory.js"></script>
-    <script type="text/javascript" src="/js/ddpg/noise.js"></script>
-    <script type="text/javascript" src="/js/ddpg/ddpg.js"></script>
-    <script type="text/javascript" src="/js/ddpg/ddpg_agent.js"></script>
-    <script type="text/javascript" src="/js/ddpg-traffic/index.js"></script>
-
-    <script src="js/walker.js"></script>
-    <script src="js/game.js"></script>
-    <script src="js/floor.js"></script>
-    <script src="js/draw.js"></script>
-    <script src="js/agent.js"></script>
-    <script src="js/charts.js"></script> -->
-
-    
-
-
+     
   </head>
   <body>
     <div id="main_holder">
@@ -45,17 +22,24 @@
     <input id="brainFile" type='file' accept='*/*' onchange='window.readBrain(event)' style="display: none">
     
     <div style="margin-top: 20px"><input type="checkbox" onclick="window.updateIfLearning(this.checked);" checked>Learning</div>
+    <div id="info">
+      This is an experiment to teach 2d humanoids to walk and to display their progress in the browser. 
+    <p></p><br/>
+      This uses use reinforcement learning, a branch of machine learning target at controlling systems, to teach them to walk. Training is done offline in tensorflow.js.
+      <p></p><br/>
+      Credits: The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>, the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.
+    </div>
 
-    <div id="stats-wrapper">
+    <!-- <div id="stats-wrapper">
     <h3>Progress</h3>
     <pre id="stats-prog"></pre>
     <h3>Agent 1</h3>
     <pre id="stats-ag0"></pre>
-    </div>
+    </div> -->
 
-    <div id="charts"></div>
+    <!-- <div id="charts"></div>
 
-    </div>
+    </div> -->
   </body>
   <script src="../dist/vendor.bundle.js"></script>
   <script src="../dist/lib.bundle.js"></script>
