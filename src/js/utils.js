@@ -1,5 +1,5 @@
 var randf = (low, high) => Math.random() * (high - low) + low
-var randi = (low, high) => (Math.random() * (high - low) + low) //1
+var randi = (low, high) => Math.round(Math.random() * (high - low) + low) //1
 
 function deg2rad(deg) {
   return deg / 180 * Math.PI
