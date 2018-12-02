@@ -25,6 +25,7 @@ class Walker {
     this.low_foot_height = 0;
     this.head_height = 0;
     this.steps = 0;
+    this.episodeSteps = 0
     this.distance = 0
     this.last_left_left_forward = true
 
@@ -113,7 +114,7 @@ class Walker {
     this.bodies = this.getBodies();
 
     // now apply a random starting positions and orientation
-    this.randomise(0.5);
+    this.randomise(1);
   }
 
   initGrip() {
@@ -559,10 +560,12 @@ class Walker {
         @action: (Integer) The action to take (can be null if no action)
     */
    for (let i = 0; i < this.config.action_repeat; i++) {
-      this.simulationPreStep(motorSpeeds)
+      if (this.step>50) this.simulationPreStep(motorSpeeds)
       this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
       if (typeof WEB!=="undefined") this.renderer.drawFrame()
-   }    this.steps++
+    }
+    this.steps++
+    this.episodeSteps++
     /* score/reward */
     // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
     // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -614,14 +617,14 @@ class Walker {
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3
 
     var info = {
-      episodeSteps: this.steps,
+      episodeSteps: this.episodeSteps,
+      steps: this.steps,
       reward: this.reward,
       position,
       ...this.rewards
     }
     var done = 0
     this.world.ClearForces();
-    if (this.steps%100==0) this.reset()
     return [this.getState(), this.reward, done, info]
   }
 
@@ -644,10 +647,36 @@ class Walker {
     if (this.bodies)  this.destroy();
     this.build();
     this.initGrip()
+    this.episodeSteps = 0
+    // this.shuffle()
   }
   shuffle() {
     /** Reset position to initial or random position TODO */
+    // this.joints.forEach(j => {
+      
+    // })
+
+
     // console.log('shuffle not implemented')
+    var b = this.torso.upper_torso
+    let angle = b.GetAngle()
+    let pos = b.GetPosition()
+    // pos.x += randf(-1, 1)
+    // pos.y += randf(0, 2)
+    angle += Math.PI
+    b.SetTransform(pos, angle)      
+
+    // let dx = randf(-1, 1)
+    // let dy = randf(-1, 1)
+    // let dangle = randf(-2, 2)
+    // this.bodies.forEach(b => {
+    //   let angle = b.GetAngle()
+    //   let pos = b.GetPosition()
+    //   pos.x += dx
+    //   pos.y += dy
+    //   angle += dangle
+    //   b.SetTransform(pos, angle)      
+    // })
   }
 }
 
