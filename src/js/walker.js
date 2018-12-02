@@ -88,8 +88,7 @@ class Walker {
       this.renderer = new Renderer(this.config, this, this.floor)
     }
 
-    this.build()
-    this.initGrip()
+    this.reset()
 
   }
 
@@ -175,6 +174,9 @@ class Walker {
     this.bodies.map(body => this.world.DestroyBody(body))
     this.joints.map(joint => this.world.DestroyJoint(joint))
     this.otherJoints.map(joint => this.world.DestroyJoint(joint))
+    this.bodies = []
+    this.joints = []
+    this.otherJoints = []
   }
 
   createTorso() {
@@ -636,6 +638,9 @@ class Walker {
   reset() {
     /** Reset position to initial or random position TODO */
     // console.log('reset not implemented')
+    if (this.bodies)  this.destroy();
+    this.build();
+    this.initGrip()
   }
   shuffle() {
     /** Reset position to initial or random position TODO */
