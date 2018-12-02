@@ -70,6 +70,7 @@ class DDPGAgent {
         // Math.seedrandom(0);
 
         this.rewardsList = [];
+        this.infoList = []
         this.epiDuration = [];
 
         // DDPG
@@ -157,6 +158,7 @@ class DDPGAgent {
         let mActions = Array.from(tfActions.buffer().values);
         let [mState, mReward, mDone, info] = this.env.step(mActions);
         this.rewardsList.push(mReward);
+        this.infoList.push(info);
         // Get the new observations
         let tfState = tf.tensor2d([mState]);
         if (mReward == -1 && this.config.stopOnRewardError){
@@ -242,16 +244,19 @@ class DDPGAgent {
                 this._optimize();
             }
             if (this.config.saveDuringTraining && this.epoch % this.config.saveInterval == 0 && this.epoch != 0){
-                this.save("model-ddpg-walker-epoch-"+this.epoch);
+                this.save("model-ddpg-walker-epoch-" + this.epoch);
+                this.save("model-ddpg-walker");
+            }
+            for (const name in this.infoList[0]) {
+                setMetric(name, mean(this.infoList.map(info=>info[name])));    
             }
             setMetric("Reward", mean(this.rewardsList));
             setMetric("EpisodeDuration", mean(this.stepList));
             setMetric("NoiseDistance", mean(this.distanceList));
             await tf.nextFrame();
-        }
-            
+        }            
 
-            this.env.render(true);
+        this.env.render(true);
     }
 
 };
