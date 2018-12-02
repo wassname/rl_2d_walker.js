@@ -248,7 +248,13 @@ class DDPGAgent {
                 this.save("model-ddpg-walker");
             }
             for (const name in this.infoList[0]) {
-                setMetric(name, mean(this.infoList.map(info=>info[name])));    
+                let vals = this.infoList.map(info => info[name])
+                if (vals.length) {
+                    let meanVal = mean(vals)
+                    setMetric(name, mean(vals));                        
+                } else {
+                    console.log('WARN: empty metric', name)
+                }
             }
             setMetric("Reward", mean(this.rewardsList));
             setMetric("EpisodeDuration", mean(this.stepList));
