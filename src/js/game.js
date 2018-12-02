@@ -34,10 +34,10 @@ chooseQoute = function () {
     'Red robot redemption',
     'Father was a rolling robot',
     'Float like a bumblebee, string like a butterfly',
-    'Dance evolution',
+    'Dance dance evolution',
     'Have you tried turning it off and on again?',
     'Eurovision 2050',
-    'Humans crawl before they walk. Robots dance before they walk',
+    'We must learn to walk before we can run',
     'This is not a disco',
     'Disco simulator 2100'
   ]
