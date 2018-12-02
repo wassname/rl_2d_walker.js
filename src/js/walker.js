@@ -30,25 +30,6 @@ class Walker {
 
     this.hue = randf(200, 360)
 
-    this.bd = new b2.BodyDef({
-      positions: {
-        x: 10,
-        y: -10
-      }
-    });
-    this.bd.position.x += randf(-10, 10)
-    this.bd.type = b2.Body.b2_dynamicBody;
-    this.bd.linearDamping = 0;
-    this.bd.angularDamping = 20; // decay in force/ air friction
-    this.bd.allowSleep = true;
-    this.bd.awake = true;
-
-    this.fd = new b2.FixtureDef();
-    this.fd.density = this.density;
-    this.fd.restitution = 0.1; // bounciness
-    this.fd.friction = 100; // only on contact (grip)
-    this.fd.shape = new b2.PolygonShape();
-    this.fd.filter.groupIndex = -1;
 
     this.torso_def = {
       upper_width: 0.25,
@@ -93,6 +74,28 @@ class Walker {
   }
 
   build() {
+
+
+    this.bd = new b2.BodyDef({
+      positions: {
+        x: 10,
+        y: -10
+      }
+    });
+    this.bd.position.x += randf(-10, 10)
+    this.bd.type = b2.Body.b2_dynamicBody;
+    this.bd.linearDamping = 0;
+    this.bd.angularDamping = 20; // decay in force/ air friction
+    this.bd.allowSleep = true;
+    this.bd.awake = true;
+
+    this.fd = new b2.FixtureDef();
+    this.fd.density = this.density;
+    this.fd.restitution = 0.1; // bounciness
+    this.fd.friction = 100; // only on contact (grip)
+    this.fd.shape = new b2.PolygonShape();
+    this.fd.filter.groupIndex = -1;
+
     this.joints = [];
     this.otherJoints = []
     this.otherBodies = []
@@ -170,10 +173,10 @@ class Walker {
   }
 
   destroy() {
-    this.bodies.map(body => body.DestroyFixture(body.GetFixtureList()))
-    this.bodies.map(body => this.world.DestroyBody(body))
     this.joints.map(joint => this.world.DestroyJoint(joint))
     this.otherJoints.map(joint => this.world.DestroyJoint(joint))
+    this.bodies.map(body => body.DestroyFixture(body.GetFixtureList()))
+    this.bodies.map(body => this.world.DestroyBody(body))
     this.bodies = []
     this.joints = []
     this.otherJoints = []
@@ -559,8 +562,7 @@ class Walker {
       this.simulationPreStep(motorSpeeds)
       this.world.Step(1 / this.config.time_step, this.config.velocity_iterations, this.config.position_iterations);
       if (typeof WEB!=="undefined") this.renderer.drawFrame()
-    }
-    this.steps++
+   }    this.steps++
     /* score/reward */
     // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
     // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -619,6 +621,7 @@ class Walker {
     }
     var done = 0
     this.world.ClearForces();
+    if (this.steps%100==0) this.reset()
     return [this.getState(), this.reward, done, info]
   }
 
