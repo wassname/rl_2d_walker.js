@@ -497,7 +497,7 @@ class Walker {
     // Create a fixture definition to apply our shape to
     var fixtureDef = new b2.FixtureDef();
     fixtureDef.shape = circle;
-    fixtureDef.density = 100;
+    fixtureDef.density = 20;
     fixtureDef.friction = 0.4;
     fixtureDef.restitution = 0.6; // Make it bounce a little bit
 
@@ -694,10 +694,10 @@ class Walker {
   chuckBalls() { 
     for (const ball of this.balls) {
       let pb = ball.GetPosition()
-      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*2
-      let dy = (this.torso.upper_torso.GetPosition().y - pb.y + 1) * 3
-      dx = clamp(dx, -6, 6)
-      dy = clamp(dy, -6, 6)
+      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*4
+      let dy = (this.torso.upper_torso.GetPosition().y - pb.y) * 6
+      dx = clamp(dx, -16, 16)
+      dy = clamp(dy, -16, 16)
       ball.SetLinearVelocity(new b2.Vec2(dx,dy))
     }
   }
