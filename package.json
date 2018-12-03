@@ -1,6 +1,6 @@
 {
   "name": "2d_walker_rl_js",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A 2d humanoid walker trained to walk with reinforcement learning",
   "main": "index.js",
   "dependencies": {
@@ -25,12 +25,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Jackymancs4/boxidroid.git"
+    "url": "git+https://gitlab.com/wassname/2d_humanoidwalker_rl_js.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Jackymancs4/boxidroid/issues"
+    "url": "https://gitlab.com/wassname/2d_humanoidwalker_rl_js/issues"
   },
-  "homepage": "https://github.com/Jackymancs4/boxidroid#readme"
+  "homepage": "http://wassname.org/2d_rl_walker/"
 }
