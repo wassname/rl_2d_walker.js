@@ -53,7 +53,7 @@ class Walker {
 
     this.arm_def = {
       arm_width: 0.12,
-      arm_length: 0.37,
+      arm_length: 0.34,
       forearm_width: 0.1,
       forearm_length: 0.30,
       hand_height: 0.08,
