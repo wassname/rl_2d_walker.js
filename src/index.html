@@ -32,12 +32,12 @@
     <br />
     <div>
       <h4>Load brain:</h4>
-      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-10m/model')">10 minutes old</button>
-      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-1h/model')">1 hour</button>
-      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-2h/model')">2 hours old</button>
-      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-4h/model')">4 hours</button>
-      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-8h/model')">8 hours</button>
-      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-22h/model')">22 hours</button>
+      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-10m/model')">10 minutes old</button>
+      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-1h/model')">1 hour</button>
+      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-2h/model')">2 hours old</button>
+      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-4h/model')">4 hours</button>
+      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-8h/model')">8 hours</button>
+      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model')">22 hours</button>
     </div>
     <div>
       <h4>Be mean:</h4><button onclick="game.agent.env.chuckBalls()">Thow balls</button>

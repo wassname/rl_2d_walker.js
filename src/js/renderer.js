@@ -35,7 +35,6 @@ class Renderer {
     this.zoom += 0.1 * (this.target_zoom - this.zoom);
     this.translate_x += 0.1 * ((1.5 - minmax.min_x) - this.translate_x);
     this.translate_y += 0.3 * ((minmax.max_y + 1.3) * this.zoom - this.translate_y);
-    console.log(this.translate_y)
     this.ctx.translate(this.translate_x * this.zoom, this.translate_y);
     this.ctx.scale(this.zoom, -this.zoom);
 
