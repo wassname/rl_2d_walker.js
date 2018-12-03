@@ -1,6 +1,6 @@
-# boxidroid
+# 2d humanoid walker
 
-TODO: Write a project description
+![Screenshot](docs/img/Selection_146.png)
 
 ## Installation
 
@@ -48,6 +48,8 @@ TODO: Write usage instructions
     - Without node: Training: 52732.152ms
     - With node:    Training: 17211.739ms
     - With cuda     LoopTime: 12583.449ms
+    - 
 - tfjs-node-gpu needs python2 to compile
+- crashes during training after a few hours due to mem leak
 
 - is is slipping, what about with more friction?

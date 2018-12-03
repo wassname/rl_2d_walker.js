@@ -1,5 +1,9 @@
 const path = require('path');
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+var CopyWebpackPlugin = require('copy-webpack-plugin')
+
+var ENV = process.env.NODE_ENV || "development";
 
 module.exports = {
   entry: {
@@ -7,13 +11,19 @@ module.exports = {
     // lib: './src/vendor/index.js'
   },
   target: 'web',
-  devtool: 'dev-source-map',
+  devtool: ENV==="development"? 'dev-source-map': null,
   output: {
-    path: path.join(__dirname), 
-    filename: 'dist/[name].bundle.js',
+    path: path.join(__dirname, 'dist'), 
+    filename: '[name].bundle.js',
     // path:'/dist',
   },
-  devServer: {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      }
+    ]
   },
   optimization: {
     splitChunks: {
@@ -39,6 +49,13 @@ module.exports = {
     new webpack.DefinePlugin({
       // A flag to disable node imports, and enable window/dom usage
       WEB: true
-    })
+    }),
+    new HtmlWebpackPlugin({ template: '!!html-loader!src/index.html' }),
+    new CopyWebpackPlugin([
+      { from: 'src/images', to: 'images' },
+      {from:'checkpoints',to:'checkpoints'}
+      
+  ]), 
+    
   ]
 };

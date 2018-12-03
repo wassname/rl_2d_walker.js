@@ -1,48 +1,43 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Reinforcement Learning 2D Biped Walkers</title>
-    <link rel="stylesheet" href="css/walkers.css" type="text/css" />
-     
-  </head>
-  <body>
-    <div id="main_holder">
-      <h1>Reinforcement Learning 2D Humanoid Walkers</h1>
-      <h3 id="page_quote">"Play that funky music, robot"</h3>
-      <canvas id="main_screen" width="800" height="350"></canvas>
-      <div id="generation_timer"><div id="generation_timer_bar">&nbsp;</div></div>
 
-      <div id="info"></div>
+<head>
+  <title>Reinforcement Learning 2D Biped Walkers</title>
 
-		<div class="row">
-			<button onclick="window.downloadBrain(0);">Save agent</button>
-			<button onclick="document.getElementById('brainFile').click();">Open brain file</button>
-		</div>
+</head>
 
-    <input id="brainFile" type='file' accept='*/*' onchange='window.readBrain(event)' style="display: none">
-    
-    <div style="margin-top: 20px"><input type="checkbox" onclick="window.updateIfLearning(this.checked);" checked>Learning</div>
+<body>
+  <div id="main_holder">
+    <h1>Reinforcement Learning 2D Humanoid Walkers</h1>
+    <h3 id="page_quote">"Play that funky music, robot"</h3>
+    <canvas id="main_screen" width="800" height="350" style="background: url('./images/background.png')"></canvas>
+
+    <image style="display: none" src="./images/background.png"></image><!-- for google and previews-->
+
     <div id="info">
-      This is an experiment to teach 2d humanoids to walk and to display their progress in the browser. 
-    <p></p><br/>
-      This uses use reinforcement learning, a branch of machine learning target at controlling systems, to teach them to walk. Training is done offline in tensorflow.js.
-      <p></p><br/>
-      Credits: The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>, the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.
+      Teaching 2d humanoids to walk in your browser using reinforcement learning. You can view the progress at differen't stages of training with the buttons below.
+      <p></p><br />
+      Technical: This uses use reinforcement learning to teach them
+      to walk. This is a branch of machine learning targeted at controlling systems such as system of limbs. Training is done offline in tensorflow.js. The environment is in box2d for javascript. The aglorithm is DDPG with prioritized experince replay.
+      <p></p>
+      The dark outlines are when the agent grips the floor, since I found walking was difficult otherwise. The balls are to provide obstacles.
+      <p></p><br />
+      Credits: The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>,
+      the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.
+    </div>
+    <br/>
+    <div>
+      <h4>Load brain:</h4>
+      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-10m/model')">10 minutes old</button>
+      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-1h/model')">1 hour</button>
+      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-2h/model')">2 hours old</button>
+      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-4h/model')">4 hours</button>
+      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-8h/model')">8 hours</button>
+      <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-22h/model')">22 hours</button>
     </div>
 
-    <!-- <div id="stats-wrapper">
-    <h3>Progress</h3>
-    <pre id="stats-prog"></pre>
-    <h3>Agent 1</h3>
-    <pre id="stats-ag0"></pre>
-    </div> -->
+    <button onclick="game.agent.env.chuckBalls()">Thow balls</button>
 
-    <!-- <div id="charts"></div>
+</body>
 
-    </div> -->
-  </body>
-  <script src="../dist/vendor.bundle.js"></script>
-  <script src="../dist/lib.bundle.js"></script>
-  <script src="../dist/app.bundle.js"></script>
 </html>
-
