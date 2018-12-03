@@ -35,7 +35,9 @@ chooseQoute = function () {
     'This is not a disco',
     'Disco simulator 2100',
     "This is a metaphor for life",
-    "You're driving me up the wall"
+    "The balls represent love",
+    "You're driving me up the wall",
+    "The wall represent's life, it can lift you up, it can bring you down.",
   ]
   var qoute = qoutes[randi(0, qoutes.length)]
   document.getElementById('page_quote').innerText = '"' + qoute + '"'
