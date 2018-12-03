@@ -15,17 +15,21 @@
     <image style="display: none" src="./images/background.png"></image><!-- for google and previews-->
 
     <div id="info">
-      Teaching 2d humanoids to walk in your browser using reinforcement learning. You can view the progress at differen't stages of training with the buttons below.
+      Teaching 2d humanoids to walk in your browser using reinforcement learning. You can view the progress at
+      differen't stages of training with the buttons below.
       <p></p><br />
       Technical: This uses use reinforcement learning to teach them
-      to walk. This is a branch of machine learning targeted at controlling systems such as system of limbs. Training is done offline in tensorflow.js. The environment is in box2d for javascript. The aglorithm is DDPG with prioritized experince replay.
+      to walk. This is a branch of machine learning targeted at controlling systems such as system of limbs. Training
+      is done offline in tensorflow.js. The environment is in box2d for javascript. The aglorithm is DDPG with
+      prioritized experince replay.
       <p></p>
-      The dark outlines are when the agent grips the floor, since I found walking was difficult otherwise. The balls are to provide obstacles.
+      The dark outlines are when the agent grips the floor, since I found walking was difficult otherwise. The balls
+      are to provide obstacles.
       <p></p><br />
       Credits: The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>,
       the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.
     </div>
-    <br/>
+    <br />
     <div>
       <h4>Load brain:</h4>
       <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-10m/model')">10 minutes old</button>
@@ -35,8 +39,12 @@
       <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-8h/model')">8 hours</button>
       <button onclick="game.agent.restore('../checkpoints', 'model-ddpg-walker-22h/model')">22 hours</button>
     </div>
+    <div>
+      <h4>Be mean:</h4><button onclick="game.agent.env.chuckBalls()">Thow balls</button>
+      <button onclick="game.agent.env.addBallOnWalker()">Add balls</button>
+    </div>
 
-    <button onclick="game.agent.env.chuckBalls()">Thow balls</button>
+
 
 </body>
 
