@@ -582,20 +582,21 @@ class Walker {
     if (motorSpeeds[3] <= 0) this.right_arm.frictionJoint.maxForce = this.right_arm.frictionJoint.maxTorque
   }
 
-  step(motorSpeeds) {
+  step(motorSpeeds, action_repeat) {
     /*
         Take one step into the environement
         @delta (Float) time since the last update
         @action: (Integer) The action to take (can be null if no action)
     */
+    if (action_repeat===undefined) action_repeat = this.config.action_repeat
 
-    if (Math.random() < 0.005) {
-      this.addBallOnWalker()
-    }
+    // if (Math.random() < 0.0005) {
+    //   this.addBallOnWalker()
+    // }
 
     // repeat actions
     // FIXME I need to delay between drawing each frame. Right now action repeat makes it look like frames are skipping
-    for (let i = 0; i < this.config.action_repeat; i++) {
+    for (let i = 0; i < action_repeat; i++) {
       // TODO add sitcky actions once it's working
       this.world.ClearForces();
       this.simulationPreStep(motorSpeeds)
@@ -653,7 +654,8 @@ class Walker {
       head_height: (this.head.head.GetPosition().y - mean_foot_height),
       center_x: this.torso.upper_torso.GetPosition().x,
       center_y: this.torso.upper_torso.GetPosition().y,
-      mean_foot_height
+      mean_foot_height,
+      date: new Date(),
     }
 
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3

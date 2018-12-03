@@ -3,6 +3,9 @@ const {
   Charts
 } = require('./charts')
 const {
+  tf
+} = require('./ddpg//tf_import')
+const {
   randi
 } = require('./utils')
 const b2 = require('../vendor/jsbox2d')
@@ -11,15 +14,6 @@ const DDPGAgent = require('./ddpg/ddpg_agent')
 const {
   Walker
 } = require('./walker')
-
-if (typeof window !== "undefined")
-  var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
-    window.setTimeout(callback, 1000 / 60);
-  };
-else
-  var requestAnimFrame = function (callback) {
-    window.setTimeout(callback, 1000 / 60);
-  };
 
 
 chooseQoute = function () {
@@ -39,7 +33,9 @@ chooseQoute = function () {
     'Eurovision 2050',
     'We must learn to walk before we can run',
     'This is not a disco',
-    'Disco simulator 2100'
+    'Disco simulator 2100',
+    "This is a metaphor for life",
+    "You're driving me up the wall"
   ]
   var qoute = qoutes[randi(0, qoutes.length)]
   document.getElementById('page_quote').innerText = '"' + qoute + '"'
@@ -95,38 +91,38 @@ class HeadlessGame {
   }
 }
 
+var removeCanvasBackground = function (){ 
+  var canvas=document.getElementById('main_screen')
+  canvas.style.background=''
+}
+
 class Game extends HeadlessGame {
   constructor(config) {
     super(config)
 
     this.agent.stop()
-    console.log('../outputs', 'model-ddpg-walker/model')
-    this.agent.restore('../outputs', 'model-ddpg-walker/model')
-    setInterval(() => this.agent.play(), 100)
+    this.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
+    this.agent.restore('../outputs', 'model-ddpg-walker/model') // load latest
+    setInterval(() => {
+      this.play()
+    }, 1000/this.config.draw_fps)
     chooseQoute()
+    removeCanvasBackground()
   }
 
-  displayProgress() {
-    var stats = {
-      'trainingTime': this.step_counter / config.simulation_fps,
-      'meanProgress': this.walkers.map(w => w.last_position).reduce((s, v) => s + v) / this.walkers.length,
-      'meanReward': this.walkers.map(w => w.reward).reduce((s, v) => s + v) / this.walkers.length,
-      'bufferSize': this.agents[0].brain.buffer.size
+  /**
+   * Play one step
+   */
+  play() {
+    // Get the current state
+    const state = this.agent.env.getState();
+    if (this.agent.env.steps % this.config.action_repeat == 0) {
+      // Pick an action, but only on every N'th step (because of action repeat during training)
+      const tfActions = this.agent.ddpg.predict(tf.tensor2d([state]));
+      this.actions = tfActions.buffer().values;
+      tfActions.dispose();      
     }
-    document.getElementById('stats-prog').innerText = JSON.stringify(stats, null, 2)
-  }
-
-  updateCharts() {
-    var groupN = 100
-    var maxN = 100000
-    if (this.agents[0].infos.length >= groupN) {
-      if (!this.charts) {
-        this.charts = new Charts()
-        this.charts.init(this.agents, groupN)
-      } else {
-        this.charts.update(this.agents, groupN, maxN)
-      }
-    }
+    this.agent.env.step(this.actions, 1);
   }
 }
 
