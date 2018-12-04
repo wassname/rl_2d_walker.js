@@ -1,15 +1,7 @@
-const { Game } = require('./js/game')
+const { Game, chooseQoute } = require('./js/game')
 window.b2 = require('./vendor/jsbox2d')
-const config = require('./js/config')
+window.config = require('./js/config')
+window.chooseQoute = chooseQoute
+window.Game = Game
 
-require('./css/walkers.css')
-
-var game
-window.game = game
-
-function init() {
-  window.game = new Game(config)
-}
-
-window.addEventListener("load", init, false);
-module.exports = {game, Game}
+module.exports = {Game}

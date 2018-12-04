@@ -3,14 +3,14 @@
 
 <head>
   <title>Reinforcement Learning 2D Biped Walkers</title>
-
+  <style link="css/walkers.css"></style>
 </head>
 
 <body>
   <div id="main_holder">
     <h1>Reinforcement Learning 2D Humanoid Walkers</h1>
     <h3 id="page_quote">"Play that funky music, robot"</h3>
-    <canvas id="main_screen" width="800" height="350" style="background: url('./images/background.png')"></canvas>
+    <canvas id="main_screen2" width="800" height="350" style="background: url('./images/background.png')"></canvas>
 
     <image style="display: none" src="./images/background.png"></image><!-- for google and previews-->
 
@@ -47,5 +47,19 @@
 
 
 </body>
+<script>
+function init() {
+  var canvas_id = 'main_screen2'
+  window.game = new Game(config, canvas_id)
+  game.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
+  game.agent.restore('../outputs', 'model-ddpg-walker/model') // load latest
+  game.loop()
+
+  chooseQoute()
+  var canvas=document.getElementById(canvas_id)
+  canvas.style.background=''
+}
+window.addEventListener("load", init, false);
+</script>
 
 </html>

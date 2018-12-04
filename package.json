@@ -21,7 +21,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "display": "webpack-dev-server -d",
-    "train": "node  --max-old-space-size=4096 scripts/train | tee outputs/train_$(date +\"%Y-%m-%d_%H-%M-%S\").log"
+    "train": "node  --max-old-space-size=8192 scripts/train | tee outputs/train_$(date +\"%Y-%m-%d_%H-%M-%S\").log"
   },
   "repository": {
     "type": "git",

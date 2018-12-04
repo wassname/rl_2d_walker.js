@@ -23,7 +23,10 @@ function createFloor(world, max_floor_tiles) {
       edges[edges.length - 1].y + (ratio * Math.random() - ratio / 2)));
     //    edges.push(new b2.Vec2(edges[edges.length-1].x + 1,-0.16));
   }
-  edges.push(new b2.Vec2(edges[edges.length - 1].x, edges[edges.length - 1].y + 18)); // front wall
+  edges.push(new b2.Vec2(edges[edges.length - 1].x + 5, edges[edges.length - 1].y + 5)); // front wall
+  edges.push(new b2.Vec2(edges[edges.length - 1].x + 7, edges[edges.length - 1].y + 15)); // front wall
+  edges.push(new b2.Vec2(edges[edges.length - 1].x + 8, edges[edges.length - 1].y + 35)); // front wall
+  edges.push(new b2.Vec2(edges[edges.length - 1].x + 8, edges[edges.length - 1].y + 45)); // front wall
   fix_def.shape.CreateChain(edges, edges.length);
   body.CreateFixture(fix_def);
   return body;

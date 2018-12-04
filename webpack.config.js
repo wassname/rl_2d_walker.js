@@ -8,14 +8,12 @@ var ENV = process.env.NODE_ENV || "development";
 module.exports = {
   entry: {
     app: './src/index.js',
-    // lib: './src/vendor/index.js'
   },
   target: 'web',
-  devtool: ENV==="development"? 'dev-source-map': null,
+  devtool: ENV==="development"? 'dev-source-map': false,
   output: {
     path: path.join(__dirname, 'dist'), 
     filename: '[name].bundle.js',
-    // path:'/dist',
   },
   module: {
     rules: [
@@ -46,16 +44,16 @@ module.exports = {
     }
   },
   plugins: [
-    new webpack.DefinePlugin({
-      // A flag to disable node imports, and enable window/dom usage
-      WEB: true
-    }),
     new HtmlWebpackPlugin({ template: '!!html-loader!src/index.html' }),
     new CopyWebpackPlugin([
       { from: 'src/images', to: 'images' },
-      {from:'checkpoints',to:'checkpoints'}
+      { from: 'checkpoints', to: 'checkpoints' },
+      {from:'src/css',to:'css'}
       
   ]), 
-    
+  new webpack.DefinePlugin({
+    // A flag to disable node imports, and enable window/dom usage
+    WEB: true
+  }),
   ]
 };

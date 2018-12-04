@@ -4,8 +4,8 @@ class Renderer {
     this.walkers = [walker]
     this.floor = floor
 
-    this.main_screen = document.getElementById("main_screen");
-    this.ctx = main_screen.getContext("2d");
+    this.main_screen = document.getElementById(config.canvas_id);
+    this.ctx = this.main_screen.getContext("2d");
     this.resetCamera();
   }
 

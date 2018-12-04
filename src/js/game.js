@@ -93,23 +93,20 @@ class HeadlessGame {
   }
 }
 
-var removeCanvasBackground = function (){ 
-  var canvas=document.getElementById('main_screen')
-  canvas.style.background=''
-}
+
 
 class Game extends HeadlessGame {
-  constructor(config) {
+  constructor(config, canvas_id) {
+    config.canvas_id = canvas_id
     super(config)
 
     this.agent.stop()
-    this.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
-    this.agent.restore('../outputs', 'model-ddpg-walker/model') // load latest
+  }
+
+  loop() { 
     setInterval(() => {
       this.play()
     }, 1000/this.config.draw_fps)
-    chooseQoute()
-    removeCanvasBackground()
   }
 
   /**
