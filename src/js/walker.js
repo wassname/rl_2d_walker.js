@@ -34,7 +34,8 @@ class Walker {
 
     this.hue = randf(200, 360)
 
-
+    // http://www.ele.uri.edu/faculty/vetter/BME207/anthropometric-data.pdf
+    // https://multisite.eos.ncsu.edu/www-ergocenter-ncsu-edu/wp-content/uploads/sites/18/2016/06/Anthropometric-Detailed-Data-Tables.pdf
     this.torso_def = {
       upper_width: 0.25,
       upper_height: 0.45,
@@ -53,7 +54,7 @@ class Walker {
 
     this.arm_def = {
       arm_width: 0.12,
-      arm_length: 0.37,
+      arm_length: 0.35,
       forearm_width: 0.1,
       forearm_length: 0.30,
       hand_height: 0.08,
@@ -497,7 +498,7 @@ class Walker {
     // Create a fixture definition to apply our shape to
     var fixtureDef = new b2.FixtureDef();
     fixtureDef.shape = circle;
-    fixtureDef.density = 20;
+    fixtureDef.density = 80;
     fixtureDef.friction = 0.4;
     fixtureDef.restitution = 0.6; // Make it bounce a little bit
 
@@ -605,6 +606,7 @@ class Walker {
     }
     this.steps++
     this.episodeSteps++
+    if ((typeof WEB === "undefined") && (this.steps%600)) this.shuffle()
     /* score/reward */
     // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
     // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -650,12 +652,7 @@ class Walker {
       quad_joint_angle_cost,
       bonus_happiness,
       head_height_reward,
-      leg_switch_reward,
-      head_height: (this.head.head.GetPosition().y - mean_foot_height),
-      center_x: this.torso.upper_torso.GetPosition().x,
-      center_y: this.torso.upper_torso.GetPosition().y,
-      mean_foot_height,
-      date: new Date(),
+      leg_switch_reward
     }
 
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3
@@ -665,6 +662,11 @@ class Walker {
       steps: this.steps,
       reward: this.reward,
       position,
+      head_height: (this.head.head.GetPosition().y - mean_foot_height),
+      center_x: this.torso.upper_torso.GetPosition().x,
+      center_y: this.torso.upper_torso.GetPosition().y,
+      mean_foot_height,
+      date: new Date(),
       ...this.rewards
     }
     var done = 0
@@ -694,8 +696,8 @@ class Walker {
   chuckBalls() { 
     for (const ball of this.balls) {
       let pb = ball.GetPosition()
-      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*4
-      let dy = (this.torso.upper_torso.GetPosition().y - pb.y) * 6
+      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*10
+      let dy = (this.torso.upper_torso.GetPosition().y - pb.y) * 10
       dx = clamp(dx, -16, 16)
       dy = clamp(dy, -16, 16)
       ball.SetLinearVelocity(new b2.Vec2(dx,dy))
@@ -714,6 +716,7 @@ class Walker {
 
     this.randomise(0.5)
 
+    this.addBallOnWalker()
     this.addBallOnWalker()
     this.addBallOnWalker()
 
