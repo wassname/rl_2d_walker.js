@@ -108,13 +108,15 @@ class DDPGAgent {
         */
         var critic, actor
         if (typeof WEB === "undefined") {
+            console.log('loading', 'file://' + folder + '/critic-' + name + '.json')
+            console.log('loading', 'file://' + folder + '/actor-' + name + '.json')
             critic = await tf.loadModel('file://' + folder + '/critic-' + name + '.json');
             actor = await tf.loadModel("file://" + folder + "/actor-" + name + ".json");
         } else {
-            critic = await tf.loadModel(window.location.href + folder + '/critic-' + name + '.json');
-            actor = await tf.loadModel(window.location.href + folder + "/actor-" + name + ".json");
-            // const critic = await tf.loadModel('https://metacar-project.com/public/models/'+folder+'/critic-'+name+'.json');
-            // const actor = await tf.loadModel("https://metacar-project.com/public/models/"+folder+"/actor-"+name+".json");
+            console.log('loading', window.location.origin + window.location.pathname + folder + '/actor-' + name + '.json')
+            console.log('loading', window.location.origin + window.location.pathname + folder + '/critic-' + name + '.json')
+            critic = await tf.loadModel(window.location.origin + window.location.pathname + folder + '/critic-' + name + '.json');
+            actor = await tf.loadModel(window.location.origin + window.location.pathname + folder + "/actor-" + name + ".json");
         }
 
         this.ddpg.critic = copyFromSave(critic, Critic, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
