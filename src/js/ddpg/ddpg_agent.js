@@ -52,6 +52,7 @@ class DDPGAgent {
             "nbTrainSteps": config.nbTrainSteps || 110,
             "tau": config.tau || 0.008,
             "initialStddev": config.initialStddev || 0.1,
+            "minActionStddev": config.minActionStddev || 0.01,
             "desiredActionStddev": config.desiredActionStddev || 0.1,
             "adoptionCoefficient": config.adoptionCoefficient || 1.01,
             "actorFirstLayerSize": config.actorFirstLayerSize || 64,
@@ -195,7 +196,7 @@ class DDPGAgent {
      * Optimize models and log states
      */
     _optimize() {
-        this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
+        this.ddpg.noise.desiredActionStddev = Math.max(this.config.minActionStddev, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
         let lossValuesCritic = [];
         let lossValuesActor = [];
         console.time("Training");

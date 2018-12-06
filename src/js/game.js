@@ -37,6 +37,7 @@ chooseQoute = function () {
     "This is a metaphor for life",
     "The balls represent love",
     "You're driving me up the wall",
+    "Ministry of silly walks",
     "The wall represent's life, it can lift you up, it can bring you down.",
   ]
   var qoute = qoutes[randi(0, qoutes.length)]
@@ -66,11 +67,14 @@ class HeadlessGame {
       batchSize: 128,
       actorLr: 0.0001,
       criticLr: 0.001,
-      memorySize: 30000,
+      memorySize: 20000,
       gamma: 0.99,
 
       desiredActionStddev: 0.1,
+      minActionStddev: 0.001,
       initialStddev: 0.4,
+      adoptionCoefficient: 1.01,
+      noiseDecay: 0.99,
 
       actorFirstLayerSize: 128,
       actorSecondLayerSize: 64,
@@ -78,7 +82,7 @@ class HeadlessGame {
       criticFirstLayerASize: 128,
       criticSecondLayerSize: 64,
 
-      nbEpochs: 1000,
+      nbEpochs: 700,
       nbEpochsCycle: 10,
       nbTrainSteps: 100,
       maxStep: 1800,
@@ -86,7 +90,6 @@ class HeadlessGame {
       saveInterval: 5,
 
       tau: 0.008,
-      adoptionCoefficient: 1.01,
 
 
     });
