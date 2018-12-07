@@ -211,7 +211,7 @@ class Walker {
     position.y -= this.torso_def.upper_height / 2;
     position.x -= this.torso_def.lower_width / 3;
     jd.Initialize(upper_torso, lower_torso, position);
-    jd.lowerAngle = deg2rad(-75 / 2);
+    jd.lowerAngle = deg2rad(-35 / 2);
     jd.upperAngle = deg2rad(30 / 2);
     jd.enableLimit = true;
     jd.maxMotorTorque = 150 * STRENGTH;
@@ -398,10 +398,10 @@ class Walker {
     var position = neck.GetPosition().Clone();
     position.y += this.head_def.neck_height / 2;
     jd.Initialize(head, neck, position);
-    jd.lowerAngle = -0.1;
-    jd.upperAngle = 0.2;
+    jd.lowerAngle = -0.1/2;
+    jd.upperAngle = 0.2/2;
     jd.enableLimit = true;
-    jd.maxMotorTorque = 4 * STRENGTH;
+    jd.maxMotorTorque = 2 * STRENGTH;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -498,7 +498,7 @@ class Walker {
     // Create a fixture definition to apply our shape to
     var fixtureDef = new b2.FixtureDef();
     fixtureDef.shape = circle;
-    fixtureDef.density = 80;
+    fixtureDef.density = 50;
     fixtureDef.friction = 0.4;
     fixtureDef.restitution = 0.6; // Make it bounce a little bit
 
@@ -606,7 +606,7 @@ class Walker {
     }
     this.steps++
     this.episodeSteps++
-    if ((typeof WEB === "undefined") && (this.steps%600)) this.shuffle()
+    if ((typeof WEB === "undefined") && (this.steps%400)) this.shuffle()
     /* score/reward */
     // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
     // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -624,7 +624,7 @@ class Walker {
 
     // cost for moving joints to unnatural positions (fraction of movement range in the relevant direction)
     var jointFractionMovement = j => j.GetJointAngle() > 0 ? j.GetJointAngle() / (j.GetUpperLimit() + 1) : j.GetJointAngle() / (j.GetLowerLimit() - 1)
-    var quad_joint_angle_cost = -0.10 * this.joints.map(j => jointFractionMovement(j) * 1.2)
+    var quad_joint_angle_cost = -0.40 * this.joints.map(j => jointFractionMovement(j) * 1.2)
       .reduce((o, v) => o + v * v, 0)
     quad_joint_angle_cost = Math.max(quad_joint_angle_cost, -10)
 
@@ -636,14 +636,14 @@ class Walker {
     var lin_vel_reward = 3 * velocity
 
     // punish for using energy, squared
-    var quad_power_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
+    var quad_power_cost = -0.05 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
     quad_power_cost = Math.max(quad_power_cost, -10)
 
     // Lets be nice, all entities should find overall happiness in what they do
     var bonus_happiness = 40
 
     var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
-    var quad_contact_cost = -Math.min(contacts - 4, 10) / 2
+    var quad_contact_cost = -Math.min(contacts - 4, 10)
 
     this.rewards = {
       lin_vel_reward,

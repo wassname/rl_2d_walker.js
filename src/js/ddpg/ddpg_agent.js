@@ -43,7 +43,7 @@ class DDPGAgent {
             "batchSize": config.batchSize || 128,
             "actorLr": config.actorLr || 0.0001,
             "criticLr": config.criticLr || 0.001,
-            "memorySize": config.memorySize || 30000,
+            "memorySize": config.memorySize || 40000,
             "gamma": config.gamme || 0.99,
             "noiseDecay": config.noiseDecay || 0.99,
             "rewardScale": config.rewardScale || 1,
