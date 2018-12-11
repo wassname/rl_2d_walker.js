@@ -10,7 +10,7 @@ const {
   Renderer
 } = require('./renderer')
 
-const STRENGTH = 2
+const STRENGTH = 1.7
 
 class Walker {
   constructor(world, floor, config) {
@@ -134,16 +134,16 @@ class Walker {
         var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
         if (otherFixture.m_body === self.right_leg.foot) {
           // TODO let the agent act to grip or not. Only if palm or foot down?
-          self.right_leg.frictionJoint.maxForce = 1000 * self.grips[0]
+          self.right_leg.frictionJoint.maxForce = 0 * self.grips[0]
           self.right_leg.frictionJoint.maxTorque = 1000 * self.grips[0]
         } else if (otherFixture.m_body === self.left_leg.foot) {
-          self.left_leg.frictionJoint.maxForce = 1000 * self.grips[1]
+          self.left_leg.frictionJoint.maxForce = 0 * self.grips[1]
           self.left_leg.frictionJoint.maxTorque = 1000 * self.grips[1]
         } else if (otherFixture.m_body == self.right_arm.hand) {
-          self.right_arm.frictionJoint.maxForce = 1000 * self.grips[2]
+          self.right_arm.frictionJoint.maxForce = 0 * self.grips[2]
           self.right_arm.frictionJoint.maxTorque = 1000 * self.grips[2]
         } else if (otherFixture.m_body === self.left_arm.hand) {
-          self.left_arm.frictionJoint.maxForce = 1000 * self.grips[3]
+          self.left_arm.frictionJoint.maxForce = 0 * self.grips[3]
           self.left_arm.frictionJoint.maxTorque = 1000 * self.grips[3]
         }
       }
@@ -211,10 +211,10 @@ class Walker {
     position.y -= this.torso_def.upper_height / 2;
     position.x -= this.torso_def.lower_width / 3;
     jd.Initialize(upper_torso, lower_torso, position);
-    jd.lowerAngle = deg2rad(-35 / 2);
+    jd.lowerAngle = deg2rad(-10 / 2);
     jd.upperAngle = deg2rad(30 / 2);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 150 * STRENGTH;
+    jd.maxMotorTorque = 10 * STRENGTH;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)

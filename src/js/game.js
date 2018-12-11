@@ -72,9 +72,9 @@ class HeadlessGame {
 
       desiredActionStddev: 0.2,
       minActionStddev: 0.001,
-      initialStddev: 0.4,
+      initialStddev: 0.6,
       adoptionCoefficient: 1.01,
-      noiseDecay: 0.999,
+      noiseDecay: 0.99,
 
       actorFirstLayerSize: 128,
       actorSecondLayerSize: 64,
@@ -82,7 +82,7 @@ class HeadlessGame {
       criticFirstLayerASize: 128,
       criticSecondLayerSize: 64,
 
-      nbEpochs: 700,
+      nbEpochs: 500,
       nbEpochsCycle: 10,
       nbTrainSteps: 100,
       maxStep: 1800,
