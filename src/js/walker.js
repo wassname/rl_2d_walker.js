@@ -97,7 +97,7 @@ class Walker {
     this.fd = new b2.FixtureDef();
     this.fd.density = this.density;
     this.fd.restitution = 0.1; // bounciness
-    this.fd.friction = 10000; // only on contact (grip)
+    this.fd.friction = 10000000; // only on contact (grip)
     this.fd.shape = new b2.PolygonShape();
     this.fd.filter.groupIndex = -1;
 
@@ -572,7 +572,7 @@ class Walker {
   simulationPreStep(motorSpeeds) {
     // act
     for (var k = 0; k < this.joints.length; k++) {
-      this.joints[k].SetMotorSpeed(motorSpeeds[k] * 30); // action can range from -3 to 3, radians per second
+      this.joints[k].SetMotorSpeed(motorSpeeds[k] * 20); // action can range from -3 to 3, radians per second
     }
     for (let i = 0; i < motorSpeeds.length - this.joints.length; i++) {
       this.grips[i] = motorSpeeds[i] > 0
