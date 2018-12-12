@@ -10,8 +10,8 @@ const {
   Renderer
 } = require('./renderer')
 
-const STRENGTH = 1.7*2
-const SPEED = 20
+const STRENGTH = 2.2
+const SPEED = 15
 
 class Walker {
   constructor(world, floor, config) {
@@ -136,16 +136,16 @@ class Walker {
         if (otherFixture.m_body === self.right_leg.foot) {
           // TODO let the agent act to grip or not. Only if palm or foot down?
           self.right_leg.frictionJoint.maxForce = 0 * self.grips[0]
-          self.right_leg.frictionJoint.maxTorque = 1000 * self.grips[0]
+          self.right_leg.frictionJoint.maxTorque = 100000 * self.grips[0]
         } else if (otherFixture.m_body === self.left_leg.foot) {
           self.left_leg.frictionJoint.maxForce = 0 * self.grips[1]
-          self.left_leg.frictionJoint.maxTorque = 1000 * self.grips[1]
+          self.left_leg.frictionJoint.maxTorque = 100000 * self.grips[1]
         } else if (otherFixture.m_body == self.right_arm.hand) {
-          self.right_arm.frictionJoint.maxForce = 0 * self.grips[2]
-          self.right_arm.frictionJoint.maxTorque = 1000 * self.grips[2]
+          self.right_arm.frictionJoint.maxForce = 0   * self.grips[2]
+          self.right_arm.frictionJoint.maxTorque = 100000 * self.grips[2]
         } else if (otherFixture.m_body === self.left_arm.hand) {
           self.left_arm.frictionJoint.maxForce = 0 * self.grips[3]
-          self.left_arm.frictionJoint.maxTorque = 1000 * self.grips[3]
+          self.left_arm.frictionJoint.maxTorque = 100000 * self.grips[3]
         }
       }
     }
