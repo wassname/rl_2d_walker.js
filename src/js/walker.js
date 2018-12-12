@@ -10,7 +10,8 @@ const {
   Renderer
 } = require('./renderer')
 
-const STRENGTH = 1.7
+const STRENGTH = 1.7*2
+const SPEED = 20
 
 class Walker {
   constructor(world, floor, config) {
@@ -90,14 +91,14 @@ class Walker {
     this.bd.position.x += randf(-10, 10)
     this.bd.type = b2.Body.b2_dynamicBody;
     this.bd.linearDamping = 0;
-    this.bd.angularDamping = 20; // decay in force/ air friction
+    this.bd.angularDamping = 10; // decay in force/ air friction
     this.bd.allowSleep = true;
     this.bd.awake = true;
 
     this.fd = new b2.FixtureDef();
     this.fd.density = this.density;
     this.fd.restitution = 0.1; // bounciness
-    this.fd.friction = 10000000; // only on contact (grip)
+    this.fd.friction = 100000000; // only on contact (grip)
     this.fd.shape = new b2.PolygonShape();
     this.fd.filter.groupIndex = -1;
 
@@ -572,7 +573,7 @@ class Walker {
   simulationPreStep(motorSpeeds) {
     // act
     for (var k = 0; k < this.joints.length; k++) {
-      this.joints[k].SetMotorSpeed(motorSpeeds[k] * 20); // action can range from -3 to 3, radians per second
+      this.joints[k].SetMotorSpeed(motorSpeeds[k] * SPEED); // action can range from -3 to 3, radians per second
     }
     for (let i = 0; i < motorSpeeds.length - this.joints.length; i++) {
       this.grips[i] = motorSpeeds[i] > 0
@@ -615,7 +616,7 @@ class Walker {
     // reward for keeping head up, compared to feet
     var mean_foot_height = (this.left_leg.foot.GetPosition().y + this.right_leg.foot.GetPosition().y) / 2
 
-    var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height) * 400; // it's head should be above it's feet 2*(-0.25-2)
+    var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height) * 500; // it's head should be above it's feet 2*(-0.25-2)
 
     // reward for moving one leg beyond the other (stepping)
     var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
@@ -633,7 +634,7 @@ class Walker {
     if (this.last_position === undefined) this.last_position = position
     var velocity = (position - this.last_position) * 100
     this.last_position = position
-    var lin_vel_reward = 3 * velocity
+    var lin_vel_reward = 2 * velocity
 
     // punish for using energy, squared
     var quad_power_cost = -0.05 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
@@ -652,7 +653,7 @@ class Walker {
       quad_joint_angle_cost,
       bonus_happiness,
       head_height_reward,
-      leg_switch_reward
+      // leg_switch_reward
     }
 
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3
