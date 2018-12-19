@@ -1,14 +1,23 @@
-# 2d humanoid walker
+# 2D Humanoid Walker js
+
+This project is a reinforcement learning environment for node. You can train a model offline using tensorflow.js then deploy the result to the browser. And example is http://thinkcds.com/2d_walker/.
 
 ![Screenshot](docs/img/Selection_146.png)
 
-## Installation
+## Installation & Usage
 
-TODO: Describe the installation process
+- `git clone https://github.com/wassname/rl_2d_walker.js.git`
+- `npm install`
+- `npm i -g webpack-dev-server webpack`
+- `npm train`: this will train in node
+  - you ideally need a CUDA capable GPU with 8GB+ of memory.
+  - will take 8 hours to see results, 44 hours for good results
+- `npm run`: this will start a server to view the results. Result will refresh every few hours when a model checkpoint in saved.
 
-## Usage
+## Modifying
 
-TODO: Write usage instructions
+- The walker: see walker.js
+- The agent: see game.js, and ddpg_agent.js
 
 ## Contributing
 
@@ -18,38 +27,17 @@ TODO: Write usage instructions
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D
 
-## TODO
-
-- [x] make walker into an env, with reset, done etc
-- [x] display save loss curves... everything from info
-- [x] make diff env's, copy humanoidwalker, humanoid, learning2run etc
-- [ ] display
-    - [x] display/save time for each agent
-        - [x] globals.step_counter
-    - [x] x progress
-    - [ ] smile frown?
-    - [ ] fix my frameskip
-    - [x] save checkpoints
-- [ ] obstacles later on
-    - [x] balls
-    - [ ] Allow user to chuck bouncing balls. Some can remain as obstacles
-- [x] load pretrained
-- [x] reward hacking
-    - [x] head high, feet on ground, legs crossing, moving forward, angles near 0
-
 # Credits
 
+- Made by wassname for thinkcds.com
 - The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">http://rednuht.org/genetic_walkers/</a>
 - DDPG code from metacar
 
-# Notes
+# Future work
 
-- Training times:
-    - Without node: Training: 52732.152ms
-    - With node:    Training: 17211.739ms
-    - With cuda     LoopTime: 12583.449ms
-    - 
-- tfjs-node-gpu needs python2 to compile
-- crashes during training after a few hours due to mem leak
+- [ ] I would like to run the strength, stiffness (in box2d this seems to be max torque), friction, etc to allow a more elegant walking behaviour
+- [ ] Clean up the html UI
 
-- is is slipping, what about with more friction?
+# License
+
+ISC

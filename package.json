@@ -1,6 +1,6 @@
 {
   "name": "2d_walker_rl_js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A 2d humanoid walker trained to walk with reinforcement learning",
   "main": "index.js",
   "dependencies": {
@@ -21,16 +21,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "display": "webpack-dev-server -d",
-    "train": "node  --max-old-space-size=4096 scripts/train | tee outputs/train_$(date +\"%Y-%m-%d_%H-%M-%S\").log"
+    "train": "node  --max-old-space-size=8192 scripts/train | tee outputs/train_$(date +\"%Y-%m-%d_%H-%M-%S\").log"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/wassname/2d_humanoidwalker_rl_js.git"
+    "url": "git+https://github.com/wassname/rl_2d_walker.js.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/wassname/2d_humanoidwalker_rl_js/issues"
+    "url": "https://github.com/wassname/rl_2d_walker.js/issues"
   },
-  "homepage": "http://wassname.org/2d_rl_walker/"
+  "homepage": "http://thinkcds.com/2d_walker/"
 }

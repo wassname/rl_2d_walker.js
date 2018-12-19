@@ -10,25 +10,37 @@
   <div id="main_holder">
     <h1>Reinforcement Learning 2D Humanoid Walkers</h1>
     <h3 id="page_quote">"Play that funky music, robot"</h3>
-    <canvas id="main_screen2" width="800" height="350" style="background: url('./images/background.png')"></canvas>
+    <canvas id="main_screen2" width="800" height="350" style="background: url('./images/background.png')" onclick="game.agent.env.chuckBalls()"></canvas>
 
     <image style="display: none" src="./images/background.png"></image><!-- for google and previews-->
 
     <div id="info">
-      Teaching 2d humanoids to walk in your browser using reinforcement learning. You can view the progress at
-      differen't stages of training with the buttons below.
+      This project take a teach a 2d ragdoll to walk(ish) using reinforcement learning.
       <p></p>
-      It's goal it to hold it head upright and move to the right. If you load it's brain from differen't times you can see it's progress.
-      <p></p><br />
-      How does it work?: This uses use reinforcement learning to teach them
-      to walk. This is a branch of machine learning targeted at controlling systems such as system of limbs. Training
-      is done offline in tensorflow.js. The environment is in box2d for javascript. The aglorithm is DDPG with
-      prioritized experince replay.
+      You can view the progress at differen't stages of training with the buttons below. You can also throw balls by clicking the animation.
       <p></p>
-      The dark outlines are when the agent grips the floor, since I found walking was difficult otherwise. The balls are to provide obstacles.
+      The agent can move it's limbs in a realistic range of motion, it can feel the position of it's limbs and it's goal it to hold it's head upright and move to the right. 
+      The dark outlines are when the agent grips the floor, since I found walking was slippery otherwise. The balls are to provide obstacles.
+      <ul>
+        <li>Reward: The agent is rewarded for moving to the right, keeping it's head above it's legs, conversing energy, not bending it's limbs too much, and not touching to many limbs to the ground</li>
+        <li>Actions: The agent can power motors that rotate each limb within a certain range of motion</li>
+        <li>State: The agent can "see" most things about itself: each limb's relative position, global position, rotation, linear velocity,  angular velocity, and orientation. Also each joints angle, speed, and motor speed</li>
+      </ul>
       <p></p><br />
-      Credits: The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>,
-      the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.
+      How does it work?: This uses use <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a> to teach the agent to walk. 
+      This is a branch of machine learning targeted at controlling systems over time such as systems of limbs or a self driving car. 
+      
+      The agent is defined in 2d with a certain strength and range of limb movement. Training is done offline in <a href="https://js.tensorflow.org">tensorflow.js</a>. The aglorithm is <a href="https://arxiv.org/abs/1509.02971">Deep Deterministic Policy Gradients</a> with <a href="https://arxiv.org/abs/1511.05952">prioritized experince replay</a>. The environment is in box2d for javascript and we use webpack to run the same code on the backend and frontend.
+      <p></p>
+      
+      <p></p><br />
+      Credits: 
+      <ul>
+        <li>Made by <a href="wassname.org">wassname</a> for <a href="thinkcds.com">thinkcds.com</a></li>
+        <li>The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>,</li>
+        <li>the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.</li>
+      </ul>
+      
     </div>
     <br />
     <div>
