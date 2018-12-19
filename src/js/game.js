@@ -37,6 +37,7 @@ chooseQoute = function () {
     "This is a metaphor for life",
     "The balls represent love",
     "You're driving me up the wall",
+    "Ministry of silly walks",
     "The wall represent's life, it can lift you up, it can bring you down.",
   ]
   var qoute = qoutes[randi(0, qoutes.length)]
@@ -63,14 +64,17 @@ class HeadlessGame {
       stateSize,
       nbActions,
       resetEpisode: true,
-      batchSize: 128,
+      batchSize: 64,
       actorLr: 0.0001,
       criticLr: 0.001,
-      memorySize: 30000,
+      memorySize: 20000,
       gamma: 0.99,
 
-      desiredActionStddev: 0.1,
-      initialStddev: 0.4,
+      desiredActionStddev: 0.2,
+      minActionStddev: 0.001,
+      initialStddev: 0.6,
+      adoptionCoefficient: 1.01,
+      noiseDecay: 0.99,
 
       actorFirstLayerSize: 128,
       actorSecondLayerSize: 64,
@@ -78,7 +82,7 @@ class HeadlessGame {
       criticFirstLayerASize: 128,
       criticSecondLayerSize: 64,
 
-      nbEpochs: 1000,
+      nbEpochs: 500,
       nbEpochsCycle: 10,
       nbTrainSteps: 100,
       maxStep: 1800,
@@ -86,30 +90,26 @@ class HeadlessGame {
       saveInterval: 5,
 
       tau: 0.008,
-      adoptionCoefficient: 1.01,
 
 
     });
   }
 }
 
-var removeCanvasBackground = function (){ 
-  var canvas=document.getElementById('main_screen')
-  canvas.style.background=''
-}
+
 
 class Game extends HeadlessGame {
-  constructor(config) {
+  constructor(config, canvas_id) {
+    config.canvas_id = canvas_id
     super(config)
 
     this.agent.stop()
-    this.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
-    this.agent.restore('../outputs', 'model-ddpg-walker/model') // load latest
+  }
+
+  loop() { 
     setInterval(() => {
       this.play()
     }, 1000/this.config.draw_fps)
-    chooseQoute()
-    removeCanvasBackground()
   }
 
   /**
