@@ -66,6 +66,7 @@
 function init() {
   var canvas_id = 'main_screen2'
   window.game = new Game(config, canvas_id)
+  game.agent.restore('./checkpoints', 'model-ddpg-walker-4h/model') // load checkpoint
   game.agent.restore('./checkpoints', 'model-ddpg-walker-60h/model') // load checkpoint
   game.agent.restore('../outputs', 'model-ddpg-walker/model') // load latest
   game.loop()

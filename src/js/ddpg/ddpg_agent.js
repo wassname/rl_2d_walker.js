@@ -43,7 +43,7 @@ class DDPGAgent {
             "batchSize": config.batchSize || 128,
             "actorLr": config.actorLr || 0.0001,
             "criticLr": config.criticLr || 0.001,
-            "memorySize": config.memorySize || 30000,
+            "memorySize": config.memorySize || 40000,
             "gamma": config.gamme || 0.99,
             "noiseDecay": config.noiseDecay || 0.99,
             "rewardScale": config.rewardScale || 1,
@@ -52,6 +52,7 @@ class DDPGAgent {
             "nbTrainSteps": config.nbTrainSteps || 110,
             "tau": config.tau || 0.008,
             "initialStddev": config.initialStddev || 0.1,
+            "minActionStddev": config.minActionStddev || 0.01,
             "desiredActionStddev": config.desiredActionStddev || 0.1,
             "adoptionCoefficient": config.adoptionCoefficient || 1.01,
             "actorFirstLayerSize": config.actorFirstLayerSize || 64,
@@ -108,13 +109,15 @@ class DDPGAgent {
         */
         var critic, actor
         if (typeof WEB === "undefined") {
+            console.log('loading', 'file://' + folder + '/critic-' + name + '.json')
+            console.log('loading', 'file://' + folder + '/actor-' + name + '.json')
             critic = await tf.loadModel('file://' + folder + '/critic-' + name + '.json');
             actor = await tf.loadModel("file://" + folder + "/actor-" + name + ".json");
         } else {
-            critic = await tf.loadModel(window.location.href + folder + '/critic-' + name + '.json');
-            actor = await tf.loadModel(window.location.href + folder + "/actor-" + name + ".json");
-            // const critic = await tf.loadModel('https://metacar-project.com/public/models/'+folder+'/critic-'+name+'.json');
-            // const actor = await tf.loadModel("https://metacar-project.com/public/models/"+folder+"/actor-"+name+".json");
+            console.log('loading', window.location.origin + window.location.pathname + folder + '/actor-' + name + '.json')
+            console.log('loading', window.location.origin + window.location.pathname + folder + '/critic-' + name + '.json')
+            critic = await tf.loadModel(window.location.origin + window.location.pathname + folder + '/critic-' + name + '.json');
+            actor = await tf.loadModel(window.location.origin + window.location.pathname + folder + "/actor-" + name + ".json");
         }
 
         this.ddpg.critic = copyFromSave(critic, Critic, this.config, this.ddpg.obsInput, this.ddpg.actionInput);
@@ -193,7 +196,7 @@ class DDPGAgent {
      * Optimize models and log states
      */
     _optimize() {
-        this.ddpg.noise.desiredActionStddev = Math.max(0.1, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
+        this.ddpg.noise.desiredActionStddev = Math.max(this.config.minActionStddev, this.config.noiseDecay * this.ddpg.noise.desiredActionStddev);
         let lossValuesCritic = [];
         let lossValuesActor = [];
         console.time("Training");

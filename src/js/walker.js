@@ -10,7 +10,8 @@ const {
   Renderer
 } = require('./renderer')
 
-const STRENGTH = 2
+const STRENGTH = 2.2
+const SPEED = 15
 
 class Walker {
   constructor(world, floor, config) {
@@ -34,7 +35,8 @@ class Walker {
 
     this.hue = randf(200, 360)
 
-
+    // http://www.ele.uri.edu/faculty/vetter/BME207/anthropometric-data.pdf
+    // https://multisite.eos.ncsu.edu/www-ergocenter-ncsu-edu/wp-content/uploads/sites/18/2016/06/Anthropometric-Detailed-Data-Tables.pdf
     this.torso_def = {
       upper_width: 0.25,
       upper_height: 0.45,
@@ -89,14 +91,14 @@ class Walker {
     this.bd.position.x += randf(-10, 10)
     this.bd.type = b2.Body.b2_dynamicBody;
     this.bd.linearDamping = 0;
-    this.bd.angularDamping = 20; // decay in force/ air friction
+    this.bd.angularDamping = 10; // decay in force/ air friction
     this.bd.allowSleep = true;
     this.bd.awake = true;
 
     this.fd = new b2.FixtureDef();
     this.fd.density = this.density;
     this.fd.restitution = 0.1; // bounciness
-    this.fd.friction = 10000; // only on contact (grip)
+    this.fd.friction = 100000000; // only on contact (grip)
     this.fd.shape = new b2.PolygonShape();
     this.fd.filter.groupIndex = -1;
 
@@ -133,17 +135,17 @@ class Walker {
         var otherFixture = contact.m_fixtureA.m_body.m_userData == "floor" ? contact.m_fixtureB : contact.m_fixtureA
         if (otherFixture.m_body === self.right_leg.foot) {
           // TODO let the agent act to grip or not. Only if palm or foot down?
-          self.right_leg.frictionJoint.maxForce = 1000 * self.grips[0]
-          self.right_leg.frictionJoint.maxTorque = 1000 * self.grips[0]
+          self.right_leg.frictionJoint.maxForce = 0 * self.grips[0]
+          self.right_leg.frictionJoint.maxTorque = 100000 * self.grips[0]
         } else if (otherFixture.m_body === self.left_leg.foot) {
-          self.left_leg.frictionJoint.maxForce = 1000 * self.grips[1]
-          self.left_leg.frictionJoint.maxTorque = 1000 * self.grips[1]
+          self.left_leg.frictionJoint.maxForce = 0 * self.grips[1]
+          self.left_leg.frictionJoint.maxTorque = 100000 * self.grips[1]
         } else if (otherFixture.m_body == self.right_arm.hand) {
-          self.right_arm.frictionJoint.maxForce = 1000 * self.grips[2]
-          self.right_arm.frictionJoint.maxTorque = 1000 * self.grips[2]
+          self.right_arm.frictionJoint.maxForce = 0   * self.grips[2]
+          self.right_arm.frictionJoint.maxTorque = 100000 * self.grips[2]
         } else if (otherFixture.m_body === self.left_arm.hand) {
-          self.left_arm.frictionJoint.maxForce = 1000 * self.grips[3]
-          self.left_arm.frictionJoint.maxTorque = 1000 * self.grips[3]
+          self.left_arm.frictionJoint.maxForce = 0 * self.grips[3]
+          self.left_arm.frictionJoint.maxTorque = 100000 * self.grips[3]
         }
       }
     }
@@ -210,10 +212,10 @@ class Walker {
     position.y -= this.torso_def.upper_height / 2;
     position.x -= this.torso_def.lower_width / 3;
     jd.Initialize(upper_torso, lower_torso, position);
-    jd.lowerAngle = deg2rad(-75 / 2);
+    jd.lowerAngle = deg2rad(-10 / 2);
     jd.upperAngle = deg2rad(30 / 2);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 150 * STRENGTH;
+    jd.maxMotorTorque = 10 * STRENGTH;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -397,10 +399,10 @@ class Walker {
     var position = neck.GetPosition().Clone();
     position.y += this.head_def.neck_height / 2;
     jd.Initialize(head, neck, position);
-    jd.lowerAngle = -0.1;
-    jd.upperAngle = 0.2;
+    jd.lowerAngle = -0.1/2;
+    jd.upperAngle = 0.2/2;
     jd.enableLimit = true;
-    jd.maxMotorTorque = 4 * STRENGTH;
+    jd.maxMotorTorque = 2 * STRENGTH;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -497,7 +499,7 @@ class Walker {
     // Create a fixture definition to apply our shape to
     var fixtureDef = new b2.FixtureDef();
     fixtureDef.shape = circle;
-    fixtureDef.density = 20;
+    fixtureDef.density = 50;
     fixtureDef.friction = 0.4;
     fixtureDef.restitution = 0.6; // Make it bounce a little bit
 
@@ -571,7 +573,7 @@ class Walker {
   simulationPreStep(motorSpeeds) {
     // act
     for (var k = 0; k < this.joints.length; k++) {
-      this.joints[k].SetMotorSpeed(motorSpeeds[k] * 30); // action can range from -3 to 3, radians per second
+      this.joints[k].SetMotorSpeed(motorSpeeds[k] * SPEED); // action can range from -3 to 3, radians per second
     }
     for (let i = 0; i < motorSpeeds.length - this.joints.length; i++) {
       this.grips[i] = motorSpeeds[i] > 0
@@ -605,6 +607,7 @@ class Walker {
     }
     this.steps++
     this.episodeSteps++
+    if ((typeof WEB === "undefined") && (this.steps%400)) this.shuffle()
     /* score/reward */
     // reward copied from OpenAI Gym Humanoid Walker https://github.com/openai/gym/blob/master/gym/envs/mujoco/humanoid.py
     // also see https://github.com/AdamStelmaszczyk/learning2run/blob/master/osim-rl/osim/env/run.py#L67
@@ -613,7 +616,7 @@ class Walker {
     // reward for keeping head up, compared to feet
     var mean_foot_height = (this.left_leg.foot.GetPosition().y + this.right_leg.foot.GetPosition().y) / 2
 
-    var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height) * 400; // it's head should be above it's feet 2*(-0.25-2)
+    var head_height_reward = (this.head.head.GetPosition().y - mean_foot_height) * 500; // it's head should be above it's feet 2*(-0.25-2)
 
     // reward for moving one leg beyond the other (stepping)
     var left_leg_forward = this.right_leg.foot.GetPosition().x > this.left_leg.foot.GetPosition().x;
@@ -622,7 +625,7 @@ class Walker {
 
     // cost for moving joints to unnatural positions (fraction of movement range in the relevant direction)
     var jointFractionMovement = j => j.GetJointAngle() > 0 ? j.GetJointAngle() / (j.GetUpperLimit() + 1) : j.GetJointAngle() / (j.GetLowerLimit() - 1)
-    var quad_joint_angle_cost = -0.10 * this.joints.map(j => jointFractionMovement(j) * 1.2)
+    var quad_joint_angle_cost = -0.40 * this.joints.map(j => jointFractionMovement(j) * 1.2)
       .reduce((o, v) => o + v * v, 0)
     quad_joint_angle_cost = Math.max(quad_joint_angle_cost, -10)
 
@@ -631,17 +634,17 @@ class Walker {
     if (this.last_position === undefined) this.last_position = position
     var velocity = (position - this.last_position) * 100
     this.last_position = position
-    var lin_vel_reward = 3 * velocity
+    var lin_vel_reward = 2 * velocity
 
     // punish for using energy, squared
-    var quad_power_cost = -0.01 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
+    var quad_power_cost = -0.05 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
     quad_power_cost = Math.max(quad_power_cost, -10)
 
     // Lets be nice, all entities should find overall happiness in what they do
     var bonus_happiness = 40
 
     var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
-    var quad_contact_cost = -Math.min(contacts - 4, 10) / 2
+    var quad_contact_cost = -Math.min(contacts - 4, 10)
 
     this.rewards = {
       lin_vel_reward,
@@ -650,12 +653,7 @@ class Walker {
       quad_joint_angle_cost,
       bonus_happiness,
       head_height_reward,
-      leg_switch_reward,
-      head_height: (this.head.head.GetPosition().y - mean_foot_height),
-      center_x: this.torso.upper_torso.GetPosition().x,
-      center_y: this.torso.upper_torso.GetPosition().y,
-      mean_foot_height,
-      date: new Date(),
+      // leg_switch_reward
     }
 
     this.reward = Object.values(this.rewards).reduce((tot, v) => tot + v, 0) / 3
@@ -665,6 +663,11 @@ class Walker {
       steps: this.steps,
       reward: this.reward,
       position,
+      head_height: (this.head.head.GetPosition().y - mean_foot_height),
+      center_x: this.torso.upper_torso.GetPosition().x,
+      center_y: this.torso.upper_torso.GetPosition().y,
+      mean_foot_height,
+      date: new Date(),
       ...this.rewards
     }
     var done = 0
@@ -694,8 +697,8 @@ class Walker {
   chuckBalls() { 
     for (const ball of this.balls) {
       let pb = ball.GetPosition()
-      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*4
-      let dy = (this.torso.upper_torso.GetPosition().y - pb.y) * 6
+      let dx = (this.torso.upper_torso.GetPosition().x-pb.x)*10
+      let dy = (this.torso.upper_torso.GetPosition().y - pb.y) * 10
       dx = clamp(dx, -16, 16)
       dy = clamp(dy, -16, 16)
       ball.SetLinearVelocity(new b2.Vec2(dx,dy))
@@ -714,6 +717,7 @@ class Walker {
 
     this.randomise(0.5)
 
+    this.addBallOnWalker()
     this.addBallOnWalker()
     this.addBallOnWalker()
 
