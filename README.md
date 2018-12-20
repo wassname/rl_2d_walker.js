@@ -16,8 +16,8 @@ This project is a reinforcement learning environment for node. You can train a m
 
 ## Modifying
 
-- The walker: see walker.js
-- The agent: see game.js, and ddpg_agent.js
+- The walker contains the physics of the ragdoll: see src/js/walker.js
+- The agent contains the reinforcement learning settings: search for `new DDPGAgent` in src/js/game.js, and also see src/js/ddpg/ddpg_agent.js
 
 ## Contributing
 
