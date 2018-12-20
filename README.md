@@ -12,7 +12,7 @@ This project is a reinforcement learning environment for node. You can train a m
 - `npm train`: this will train in node
   - you ideally need a CUDA capable GPU with 8GB+ of memory.
   - will take 8 hours to see results, 44 hours for good results
-- `npm run`: this will start a server to view the results. Result will refresh every few hours when a model checkpoint in saved.
+- `npm start` (in another terminal): this will start a server to view the results. Result will refresh every few hours when a model checkpoint in saved.
 
 ## Modifying
 
@@ -35,9 +35,5 @@ This project is a reinforcement learning environment for node. You can train a m
 
 # Future work
 
-- [ ] I would like to run the strength, stiffness (in box2d this seems to be max torque), friction, etc to allow a more elegant walking behaviour
+- [ ] I would like to tweak the strength, stiffness (in box2d this seems to be max torque), friction, etc to allow a more elegant walking behaviour
 - [ ] Clean up the html UI
-
-# License
-
-ISC
