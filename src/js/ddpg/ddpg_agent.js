@@ -250,6 +250,12 @@ class DDPGAgent {
                     }
                     if (realTime && step % 10 == 0)
                         await tf.nextFrame();
+                    if (step % 2000 == 0) { 
+                        // thow balls every 2000 steps
+                        this.env.shuffle({
+                            cars: false
+                        });
+                    }
                 }
                 this.stepList.push(step);
                 console.timeEnd("LoopTime");
