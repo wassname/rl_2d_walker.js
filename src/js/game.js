@@ -21,11 +21,12 @@ chooseQoute = function () {
     'Play the funky music, robot',
     'The origin of funkd',
     'The chaos computer club',
-    'Only the humans that like to dance survived',
+    'Only the ones that like to dance survived',
     'Classic robot dance move - the human',
     'First we dance Manhatten, then we dance the world',
     'Video of subjects one hour after ingesting substance q1043',
     'Red robot redemption',
+    'Boogie robotland',
     'Father was a rolling robot',
     'Float like a bumblebee, string like a butterfly',
     'Dance dance evolution',
@@ -36,11 +37,13 @@ chooseQoute = function () {
     'Disco simulator 2100',
     "This is a metaphor for life",
     "The balls represent love",
+    "The wall represent age",
     "You're driving me up the wall",
     "Ministry of silly walks",
-    "The wall represent's life, it can lift you up, it can bring you down.",
+    "In the future there will only be dubstep",
+    "In place of computers Shake-a-spear and beef-oven used string and wood to make music",
   ]
-  var qoute = qoutes[randi(0, qoutes.length)]
+  var qoute = qoutes[randi(0, qoutes.length-1)]
   document.getElementById('page_quote').innerText = '"' + qoute + '"'
 }
 
@@ -64,17 +67,17 @@ class HeadlessGame {
       stateSize,
       nbActions,
       resetEpisode: true,
-      batchSize: 64,
-      actorLr: 0.0001,
+      batchSize: 8*1024,
+      actorLr: 0.0001/4,
       criticLr: 0.001,
-      memorySize: 20000,
+      memorySize: 10000,
       gamma: 0.99,
 
-      desiredActionStddev: 0.2,
-      minActionStddev: 0.001,
-      initialStddev: 0.6,
+      desiredActionStddev: 0.05,
+      minActionStddev: 0.0001,
+      initialStddev: 0.2,
       adoptionCoefficient: 1.01,
-      noiseDecay: 0.99,
+      noiseDecay: 0.96,
 
       actorFirstLayerSize: 128,
       actorSecondLayerSize: 64,
@@ -82,18 +85,19 @@ class HeadlessGame {
       criticFirstLayerASize: 128,
       criticSecondLayerSize: 64,
 
-      nbEpochs: 500,
-      nbEpochsCycle: 10,
-      nbTrainSteps: 100,
-      maxStep: 1800,
+      nbEpochs: 1500,
+      nbEpochsCycle: 40,
+      nbTrainSteps: 5,
+      maxStep: 4000,
       saveDuringTraining: true,
-      saveInterval: 5,
+      saveInterval: 10,
 
       tau: 0.008,
 
 
     });
   }
+
 }
 
 
@@ -109,7 +113,12 @@ class Game extends HeadlessGame {
   loop() { 
     setInterval(() => {
       this.play()
-    }, 1000/this.config.draw_fps)
+    }, 1000 / this.config.draw_fps)
+    
+    // random qoutes
+    setInterval(() => {
+      chooseQoute
+    }, 1000 * 20)
   }
 
   /**
@@ -125,6 +134,14 @@ class Game extends HeadlessGame {
       tfActions.dispose();      
     }
     this.agent.env.step(this.actions, 1);
+  }
+
+
+  loadBrain(folder, name) { 
+    this.agent.restore(folder, name)
+    // var title = name.replace('model-ddpg-walker-', '').replace('/model', '').replace('model-ddpg-walker', '')
+    // document.getElementById('brain-name').innerText = title
+
   }
 }
 
