@@ -1,87 +1,152 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reinforcement Learning 2D Biped Walkers</title>
-  <style link="css/walkers.css"></style>
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+  <!-- <style link="css/walkers.css"></style> -->
 </head>
 
 <body>
-  <a href="https://github.com/wassname/rl_2d_walker.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+  <section class="section">
+    <div class="container">
+      <h1 class="title has-text-centered">Reinforcement Learning 2D Humanoid Walkers</h1>
+      <h3 id="page_quote" class="subtitle has-text-centered" onclick="chooseQoute()">"Play that funky music, robot"</h3>
 
-  <div id="main_holder">
-    <h1>Reinforcement Learning 2D Humanoid Walkers</h1>
-    <h3 id="page_quote">"Play that funky music, robot"</h3>
-    <canvas id="main_screen2" width="800" height="350" style="background: url('./images/background.png')" onclick="game.agent.env.chuckBalls()"></canvas>
 
-    <image style="display: none" src="./images/background.png"></image><!-- for google and previews-->
+      <canvas id="main_screen2" width="800" height="350" style="background: url('./images/background.png')" onclick="game.agent.env.chuckBalls()"></canvas>
 
-    <div id="info">
-      This project take a teach a 2d ragdoll to walk(ish) using reinforcement learning.
-      <p></p>
-      You can view the progress at differen't stages of training with the buttons below. You can also throw balls by clicking the animation.
-      <p></p>
-      The agent can move it's limbs in a realistic range of motion, it can feel the position of it's limbs and it's goal it to hold it's head upright and move to the right. 
-      The dark outlines are when the agent grips the floor, since I found walking was slippery otherwise. The balls are to provide obstacles.
-      <ul>
-        <li>Reward: The agent is rewarded for moving to the right, keeping it's head above it's legs, conversing energy, not bending it's limbs too much, and not touching to many limbs to the ground</li>
-        <li>Actions: The agent can power motors that rotate each limb within a certain range of motion</li>
-        <li>State: The agent can "see" most things about itself: each limb's relative position, global position, rotation, linear velocity,  angular velocity, and orientation. Also each joints angle, speed, and motor speed</li>
-      </ul>
-      <p></p><br />
-      How does it work?: This uses use <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a> to teach the agent to walk. 
-      This is a branch of machine learning targeted at controlling systems over time such as systems of limbs or a self driving car. 
-      
-      The agent is defined in 2d with a certain strength and range of limb movement. Training is done offline in <a href="https://js.tensorflow.org">tensorflow.js</a>. The aglorithm is <a href="https://arxiv.org/abs/1509.02971">Deep Deterministic Policy Gradients</a> with <a href="https://arxiv.org/abs/1511.05952">prioritized experince replay</a>. The environment is in box2d for javascript and we use webpack to run the same code on the backend and frontend.
-      <p></p>
-      
-      <p></p><br />
+      <image style="display: none" src="./images/background.png"></image><!-- for google and previews-->
 
-      Source code  <a href="https://github.com/wassname/rl_2d_walker.js">https://github.com/wassname/rl_2d_walker.js</a><p></p>
 
-      Credits: 
-      <ul>
-        <li>Made by <a href="wassname.org">wassname</a> for <a href="thinkcds.com">thinkcds.com</a></li>
-        <li>The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>,</li>
-        <li>the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.</li>
-      </ul>
-      
+
+      <script>
+        function onSelect(elem) {
+          game.loadBrain(
+            elem.selectedOptions[0].attributes['folder'].value,
+            elem.selectedOptions[0].attributes['name'].value
+          )
+        }
+      </script>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">Loaded brain </label>
+        </div>
+        <div class="field-body">
+          <div class="field is-narrow">
+            <div class="control">
+              <div class="select is-medium is-fullwidth">
+                <select onchange="onSelect(this)">
+                  <option folder="./checkpoints" name="model-ddpg-walker-10m/model">10 minutes old</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-1h/model">1 hour</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-2h/model">2 hours old</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-4h/model">4 hours</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-8h/model">8 hours</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-22h/model">22 hours</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-42h/model">42 hours</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-60h/model">60 hours</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-run08_leap/model">run08_leap</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-run09_backscratch/model">run09_backscratch</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-run12_low_motor_speed/model">run12_low_motor_speed</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-run16/model">run16</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-run18/model">run18</option>
+                  <option folder="./checkpoints" name="model-ddpg-walker-run21/model">run21</option>
+                  <option folder="../outputs" name="model-ddpg-walker/model" selected>Latest</option>
+                  <!-- <option folder="../outputs" name="model-ddpg-walker/model">None</option> -->
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">Be mean:</label>
+        </div>
+        <div class="field-body">
+          <div class="field is-narrow">
+            <div class="control">
+              <button class="button is-medium" onclick="game.agent.env.chuckBalls()">Thow balls</button>
+              <button class="button is-medium" onclick="game.agent.env.addBallOnWalker()">Add balls</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="info" class="content">
+        This project teaches a 2D ragdoll to (almost) walk using reinforcement learning.
+        <p></p>
+        You can view the progress at differen't stages of training with the buttons above. You can also throw balls by
+        clicking the animation or using the buttons.
+        <p></p>
+        The agent can move it's limbs in a realistic range of motion, it can feel the position of it's limbs and it's
+        goal it to hold it's head upright and move to the right. The dark outlines are when the agent grips the floor,
+        since I found walking was slippery otherwise. The balls
+        are to provide obstacles.
+
+        <ul>
+          <li>Reward: The agent is rewarded for moving to the right, keeping it's head above it's legs, conversing
+            energy, not bending it's limbs too much, and not touching to many limbs to the ground</li>
+          <li>Actions: The agent can power motors that rotate each limb within a certain range of motion</li>
+          <li>State: The agent can "see" most things about itself: each limb's relative position, global position,
+            rotation, linear velocity, angular velocity, and orientation. Also each joints angle, speed, and motor
+            speed</li>
+        </ul>
+        <h5 class="title is-5">How does it work?</h5>
+
+        This uses use <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement
+          learning</a> to teach the agent to walk.
+        This is a branch of machine learning targeted at controlling systems over time such as systems of limbs or a
+        self driving car.
+
+        The agent is defined in 2d with a certain strength and range of limb movement. Training is done offline in <a
+          href="https://js.tensorflow.org">tensorflow.js</a>. The aglorithm is <a href="https://arxiv.org/abs/1509.02971">Deep
+          Deterministic Policy Gradients</a> with <a href="https://arxiv.org/abs/1511.05952">prioritized experince
+          replay</a>. The environment is in box2d for javascript and we use webpack to run the same code on the backend
+        and frontend.
+
+        <p></p><br />
+
+        <h5 class="title is-5">Links</h5>
+        <ul>
+          <li><a href="https://github.com/wassname/rl_2d_walker.js">Source code</a></li>
+          <li><a href="https://docs.google.com/presentation/d/10Re7Xh6yXns-il5_Uz3-bxJm0E3PujzEotoFUVL4ejQ/edit?usp=sharing">Slide deck</a></li>
+        </ul>
+
+        <h5 class="title is-5">Credits</h5>
+        <ul>
+          <li>Made by <a href="http://wassname.org">wassname</a> for <a href="http://thinkcds.com">thinkcds.com</a></li>
+          <li>The walker code is adapted from <a href="http://rednuht.org/genetic_walkers/">rednuht.org/genetic_walkers/</a>,</li>
+          <li>the DDPG code was adapted from <a href="https://github.com/thibo73800/metacar">github.com/thibo73800/metacar</a>.</li>
+        </ul>
+
+      </div>
     </div>
-    <br />
-    <div>
-      <h4>Load brain:</h4>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-10m/model')">10 minutes old</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-1h/model')">1 hour</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-2h/model')">2 hours old</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-4h/model')">4 hours</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-8h/model')">8 hours</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model')">22 hours</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-42h/model')">42 hours</button>
-      <button onclick="game.agent.restore('./checkpoints', 'model-ddpg-walker-60h/model')">60 hours</button>
-      <button onclick="game.agent.restore('../outputs', 'model-ddpg-walker/model')">Latest</button>
-    </div>
-    <div>
-      <h4>Be mean:</h4><button onclick="game.agent.env.chuckBalls()">Thow balls</button>
-      <button onclick="game.agent.env.addBallOnWalker()">Add balls</button>
-    </div>
-
+  </section>
 
 
 </body>
 <script>
-function init() {
-  var canvas_id = 'main_screen2'
-  window.game = new Game(config, canvas_id)
-  game.agent.restore('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
-  game.agent.restore('./checkpoints', 'model-ddpg-walker-60h/model') // load checkpoint
-  game.agent.restore('../outputs', 'model-ddpg-walker/model') // load latest
-  game.loop()
+  function init() {
+    var canvas_id = 'main_screen2'
+    window.game = new Game(config, canvas_id)
+    game.loadBrain('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
+    game.loadBrain('./checkpoints', 'model-ddpg-walker-60h/model') // load checkpoint
+    game.loadBrain('../outputs', 'model-ddpg-walker/model') // load latest
+    game.loop()
 
-  chooseQoute()
-  var canvas=document.getElementById(canvas_id)
-  canvas.style.background=''
-}
-window.addEventListener("load", init, false);
+    chooseQoute()
+    var canvas = document.getElementById(canvas_id)
+    canvas.style.background = ''
+  }
+  window.addEventListener("load", init, false);
 </script>
+
+
 
 </html>
