@@ -24,23 +24,46 @@
 
 
       <script>
+        function brainCallback(title){
+          var brainLabel=document.getElementById("loaded-brain")
+          brainLabel.innerText=title
+
+          var brainSelect=document.getElementById("brain-select")
+          brainSelect.value="Select a brain"
+        }
         function onSelect(elem) {
-          game.loadBrain(
-            elem.selectedOptions[0].attributes['folder'].value,
-            elem.selectedOptions[0].attributes['name'].value
-          )
+          var name = elem.selectedOptions[0].attributes['name'].value
+          var folder = elem.selectedOptions[0].attributes['folder'].value
+          var title = elem.selectedOptions[0].innerText
+          game.loadBrain(folder, name, brainCallback.bind(this, title))
+          console.log(folder, name, title)
         }
       </script>
 
+    <div class="field is-horizontal">
+        <div class="field-label is-normal">
+          <label class="label">Loaded brain:</label>
+        </div>
+        <div class="field-body">
+          <div class="field is-narrow">
+            <div class="control">
+              <label class="label" id="loaded-brain"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <div class="field is-horizontal">
         <div class="field-label is-normal">
-          <label class="label">Loaded brain </label>
+          <label class="label">Load a brain </label>
         </div>
         <div class="field-body">
           <div class="field is-narrow">
             <div class="control">
               <div class="select is-medium is-fullwidth">
-                <select onchange="onSelect(this)">
+                <select id="brain-select" onchange="onSelect(this)">
+                  <option folder="../outputs" name="model-ddpg-walker/model" selected>Select a brain</option>
                   <option folder="./checkpoints" name="model-ddpg-walker-10m/model">10 minutes old</option>
                   <option folder="./checkpoints" name="model-ddpg-walker-1h/model">1 hour</option>
                   <option folder="./checkpoints" name="model-ddpg-walker-2h/model">2 hours old</option>
@@ -55,8 +78,7 @@
                   <option folder="./checkpoints" name="model-ddpg-walker-run16/model">run16</option>
                   <option folder="./checkpoints" name="model-ddpg-walker-run18/model">run18</option>
                   <option folder="./checkpoints" name="model-ddpg-walker-run21/model">run21</option>
-                  <option folder="../outputs" name="model-ddpg-walker/model" selected>Latest</option>
-                  <!-- <option folder="../outputs" name="model-ddpg-walker/model">None</option> -->
+                  <option folder="../outputs" name="model-ddpg-walker/model">Latest</option>
                 </select>
               </div>
             </div>
@@ -90,8 +112,7 @@
         are to provide obstacles.
 
         <ul>
-          <li>Reward: The agent is rewarded for moving to the right, keeping it's head above it's legs, conversing
-            energy, not bending it's limbs too much, and not touching to many limbs to the ground</li>
+          <li>Reward: The agent is rewarded for moving to the right, keeping it's head above it's legs, and not bending it's limbs too much</li>
           <li>Actions: The agent can power motors that rotate each limb within a certain range of motion</li>
           <li>State: The agent can "see" most things about itself: each limb's relative position, global position,
             rotation, linear velocity, angular velocity, and orientation. Also each joints angle, speed, and motor
@@ -100,11 +121,12 @@
         <h5 class="title is-5">How does it work?</h5>
 
         This uses use <a href="https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement
-          learning</a> to teach the agent to walk.
-        This is a branch of machine learning targeted at controlling systems over time such as systems of limbs or a
+          learning</a> to teach the agent to walk. This is a branch of machine learning targeted at controlling systems over time such as systems of limbs or a
         self driving car.
 
-        The agent is defined in 2d with a certain strength and range of limb movement. Training is done offline in <a
+        The agent is defined in 2d with a certain strength and range of limb movement. It then explores moving it's limbs and finds policies that maximise it's reward, which corresponds to moving right, keeping it's head up, and not bending it's limbs without need.
+        
+        <p></p>Training is done offline in <a
           href="https://js.tensorflow.org">tensorflow.js</a>. The aglorithm is <a href="https://arxiv.org/abs/1509.02971">Deep
           Deterministic Policy Gradients</a> with <a href="https://arxiv.org/abs/1511.05952">prioritized experince
           replay</a>. The environment is in box2d for javascript and we use webpack to run the same code on the backend
@@ -135,9 +157,15 @@
   function init() {
     var canvas_id = 'main_screen2'
     window.game = new Game(config, canvas_id)
-    game.loadBrain('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
-    game.loadBrain('./checkpoints', 'model-ddpg-walker-60h/model') // load checkpoint
-    game.loadBrain('../outputs', 'model-ddpg-walker/model') // load latest
+
+    var brainSelect=document.getElementById("brain-select")
+    brainSelect.value="60 hours"
+    brainSelect.onchange(brainSelect)
+    brainSelect.value="Latest"
+    brainSelect.onchange(brainSelect)
+    // game.loadBrain('./checkpoints', 'model-ddpg-walker-22h/model') // load checkpoint
+    // game.loadBrain('./checkpoints', 'model-ddpg-walker-60h/model') // load checkpoint
+    // game.loadBrain('../outputs', 'model-ddpg-walker/model') // load latest
     game.loop()
 
     chooseQoute()
