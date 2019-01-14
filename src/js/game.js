@@ -137,8 +137,8 @@ class Game extends HeadlessGame {
   }
 
 
-  loadBrain(folder, name) { 
-    this.agent.restore(folder, name)
+  loadBrain(folder, name, callback) { 
+    this.agent.restore(folder, name, callback)
     // var title = name.replace('model-ddpg-walker-', '').replace('/model', '').replace('model-ddpg-walker', '')
     // document.getElementById('brain-name').innerText = title
 

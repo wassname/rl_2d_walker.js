@@ -19,15 +19,15 @@ class Renderer {
     this.config.draw_fps = fps;
     if (this.draw_interval)
       clearInterval(this.draw_interval);
-    if (fps > 0 && this.config.simulation_fps > 0) {
+    if (fps > 0 && this.config.draw_fps > 0) {
       this.draw_interval = setInterval(this.drawFrame.bind(this), Math.round(1000 / this.config.draw_fps));
     }
   }
 
   drawFrame() {
     // clear
-    this.ctx.clearRect(0, 0, this.main_screen.width, this.main_screen.height);
     this.ctx.save();
+    this.ctx.clearRect(0, 0, this.main_screen.width, this.main_screen.height);
 
     // camera
     var minmax = this.getMinMaxDistance();
@@ -48,10 +48,7 @@ class Renderer {
     for (let i = 0; i < this.walkers[0].balls.length; i++) {
       const ball = this.walkers[0].balls[i];
       this.drawCircle(ball)
-      
     }
-
-
     this.ctx.restore();
   }
 

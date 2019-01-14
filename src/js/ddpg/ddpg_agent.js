@@ -103,7 +103,7 @@ class DDPGAgent {
         }
     }
 
-    async restore(folder, name) {
+    async restore(folder, name, callback) {
         /*
             Restore the weights of the network
         */
@@ -131,6 +131,8 @@ class DDPGAgent {
         this.ddpg.perturbedActor = copyModel(this.ddpg.actor, Actor);
         //this.adaptivePerturbedActor = copyModel(this.actor, Actor);
         this.ddpg.setLearningOp();
+
+        if (callback) callback()
     }
 
     /**
