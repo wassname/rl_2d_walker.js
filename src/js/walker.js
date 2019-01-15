@@ -10,8 +10,8 @@ const {
   Renderer
 } = require('./renderer')
 
-const STRENGTH = 2.2
-const SPEED = 15
+const STRENGTH = 2.6
+const SPEED = 30
 
 class Walker {
   constructor(world, floor, config) {
@@ -632,15 +632,16 @@ class Walker {
     // reward for moving right
     var position = this.torso.upper_torso.GetPosition().x
     if (this.last_position === undefined) this.last_position = position
-    var velocity = (position - this.last_position) * 100
+    var velocity = (position - this.last_position) * 300
     this.last_position = position
     var lin_vel_reward = 2 * velocity
 
     // punish for using energy, squared
-    var quad_power_cost = -0.05 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
-    quad_power_cost = Math.max(quad_power_cost, -10)
+    var quad_power_cost = -0.1 * this.joints.map(j => j.GetJointSpeed()).reduce((sum, speed) => sum + speed ** 2)
+    quad_power_cost = Math.max(quad_power_cost, -30)
 
-    // Lets be nice, all entities should find overall happiness in what they do
+    // Lets be nice, all entities should find
+    // overall happiness in what they do?
     var bonus_happiness = 40
 
     var contacts = this.bodies.map(b => b.GetContactList()).filter(b => b).length
@@ -648,10 +649,10 @@ class Walker {
 
     this.rewards = {
       lin_vel_reward,
-      quad_power_cost,
-      quad_contact_cost,
+      // quad_power_cost,
+      // quad_contact_cost,
       quad_joint_angle_cost,
-      bonus_happiness,
+      // bonus_happiness,
       head_height_reward,
       // leg_switch_reward
     }
