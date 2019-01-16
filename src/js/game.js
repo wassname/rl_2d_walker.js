@@ -70,10 +70,10 @@ class HeadlessGame {
       batchSize: 8*1024,
       actorLr: 0.0001,
       criticLr: 0.001,
-      memorySize: 10000,
+      memorySize: 60000,
       gamma: 0.99,
 
-      desiredActionStddev: 0.4,
+      desiredActionStddev: 0.1,
       minActionStddev: 0.0001,
       initialStddev: 0.8,
       adoptionCoefficient: 1.01,
@@ -86,11 +86,11 @@ class HeadlessGame {
       criticSecondLayerSize: 64,
 
       nbEpochs: 1500,
-      nbEpochsCycle: 40,
-      nbTrainSteps: 5,
-      maxStep: 4000,
+      nbEpochsCycle: 20,
+      nbTrainSteps: 7,
+      maxStep: 10000,
       saveDuringTraining: true,
-      saveInterval: 10,
+      saveInterval: 3,
 
       tau: 0.008,
 
