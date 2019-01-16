@@ -4,4 +4,4 @@ window.config = require('./js/config')
 window.chooseQoute = chooseQoute
 window.Game = Game
 
-module.exports = {Game}
+export {Game}

@@ -1,7 +1,7 @@
-module.exports = {
+let config = {
   time_step: 60,
   simulation_fps: 60,
-  draw_fps: 30,
+  draw_fps: 0,
   velocity_iterations: 8,
   position_iterations: 3,
   max_zoom_factor: 130,
@@ -15,3 +15,4 @@ module.exports = {
   min_leg_delta: 0,
   action_repeat: 4
 };
+export {config}

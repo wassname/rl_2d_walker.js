@@ -35,7 +35,7 @@ function mean(array) {
 }
 
 
-module.exports = {
+export {
   deg2rad,
   randf,
   randi,

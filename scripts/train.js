@@ -1,4 +1,4 @@
-var config = require('../src/js/config')
+const { config } = require('../src/js/config');
 
 
 const { HeadlessGame } = require('../src/js/game')

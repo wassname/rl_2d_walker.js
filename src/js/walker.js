@@ -1,14 +1,14 @@
 // walker has fixed shapes and structures
 // shape definitions are in the constructor
-const b2 = require('../vendor/jsbox2d')
-const {
+import { b2 } from '../vendor/jsbox2d';
+import {
   randf,
   deg2rad,
   clamp
-} = require('./utils.js')
-const {
+} from './utils.js'
+import {
   Renderer
-} = require('./renderer')
+} from './renderer'
 
 const STRENGTH = 2.2
 const SPEED = 15
@@ -762,7 +762,7 @@ class Walker {
   }
 }
 
-module.exports = {
+export {
   Walker,
   randf
 }

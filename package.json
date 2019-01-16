@@ -9,6 +9,8 @@
     "canvas": "^2.1.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^1.0.1",
     "html-loader": "^0.5.5",
@@ -18,10 +20,16 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10"
   },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "sideEffects": false,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "display": "webpack-dev-server -d",
-    "train": "node  --max-old-space-size=16192 scripts/train | tee outputs/train_$(date +\"%Y-%m-%d_%H-%M-%S\").log"
+    "train": "./node_modules/.bin/babel-node  --max-old-space-size=16192 scripts/train | tee outputs/train_$(date +\"%Y-%m-%d_%H-%M-%S\").log"
   },
   "repository": {
     "type": "git",

@@ -1,19 +1,16 @@
-const config = require('./config')
-const {
-  Charts
-} = require('./charts')
-const {
+import config from './config';
+import {
   tf
-} = require('./ddpg//tf_import')
-const {
+} from './ddpg//tf_import'
+import {
   randi
-} = require('./utils')
-const b2 = require('../vendor/jsbox2d')
-const createFloor = require('./floor.js')
-const DDPGAgent = require('./ddpg/ddpg_agent')
-const {
+} from './utils'
+import { b2 } from '../vendor/jsbox2d';
+import { createFloor } from './floor.js';
+import {DDPGAgent} from './ddpg/ddpg_agent';
+import {
   Walker
-} = require('./walker')
+} from './walker'
 
 
 chooseQoute = function () {
@@ -145,7 +142,7 @@ class Game extends HeadlessGame {
   }
 }
 
-module.exports = {
+export {
   Game,
   chooseQoute,
   HeadlessGame

@@ -181,6 +181,6 @@ class Renderer {
     return zoom;
   }
 }
-module.exports = {
+export {
   Renderer
 }

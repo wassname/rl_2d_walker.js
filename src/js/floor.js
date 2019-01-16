@@ -1,4 +1,4 @@
-var b2 = require('../vendor/jsbox2d')
+import { b2 } from '../vendor/jsbox2d';
 
 function createFloor(world, max_floor_tiles) {
   var body_def = new b2.BodyDef();
@@ -32,4 +32,4 @@ function createFloor(world, max_floor_tiles) {
   return body;
 }
 
-module.exports = createFloor
+export { createFloor }

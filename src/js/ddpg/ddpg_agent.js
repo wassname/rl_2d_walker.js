@@ -1,21 +1,19 @@
-const {
-    tf
-} = require('./tf_import')
-const AdaptiveParamNoiseSpec = require('./noise')
-const PrioritizedMemory = require('./prioritized_memory')
-const {
+import { tf } from './tf_import'
+import { AdaptiveParamNoiseSpec } from './noise';
+import { PrioritizedMemory } from './prioritized_memory';
+import {
     Actor,
     Critic,
     copyFromSave,
     copyModel
-} = require('./models')
-const {
+} from './models'
+import {
     DDPG,
     logTfMemory
-} = require('./ddpg')
-const {
+} from './ddpg'
+import {
     mean
-} = require('../utils')
+} from '../utils'
 
 
 function setMetric(name, value) {
@@ -302,4 +300,4 @@ class DDPGAgent {
 
 };
 
-module.exports = DDPGAgent
+export { DDPGAgent }

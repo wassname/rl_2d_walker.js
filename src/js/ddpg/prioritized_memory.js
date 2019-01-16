@@ -237,4 +237,4 @@ for (let i=1; i < 64; i++){
 }
 */
 
-module.exports = PrioritizedMemory
+export { PrioritizedMemory }

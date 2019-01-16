@@ -16,14 +16,22 @@ module.exports = {
     filename: '[name].bundle.js',
   },
   optimization: {
+    usedExports: true,
     splitChunks: {
       cacheGroups: {
-        lib: {
+        box2d: {
           test: /jsbox2d/,
           chunks: 'initial',
-          name: 'lib',
+          name: 'box2d',
           priority:20,
           enforce:true
+        },
+        tfjs: {
+          test: /[\\/]node_modules[\\/]\@tensorflow/,
+          chunks: 'initial',
+          name: 'tfjs',
+          priority: 15,
+          enforce: true,
         },
         vendors: {
           test: /[\\/]node_modules[\\/]/,
@@ -49,3 +57,4 @@ module.exports = {
   }),
   ]
 };
+

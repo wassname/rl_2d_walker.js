@@ -314,7 +314,7 @@ class DDPG {
     }
 }
 
-module.exports = {
+export {
     logTfMemory,
     DDPG
 }

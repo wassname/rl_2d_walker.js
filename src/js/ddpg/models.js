@@ -270,7 +270,7 @@ class Critic {
     }
 };
 
-module.exports = {
+export {
     Actor,
     Critic,
     copyFromSave,

@@ -39,4 +39,4 @@ class AdaptiveParamNoiseSpec {
     }
 };
 
-module.exports = AdaptiveParamNoiseSpec
+export { AdaptiveParamNoiseSpec }
