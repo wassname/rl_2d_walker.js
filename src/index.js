@@ -3,5 +3,4 @@ window.b2 = require('./vendor/jsbox2d')
 window.config = require('./js/config')
 window.chooseQoute = chooseQoute
 window.Game = Game
-
 export {Game}

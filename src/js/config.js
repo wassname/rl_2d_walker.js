@@ -1,7 +1,7 @@
 let config = {
   time_step: 60,
   simulation_fps: 60,
-  draw_fps: 0,
+  draw_fps: 30,
   velocity_iterations: 8,
   position_iterations: 3,
   max_zoom_factor: 130,
