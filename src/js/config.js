@@ -13,6 +13,8 @@ let config = {
   round_length: 1000,
   min_body_delta: 0,
   min_leg_delta: 0,
-  action_repeat: 4
+  action_repeat: 4,
+  speed: 15,
+  strength: 2.2
 };
 export {config}

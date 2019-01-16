@@ -99,6 +99,7 @@ class DDPGAgent {
             this.ddpg.actor.model.save('downloads://actor-' + name);
             this.ddpg.critic.model.save('downloads://critic-' + name);
         }
+        // TODO also save env config, maybe git commit. And training time
     }
 
     async restore(folder, name, callback) {

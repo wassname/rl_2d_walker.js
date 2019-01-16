@@ -1,4 +1,3 @@
-import config from './config';
 import {
   tf
 } from './ddpg//tf_import'
@@ -13,7 +12,7 @@ import {
 } from './walker'
 
 
-chooseQoute = function () {
+var chooseQoute = function () {
   var qoutes = [
     'Play the funky music, robot',
     'The origin of funkd',

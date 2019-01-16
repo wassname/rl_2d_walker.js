@@ -10,7 +10,7 @@ const {
  */
 function copyFromSave(model, instance, config, obs, action) {
     return tf.tidy(() => {
-        nModel = new instance(config);
+        let nModel = new instance(config);
         // action might be not required
         nModel.buildModel(obs, action);
         const weights = model.weights;
@@ -30,7 +30,7 @@ function copyFromSave(model, instance, config, obs, action) {
  */
 function copyModel(model, instance) {
     return tf.tidy(() => {
-        nModel = new instance(model.config);
+        let nModel = new instance(model.config);
         // action might be not required
         nModel.buildModel(model.obs, model.action);
         const weights = model.model.weights;

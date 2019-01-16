@@ -10,9 +10,6 @@ import {
   Renderer
 } from './renderer'
 
-const STRENGTH = 2.2
-const SPEED = 15
-
 class Walker {
   constructor(world, floor, config) {
 
@@ -215,7 +212,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-10 / 2);
     jd.upperAngle = deg2rad(30 / 2);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 10 * STRENGTH;
+    jd.maxMotorTorque = 10 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -272,7 +269,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-100);
     jd.upperAngle = deg2rad(-2);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 260 * STRENGTH;
+    jd.maxMotorTorque = 260 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -287,7 +284,7 @@ class Walker {
     jd.lowerAngle = -deg2rad(-36);
     jd.upperAngle = deg2rad(30);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 90 * STRENGTH;
+    jd.maxMotorTorque = 90 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -347,7 +344,7 @@ class Walker {
     jd.lowerAngle = deg2rad(0);
     jd.upperAngle = deg2rad(85);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 150 * STRENGTH;
+    jd.maxMotorTorque = 150 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -362,7 +359,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-35);
     jd.upperAngle = deg2rad(35);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 90 * STRENGTH;
+    jd.maxMotorTorque = 90 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -402,7 +399,7 @@ class Walker {
     jd.lowerAngle = -0.1/2;
     jd.upperAngle = 0.2/2;
     jd.enableLimit = true;
-    jd.maxMotorTorque = 2 * STRENGTH;
+    jd.maxMotorTorque = 2 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -436,7 +433,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-60);
     jd.upperAngle = deg2rad(125);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 250 * STRENGTH;
+    jd.maxMotorTorque = 250 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -448,7 +445,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-60);
     jd.upperAngle = deg2rad(125);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 250 * STRENGTH;
+    jd.maxMotorTorque = 250 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -463,7 +460,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-10);
     jd.upperAngle = deg2rad(80);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 400 * STRENGTH;
+    jd.maxMotorTorque = 400 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -475,7 +472,7 @@ class Walker {
     jd.lowerAngle = deg2rad(-10);
     jd.upperAngle = deg2rad(80);
     jd.enableLimit = true;
-    jd.maxMotorTorque = 400 * STRENGTH;
+    jd.maxMotorTorque = 400 * config.strength;
     jd.motorSpeed = 0;
     jd.enableMotor = true;
     var j = this.world.CreateJoint(jd)
@@ -573,7 +570,7 @@ class Walker {
   simulationPreStep(motorSpeeds) {
     // act
     for (var k = 0; k < this.joints.length; k++) {
-      this.joints[k].SetMotorSpeed(motorSpeeds[k] * SPEED); // action can range from -3 to 3, radians per second
+      this.joints[k].SetMotorSpeed(motorSpeeds[k] * config.speed); // action can range from -3 to 3, radians per second
     }
     for (let i = 0; i < motorSpeeds.length - this.joints.length; i++) {
       this.grips[i] = motorSpeeds[i] > 0
@@ -708,7 +705,6 @@ class Walker {
 
   reset() {
     /** Reset position to initial or random position TODO */
-    // console.log('reset not implemented')
     if (this.bodies) this.destroy();
     this.build();
     this.initGrip()
@@ -731,34 +727,8 @@ class Walker {
     // console.debug('warm up finished')
   }
   shuffle() {
-    /** Reset position to initial or random position TODO */
-    // this.joints.forEach(j => {
-
-    // })
-
     this.chuckBalls()
 
-
-    // // console.log('shuffle not implemented')
-    // var b = this.torso.upper_torso
-    // let angle = b.GetAngle()
-    // let pos = b.GetPosition()
-    // // pos.x += randf(-1, 1)
-    // // pos.y += randf(0, 2)
-    // angle += Math.PI
-    // b.SetTransform(pos, angle)
-
-    // let dx = randf(-1, 1)
-    // let dy = randf(-1, 1)
-    // let dangle = randf(-2, 2)
-    // this.bodies.forEach(b => {
-    //   let angle = b.GetAngle()
-    //   let pos = b.GetPosition()
-    //   pos.x += dx
-    //   pos.y += dy
-    //   angle += dangle
-    //   b.SetTransform(pos, angle)      
-    // })
   }
 }
 
