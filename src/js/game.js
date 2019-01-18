@@ -1,8 +1,5 @@
 const config = require('./config')
 const {
-  Charts
-} = require('./charts')
-const {
   tf
 } = require('./ddpg//tf_import')
 const {

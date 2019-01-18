@@ -101,6 +101,7 @@ class DDPGAgent {
             this.ddpg.actor.model.save('downloads://actor-' + name);
             this.ddpg.critic.model.save('downloads://critic-' + name);
         }
+        // TODO also save config
     }
 
     async restore(folder, name, callback) {

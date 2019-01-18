@@ -7,5 +7,7 @@ module.exports = {
   population_size: 1,
   walker_health: 100,
   max_floor_tiles: 50,
-  action_repeat: 1
+  action_repeat: 1,
+  STRENGTH: 2.2,
+  SPEED: 30
 };
